@@ -55,21 +55,21 @@ fire_process_polygon <- function(fire_polygon,
     #add a buffer of days either side of start and end date to search for imagery.
     #this may be useful if the start and end dates are wrong in the original file
     fire_polygon_2 <- fire_polygon_2 %>%
-      mutate(startdate_search=startdate-lubridate::days(n_days_before),
+      dplyr::mutate(startdate_search=startdate-lubridate::days(n_days_before),
              enddate_search=enddate-lubridate::days(n_days_before))
 
 
 
     fire_bbox <- fire_polygon_2 %>%
-      st_transform(3112) %>%
-      st_buffer(buffer_km/1000) %>%
-      st_transform(st_crs(fire_polygon_2)) %>%
-      st_bbox() %>%
-      st_as_sfc() %>%
-      st_as_sf()
+      sf::st_transform(3112) %>%
+      sf::st_buffer(buffer_km/1000) %>%
+      sf::st_transform(sf::st_crs(fire_polygon_2)) %>%
+      sf::st_bbox() %>%
+      sf::st_as_sfc() %>%
+      sf::st_as_sf()
 
     fire_bbox <- fire_bbox %>%
-      cbind(st_drop_geometry(fire_polygon_2))
+      cbind(sf::st_drop_geometry(fire_polygon_2))
 
 
 
