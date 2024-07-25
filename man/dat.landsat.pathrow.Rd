@@ -5,7 +5,7 @@
 \alias{dat.landsat.pathrow}
 \title{Landsat tiles for Australia}
 \format{
-\subsection{\code{dat.landsat.pathrow}}{
+\subsection{\verb{Used in a function to find which landsat tiles intersect with a fire, then construct paths to search NCI}}{
 
 An sf object with 404 rows and 4 columns:
 \describe{

@@ -5,4 +5,6 @@ fire_search_landsat <- function(fire_bbox){
   lsat_tiles <- dat.landsat.pathrow %>%
     filter(st_intersects(.,fire_bbox,sparse = F)[,1])
 
+  return(lsat_tiles)
+
 }

@@ -1,7 +1,7 @@
 #' Landsat tiles for Australia
 #'
 #' A subset of landsat tiles with Path and Row that intersect Australia
-#' @format ## `dat.landsat.pathrow`
+#' @format ## `Used in a function to find which landsat tiles intersect with a fire, then construct paths to search NCI`
 #' An sf object with 404 rows and 4 columns:
 #' \describe{
 #'   \item{PATH}{Landsat Path Number}
@@ -10,4 +10,19 @@
 #'   ...
 #' }
 #' @source <https://www.usgs.gov/media/files/landsat-wrs-2-descending-path-row-shapefile>
-"Used in a function to find which landsat tiles intersect with a fire, then construct paths to search NCI"
+"dat.landsat.pathrow"
+
+
+#' Example fire boundary
+#'
+#' A fire polygon from NPWS fire history data
+#' @format ## `An example fire boundary use for testing out some functions`
+#' An sf object with 1 rows and 4 columns:
+#' \describe{
+#'   \item{FireName}{Name given to the fire}
+#'   \item{StartDate}{Fire ignition date}
+#'   \item{EndDate}{Fire declared extinguished date}
+#'   ...
+#' }
+#' @source <https://datasets.seed.nsw.gov.au/dataset/fire-history-wildfires-and-prescribed-burns-1e8b6>
+"dat.fire.polygon"
