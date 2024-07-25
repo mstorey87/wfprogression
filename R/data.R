@@ -10,4 +10,4 @@
 #'   ...
 #' }
 #' @source <https://www.usgs.gov/media/files/landsat-wrs-2-descending-path-row-shapefile>
-"dat.landsat.pathrow"
+"Used in a function to find which landsat tiles intersect with a fire, then construct paths to search NCI"
