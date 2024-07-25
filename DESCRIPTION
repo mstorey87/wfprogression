@@ -1,12 +1,12 @@
 Package: wfprogression
-Title: What the Package Does (One Line, Title Case)
+Title: Processing and analysis of fire spread data
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+    person("Michael", "Storey", , "mstorey@uow.edu.au", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-6662-9192"))
+Description: The package has functions that take a fire polygon and finds all the intersecting remote sensing data that may be used to measure the fires rate of spread.
+    This includes line scans from a database, Landsat and Sentinel imagery and MODIS and VIIRS imagery.
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
