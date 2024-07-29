@@ -62,7 +62,7 @@ fire_process_polygon <- function(fire_polygon,
 
     fire_bbox <- fire_polygon_2 %>%
       sf::st_transform(3112) %>%
-      sf::st_buffer(buffer_km/1000) %>%
+      sf::st_buffer(buffer_km*1000) %>%
       sf::st_transform(sf::st_crs(fire_polygon_2)) %>%
       sf::st_bbox() %>%
       sf::st_as_sfc() %>%
