@@ -12,6 +12,17 @@
 #' @source <https://www.usgs.gov/media/files/landsat-wrs-2-descending-path-row-shapefile>
 "dat.landsat.pathrow"
 
+#' Sentinel 2 tiles for Australia
+#'
+#' A subset of Sentinel 2 tiles with Path and Row that intersect Australia
+#' @format ## `Used in a function to find which Sentinel 2 tiles intersect with a fire, then construct paths to search NCI`
+#' An sf object with 2155 rows and 3 columns:
+#' \describe{
+#'   \item{Name}{Sentinel 2 Tile Name}
+#'   ...
+#' }
+#' @source <https://sentiwiki.copernicus.eu/web/s2-mission>
+"dat.sentinel2.pathrow"
 
 #' Example fire boundary
 #'
