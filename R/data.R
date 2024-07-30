@@ -37,3 +37,14 @@
 #' }
 #' @source <https://datasets.seed.nsw.gov.au/dataset/fire-history-wildfires-and-prescribed-burns-1e8b6>
 "dat.fire.polygon"
+
+#' Timezone Names for Australian States
+#'
+#' Timezone Names for Australian States
+#' @format ## `An example fire boundary use for testing out some functions`
+#' \describe{
+#'   \item{name}{State Name}
+#'   \item{tz_name}{timezone name for posixct tz parameter}
+#'   ...
+#' }
+"dat.timezone.names"

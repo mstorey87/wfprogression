@@ -41,6 +41,42 @@ fire_search_sentinel2 <- function(fire_bbox,dest_folder){
 
 
 
+
+  library(rvest)
+  library(magrittr)
+  library(stringr)
+
+  CATALOG_URL <- "https://thredds.nci.org.au/thredds/catalog/xu18/ga_ls7e_ard_3/089/078/2000/02/27/catalog.html"
+
+  REGEX <- "\\.tif$|\\.yaml$"
+  REGEX2 <- "_nbar_|\\.yaml$"
+
+
+  NCDF_filenames <- rvest::read_html(CATALOG_URL) %>%
+    rvest::html_text() %>%
+
+    # split text into a vector of strings
+    str_split(pattern = "[\r\n]+") %>%
+    `[[`(1) %>%
+
+    # subset to those strings that name a file that we want
+    str_subset(pattern = REGEX) %>%
+    str_subset(pattern = REGEX2) %>%
+
+    # remove leading and trailing whitespace from file names
+    str_trim()
+
+
+
+
+
+
+
+
+
+
+
+
   #download the files that exist
   for(i in 1:nrow(dat.thredds)){
 
