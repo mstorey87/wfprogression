@@ -11,7 +11,7 @@ An sf object with 1 rows and 4 columns:
 \describe{
 \item{FireName}{Name given to the fire}
 \item{StartDate}{Fire ignition date}
-\item{EndDate, iso3}{Fire declared extinguished date}
+\item{EndDate}{Fire declared extinguished date}
 ...
 }
 }

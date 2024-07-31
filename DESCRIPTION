@@ -18,6 +18,7 @@ Imports:
     magrittr,
     mapview,
     png,
+    purrr,
     raster,
     sf,
     sp,
