@@ -2,7 +2,7 @@
 % Please edit documentation in R/fire_thredds_list.R
 \name{fire_thredds_list}
 \alias{fire_thredds_list}
-\title{Internal function the list files in thredds https path}
+\title{Internal function that list files in thredds https path}
 \usage{
 fire_thredds_list(catalog_url, regex)
 }
@@ -15,7 +15,7 @@ fire_thredds_list(catalog_url, regex)
 file names
 }
 \description{
-Internal function the list files in thredds https path
+Internal function that list files in thredds https path
 }
 \examples{
  #dplyr::mutate(df,

@@ -1,4 +1,4 @@
-#' Internal function the list files in thredds https path
+#' Internal function that list files in thredds https path
 #'
 #' @param catalog_url catalog.html path
 #' @param regex regex filter string
