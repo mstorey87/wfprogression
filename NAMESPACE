@@ -3,6 +3,7 @@
 export("%>%")
 export(fire_download_thredds)
 export(fire_process_polygon)
+export(fire_search_hotspots)
 export(fire_search_landsat)
 export(fire_search_sentinel2)
 export(fire_thredds_list)
