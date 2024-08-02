@@ -4,6 +4,20 @@
 #end_date="2023-12-31"
 #dest_fold <- "C:\\temp_data\\xxx"
 
+#' Search NASA FIRMS hotspots API
+#'
+#' @param fire_bbox Bounding sf polygon of search area
+#' @param mapkey users mapkey requested from https://firms.modaps.eosdis.nasa.gov/api/map_key/
+#' @param start_date Search start date in YYYY-mm-dd
+#' @param end_date Search end date in YYYY-mm-dd
+#' @param dest_fold Folder to temporarily download hotspots files (which are removed in function)
+#' @param product_filter Regex character string for filter hotspot products, e.g. 'VIIRS', 'MODIS', 'SNPP', 'NOAA20', 'NOAA21'
+#'
+#' @return sf point object
+#' @export
+#'
+#' @examples
+#' #z <- fire_search_hotspots(x$fire_bbox,mapkey,x$fire_bbox$startdate_search,x$fire_bbox$enddate_search,"C:/temp_data","NRT")
 fire_search_hotspots <- function(fire_bbox,mapkey,start_date,end_date,dest_fold,product_filter=NULL){
 
   #API only allows 10 days per query, queries will need to be in groups of 10 days
