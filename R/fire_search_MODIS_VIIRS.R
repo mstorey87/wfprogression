@@ -1,4 +1,17 @@
-fire_search_MODIS_VIIRS <- function(fire_bbox,wms_lyr_name,dest_folder){
+# some examples:
+# MODIS_Aqua_CorrectedReflectance_TrueColor
+# MODIS_Terra_CorrectedReflectance_TrueColor
+# MODIS_Aqua_CorrectedReflectance_Bands721
+# MODIS_Terra_CorrectedReflectance_Bands721
+# VIIRS_SNPP_CorrectedReflectance_BandsM11-I2-I1
+# VIIRS_NOAA20_CorrectedReflectance_BandsM11-I2-I1
+# VIIRS_NOAA20_CorrectedReflectance_TrueColor
+# MODIS_Terra_Aerosol_Optical_Depth_3km
+# MODIS_Aqua_Aerosol_Optical_Depth_3km
+
+fire_search_MODIS_VIIRS <- function(fire_bbox,date_string,wms_lyr_name,save_to_file=FALSE,dest_folder=NULL){
+
+
 
 
   #this helps to make mapshot zoom to the same level as leaflet. From here: https://github.com/r-spatial/mapview/issues/274
@@ -13,35 +26,29 @@ fire_search_MODIS_VIIRS <- function(fire_bbox,wms_lyr_name,dest_folder){
   wms_map<-leaflet::leaflet(options = leaflet::leafletOptions(zoomSnap=0,crs = leaflet::leafletCRS("L.CRS.EPSG4326"))) %>%
     leaflet::addPolygons(data = fire_bbox,fillOpacity = 0,color = "red",weight = 2.4)
 
-
-  #add in all dates to search for images from fire start to fire end
-  dates_fires <- as.character(seq(fire_bbox$startdate_search,fire_bbox$enddate_search,by="1 day"))
-
-  res.list <- list()
-  for(i in 1:length(dates_fires)){
-
-    wms_map2<-wms_map %>%
+  wms_map2<-wms_map %>%
       leaflet::addWMSTiles('https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi',
                            layers = wms_lyr_name,
-                           options = leaflet::WMSTileOptions(time = dates_fires[i]))
+                           options = leaflet::WMSTileOptions(time = date_string))
 
 
+  if(save_to_file==TRUE){
     #save as png. Height and width of output png relative to fire bbox size
     bb <- sf::st_bbox(fire_bbox)
     v1 <- round((bb[4]-bb[2])*2000)
     v2 <- round((bb[3]-bb[1])*2000)
 
-    out.file <- paste0(dest_folder,"\\",wms_lyr_name,"_",dates_fires[i],"shot.png")
+    out.file <- paste0(dest_folder,"\\",wms_lyr_name,"_",date_string,"shot.png")
     mapview::mapshot(wms_map2, file = out.file,remove_url=T,vheight=v1,vwidth=v2, useragent = zoomstring)
 
-    out.tif <-  paste0(dest_folder,"\\",wms_lyr_name,"_",dates_fires[i],".tif")
+    out.tif <-  paste0(dest_folder,"\\",wms_lyr_name,"_",date_string,".tif")
     fn_geo_png(out.file,out.tif,bb)
     file.remove(out.file)
-
-    #res.list[[i]] <- wms_map2
-
   }
 
 
-  return(print("done"))
+
+
+
+  return(wms_map2)
 }
