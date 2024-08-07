@@ -14,9 +14,14 @@ fire_download_thredds <- function(df_download,dest_folder){
 
   df_download <- df_download %>%
     dplyr::filter(!is.na(file_name)) %>%
-    dplyr::mutate(dest_file=paste0(dest_folder,"/",file_name))
+    dplyr::mutate(dest_file=paste0(dest_folder,"/",file_name)) %>%
+    dplyr::filter(!file.exists(dest_file))
 
-  download.file(df_download$path_download,df_download$dest_file,mode="wb")
+
+  for(i in 1:nrow(df_download)){
+      download.file(df_download$path_download[i],df_download$dest_file[i],mode="wb")
+  }
+
 
 
 }

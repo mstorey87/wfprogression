@@ -73,6 +73,31 @@ fire_search_hotspots <- function(fire_bbox,mapkey,start_date,end_date,dest_fold,
     dat.hotspots <- sf::st_as_sf(dat.hotspots,coords=c("longitude","latitude"),crs=4326) %>%
       sf::st_transform(4283)
 
+    #create a satellite name column
+
+    dat.hotspots <- dat.hotspots %>%
+      dplyr::mutate(sat_name=ifelse(satellite=="N","SNPP",ifelse(satellite=="N20","NOAA20",ifelse(satellite=="N21","NOAA21",satellite))),
+                    sat_name=tolower(paste0(instrument,"_",sat_name)))
+
+
+    #get the time zone based on fire centroid and add a local time field
+    #get the time zone for the fire
+    dat.aus <- rnaturalearth::ne_states(country="Australia") %>%
+      dplyr::select(name) %>%
+      sf::st_transform(3112)
+
+    dat.tz <- dat.aus%>%
+      sf::st_intersection(sf::st_centroid(fire_bbox %>% sf::st_transform(3112) %>% sf::st_union())) %>%
+      dplyr::left_join(dat.timezone.names)
+
+    dat.hotspots <- dat.hotspots %>%
+      dplyr::mutate(acq_time=paste0("0000",acq_time),
+                    acq_time=substr(acq_time,nchar(acq_time)-3,nchar(acq_time)),
+                    datetimeutc=lubridate::fast_strptime(paste0(acq_date," ",acq_time),format="%Y-%m-%d %H%M",tz="UTC"),
+                    timezone=dat.tz$tz_name,
+                    datetimelocal=lubridate::with_tz(datetimeutc,tzone=timezone),
+                                                            datelocal=format(datetimelocal,format="%Y-%m-%d"))
+
   }
 
   return(dat.hotspots)

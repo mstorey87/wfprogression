@@ -1,6 +1,8 @@
 #' Search NCI thredds server for sentinel 2 data
 #'
 #' @param fire_bbox bounding box sf polygon of a fire
+#' @param start_date start date to search for sentinel 2 images (YYYY-mm-dd)
+#' @param end_date last date to search for sentinel 2 images (YYYY-mm-dd)
 #'
 #' @return a data frame with download paths of sentinel 2 imagery
 #' @export
@@ -8,7 +10,7 @@
 #' @examples
 #' #x <- fire_process_polygon(dat.fire.polygon,4283,"FireName","StartDate","EndDate",2,2,buffer_km = 20)
 #' #z <- fire_search_sentinel2(x$fire_bbox)
-fire_search_sentinel2 <- function(fire_bbox){
+fire_search_sentinel2 <- function(fire_bbox,start_date,end_date){
 
   #find the sentinel2 tiles that intersect with the fire bounding box
   #path and row number will be used to search for sentinel2 files
@@ -32,7 +34,7 @@ fire_search_sentinel2 <- function(fire_bbox){
 
   #add in all dates to search for images from fire start to fire end
   #format for thredds path
-  dates_fires <- seq(fire_bbox$startdate_search,fire_bbox$enddate_search,by="1 day")
+  dates_fires <- seq(start_date,end_date,by="1 day")
 
   dat.thredds <- expand.grid(path_1,dates_fires) %>%
     dplyr::mutate(Var1=as.character(Var1),
@@ -56,10 +58,22 @@ fire_search_sentinel2 <- function(fire_bbox){
     tidyr::unnest(cols="file_name") %>%
 
     #create download path
-    dplyr::mutate(path_download=str_replace(path_catalog,"catalog","fileServer"),
-                  path_download=paste0(str_replace(path_download,"catalog.html",""),file_name)) %>%
+    dplyr::mutate(path_download=stringr::str_replace(path_catalog,"catalog","fileServer"),
+                  path_download=paste0(stringr::str_replace(path_download,"catalog.html",""),file_name)) %>%
 
     dplyr::select(Date=Var2,path_catalog,file_name,path_download)
+
+
+
+  print(paste0("No images for ",paste0(dat.thredds.NA$Date,collapse = ", ")))
+  print(paste0("Images found for ",paste0(dat.thredds.exists$Date,collapse = ", ")))
+
+  if(!is.null(regex_filter)){
+
+    dat.thredds <- dat.thredds %>%
+      dplyr::filter(stringr::str_detect(file_name,regex_filter))
+  }
+
 
 
 
