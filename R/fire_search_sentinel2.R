@@ -10,7 +10,7 @@
 #' @examples
 #' #x <- fire_process_polygon(dat.fire.polygon,4283,"FireName","StartDate","EndDate",2,2,buffer_km = 20)
 #' #z <- fire_search_sentinel2(x$fire_bbox)
-fire_search_sentinel2 <- function(fire_bbox,start_date,end_date){
+fire_search_sentinel2 <- function(fire_bbox,start_date,end_date,regex_filter="odc-metadata.yaml|band07|band05|band04"){
 
   #find the sentinel2 tiles that intersect with the fire bounding box
   #path and row number will be used to search for sentinel2 files
@@ -63,6 +63,9 @@ fire_search_sentinel2 <- function(fire_bbox,start_date,end_date){
 
     dplyr::select(Date=Var2,path_catalog,file_name,path_download)
 
+  #print message about which dates images were found for
+  dat.thredds.NA <- dat.thredds %>% dplyr::filter(is.na(file_name)) %>% dplyr::distinct(Date)
+  dat.thredds.exists <- dat.thredds %>% dplyr::filter(!is.na(file_name)) %>% dplyr::distinct(Date)
 
 
   print(paste0("No images for ",paste0(dat.thredds.NA$Date,collapse = ", ")))

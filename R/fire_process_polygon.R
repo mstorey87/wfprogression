@@ -56,7 +56,7 @@ fire_process_polygon <- function(fire_polygon,
     #this may be useful if the start and end dates are wrong in the original file
     fire_polygon_2 <- fire_polygon_2 %>%
       dplyr::mutate(startdate_search=startdate-lubridate::days(n_days_before),
-             enddate_search=enddate-lubridate::days(n_days_before))
+             enddate_search=enddate+lubridate::days(n_days_after))
 
 
 
