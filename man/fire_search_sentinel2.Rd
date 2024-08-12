@@ -4,10 +4,19 @@
 \alias{fire_search_sentinel2}
 \title{Search NCI thredds server for sentinel 2 data}
 \usage{
-fire_search_sentinel2(fire_bbox)
+fire_search_sentinel2(
+  fire_bbox,
+  start_date,
+  end_date,
+  regex_filter = "odc-metadata.yaml|band07|band05|band04"
+)
 }
 \arguments{
 \item{fire_bbox}{bounding box sf polygon of a fire}
+
+\item{start_date}{start date to search for sentinel 2 images (YYYY-mm-dd)}
+
+\item{end_date}{last date to search for sentinel 2 images (YYYY-mm-dd)}
 }
 \value{
 a data frame with download paths of sentinel 2 imagery

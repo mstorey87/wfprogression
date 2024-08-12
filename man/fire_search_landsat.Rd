@@ -4,7 +4,12 @@
 \alias{fire_search_landsat}
 \title{Search NCI thredds server for Landsat data}
 \usage{
-fire_search_landsat(fire_bbox, start_date, end_date)
+fire_search_landsat(
+  fire_bbox,
+  start_date,
+  end_date,
+  regex_filter = "odc-metadata.yaml|band07|band05|band04"
+)
 }
 \arguments{
 \item{fire_bbox}{bounding box sf polygon of a fire}
