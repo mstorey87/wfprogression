@@ -22,7 +22,7 @@ fire_search_copernicus <- function(fire_bbox,
      limit = 5000
   )
 
-  date_seq <- as.POSIXct(paste0(seq(start_date,end_date,by="1 day"),"T00:00:00Z"),tz="UTC")
+  date_seq <- as.POSIXct(paste0(seq(as.Date(start_date),as.Date(end_date),by="1 day"),"T00:00:00Z"),tz="UTC")
   date_seq_2 <- date_seq+lubridate::days(1)
   dates_chr <- paste0(format(date_seq,format="%Y-%m-%dT%H:%M:%SZ"),"/",format(date_seq_2,format="%Y-%m-%dT%H:%M:%SZ"))
 
@@ -57,20 +57,10 @@ fire_search_copernicus <- function(fire_bbox,
   }
 
   #combine the results
-  dat.x.all <- do.call(rbind,res.list) %>%
-
-    #filter to RBT, which is radiances
-    dplyr::filter(product=="SL_1_RBT___")
+  dat.x.all <- do.call(rbind,res.list)
 
 
 
-  #get the time zone based on footprint centroid and add a local time field
-  dat.aus <- rnaturalearth::ne_states(country="Australia") %>%
-    dplyr::select(name) %>%
-    sf::st_transform(3112)
-  dat.tz <- dat.aus%>%
-    sf::st_intersection(sf::st_centroid(fire_bbox %>% sf::st_transform(3112) %>% sf::st_union())) %>%
-    dplyr::left_join(dat.timezone.names)
 
 
 
@@ -79,7 +69,19 @@ fire_search_copernicus <- function(fire_bbox,
     dplyr::mutate(datetimeutc=as.POSIXct(datetime,format="%Y-%m-%dT%H:%M:%OS",tz="UTC"),
                   datetimelocal=lubridate::with_tz(datetimeutc,tz=dat.tz$tz_name),
                   datetimelocal_chr=format(datetimelocal,format="%Y%m%d_%H%M%S"),
-                  outfile=paste0(dest_folder,"\\",filename,".zip"))
+                  outfile=paste0(dest_folder,"\\",filename,".zip"))%>%
+
+    #filter to RBT, which is radiances
+    dplyr::filter(product=="SL_1_RBT___")%>%
+
+    #we only need one image for each time. Remove one of the files with identical time
+    #sort by processing numbers first.
+    dplyr::mutate(processing=substr(filename,87,87),
+                  NNN=substr(filename,92,94))%>%
+    dplyr::group_by(datetimelocal_chr) %>%
+    dplyr::arrange(dplyr::desc(processing),dplyr::desc(NNN)) %>%
+    dplyr::filter(dplyr::row_number()==min(dplyr::row_number())) %>%
+    dplyr::ungroup()
 
 
   #download from odata using curl commands
