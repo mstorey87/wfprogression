@@ -77,7 +77,7 @@ fire_search_himawari <- function(fire_bbox,
       dplyr::filter(datetimelocal_chr==times_unique[i]) %>%
       dplyr::arrange(band)
 
-    if(dat.i$daynight[i]=="day" & nrow(dat.i==3)){
+    if(dat.i$daynight[1]=="day" & nrow(dat.i==3)){
 
       dat.i <- dat.i %>%
         dplyr::mutate(nc=purrr::map(path_download,tidync::tidync),

@@ -21,8 +21,8 @@ fire_search_stac <- function(fire_bbox,
     q = stac_source,
     bbox = sf::st_bbox(sf::st_transform(fire_bbox,4326)),#which crs??
     collections = collection_names,
-    datetime = paste0(start_date,"/",end_date)
-    # limit = 999
+    datetime = paste0(start_date,"/",end_date),
+     limit = 999
   )
   executed_stac_query <- rstac::get_request(stac_query)
 
