@@ -60,18 +60,13 @@ fire_search_stac <- function(fire_bbox,
 
 
 
-  #get the time zone based on footprint centroid and add a local time field
-  dat.aus <- rnaturalearth::ne_states(country="Australia") %>%
-    dplyr::select(name) %>%
-    sf::st_transform(3112)
-  dat.tz <- dat.aus%>%
-    sf::st_intersection(sf::st_centroid(fire_bbox %>% sf::st_transform(3112) %>% sf::st_union())) %>%
-    dplyr::left_join(dat.timezone.names)
+  #get the time zone
+  my_tz <- fire_get_timezone(fire_bbox)
 
 
   dat.aws <- dat.aws %>%
     dplyr::mutate(datetimeutc=as.POSIXct(datetime,format="%Y-%m-%dT%H:%M:%OS",tz="UTC"),
-                  datetimelocal=lubridate::with_tz(datetimeutc,tz=dat.tz$tz_name),
+                  datetimelocal=lubridate::with_tz(datetimeutc,tz=my_tz),
                   datetimelocal_chr=format(datetimelocal,format="%Y%m%d_%H%M%S"),
                   #tile and date string to use in output file name
                   tile_dateutc=paste0(purrr::map_chr(stringr::str_split(basename(band1),"_"),5),"_",

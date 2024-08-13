@@ -13,13 +13,8 @@ fire_search_himawari <- function(fire_bbox,
   dates_fires <- seq(as.POSIXct(start_date,tz="UTC"),as.POSIXct(end_date,tz="UTC"),by=paste0(timestep_minutes," mins"))
 
 
-  #get the time zone based on footprint centroid and add a local time field
-  dat.aus <- rnaturalearth::ne_states(country="Australia") %>%
-    dplyr::select(name) %>%
-    sf::st_transform(3112)
-  dat.tz <- dat.aus%>%
-    sf::st_intersection(sf::st_centroid(fire_bbox %>% sf::st_transform(3112) %>% sf::st_union())) %>%
-    dplyr::left_join(dat.timezone.names)
+  #get the time zone
+  my_tz <- fire_get_timezone(fire_bbox)
 
 
 
@@ -29,7 +24,7 @@ fire_search_himawari <- function(fire_bbox,
   dat.paths <- data.frame(datetime_utc=dates_fires) %>%
     dplyr::mutate(datetimeutc_path=format(datetime_utc,format="/%Y/%m/%d/%H%M"),
                   path_catalog=paste0(nci_path,datetimeutc_path,"/catalog.html"),
-                  datetimelocal=lubridate::with_tz(datetime_utc,tz=dat.tz$tz_name),
+                  datetimelocal=lubridate::with_tz(datetime_utc,tz=my_tz),
                   datetimelocal_chr=format(datetimelocal,format="%Y%m%d_%H%M%S"),
                   hour_local=lubridate::hour(datetimelocal),
                   daynight=ifelse(hour_local >= 8 & hour_local <=18,"day","night")) %>%

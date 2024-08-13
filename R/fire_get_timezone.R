@@ -6,7 +6,7 @@ fire_get_timezone <- function(fire_bbox){
     sf::st_transform(3112)
   dat.tz <- dat.aus%>%
     sf::st_intersection(sf::st_centroid(fire_bbox %>% sf::st_transform(3112) %>% sf::st_union())) %>%
-    dplyr::left_join(dat.timezone.names)
+    dplyr::left_join(dat.timezone.names,by="name")
 
   return(dat.tz$tz_name)
 
