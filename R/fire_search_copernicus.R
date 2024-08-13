@@ -62,12 +62,11 @@ fire_search_copernicus <- function(fire_bbox,
 
 
 
-  #generate time and date and output name fields
+  #generate time and date and  fields
   dat.x.all <- dat.x.all %>%
     dplyr::mutate(datetimeutc=as.POSIXct(datetime,format="%Y-%m-%dT%H:%M:%OS",tz="UTC"),
                   datetimelocal=lubridate::with_tz(datetimeutc,tz=my_tz),
-                  datetimelocal_chr=format(datetimelocal,format="%Y%m%d_%H%M%S"),
-                  outfile=paste0(dest_folder,"\\",filename,".zip"))%>%
+                  datetimelocal_chr=format(datetimelocal,format="%Y%m%d_%H%M%S"))%>%
 
     #filter to RBT, which is radiances
     dplyr::filter(product=="SL_1_RBT___")%>%
@@ -79,13 +78,15 @@ fire_search_copernicus <- function(fire_bbox,
     dplyr::group_by(datetimelocal_chr) %>%
     dplyr::arrange(dplyr::desc(processing),dplyr::desc(NNN)) %>%
     dplyr::filter(dplyr::row_number()==min(dplyr::row_number())) %>%
-    dplyr::ungroup()
+    dplyr::ungroup() %>%
+    dplyr::select(-processing,-NNN)
 
 
 
 
 
 
+  return(dat.x.all)
 
 
 

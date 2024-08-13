@@ -1,7 +1,12 @@
 fire_download_copernicus <-  function(fire_bbox,
+                                      download_df,
                                       dest_folder,
                                       user_copernicus="mstorey@uow.edu.au",
                                       password_copernicus="rR$VRQFfFfg2D5"){
+
+
+  download_df <- download_df %>%
+    dplyr::mutate(outfile=paste0(dest_folder,"\\",filename,".zip"))
 
   #download from odata using curl commands
   #run this first and then add refresh token into code below
@@ -19,9 +24,10 @@ myrefreshtoken <- purrr::map_chr(stringr::str_split(myrefreshtoken,","),1)
 myrefreshtoken <- substr(myrefreshtoken,2,nchar(myrefreshtoken)-1)
 
 
-for(i in 1:nrow(dat.x.all)){
+for(i in 1:nrow(download_df)){
+  print(paste0("trying ",download_df$filename[i]))
 
-  if(!file.exists(dat.x.all$outfile[i])){
+  if(!file.exists(download_df$outfile[i])){
 
     token_reset <- system(paste0('curl -s -X POST https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/token -H "Content-Type: application/x-www-form-urlencoded" -d "grant_type=refresh_token" -d "refresh_token=',
                                  myrefreshtoken,'" -d "client_id=cdse-public"'), intern = T)
@@ -50,8 +56,8 @@ for(i in 1:nrow(dat.x.all)){
     }
 
 
-    sys_command <- paste0('curl -H "Authorization: Bearer ',token,'" "',dat.x.all$sen3_path[i],
-                          '" --location-trusted --output ',dat.x.all$outfile[i])
+    sys_command <- paste0('curl -H "Authorization: Bearer ',token,'" "',download_df$sen3_path[i],
+                          '" --location-trusted --output ',download_df$outfile[i])
 
 
 

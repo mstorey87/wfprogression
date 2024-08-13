@@ -53,7 +53,8 @@ fire_sentinel3_tif <- function(fire_bbox,sen3_folder){
 
     sen.zip<- my.zips$path[i]
 
-    temp.fold <- paste0(sen3_folder,"tempunzip")
+    temp.fold <- paste0(sen3_folder,"\\tempunzip")
+
 
     myfiles <- c("/geodetic_an.nc","/S5_radiance_an.nc","/S6_radiance_an.nc","/S3_radiance_an.nc")
 
