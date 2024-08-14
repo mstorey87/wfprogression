@@ -1,5 +1,14 @@
 fire_download_stac <- function(stac_df,dest_folder){
 
+
+  #stream and crop all the bands
+  stac_df <- stac_df %>%
+    dplyr::mutate(band1_stream=purrr::map(band1,~terra::rast(paste0("/vsicurl/",.x))),
+                  band2_stream=purrr::map(band2,~terra::rast(paste0("/vsicurl/",.x))),
+                  band3_stream=purrr::map(band3,~terra::rast(paste0("/vsicurl/",.x))),
+                  #crop all the images to extent of bounding box
+                  crs=purrr::map(band1_stream,terra::crs))
+
     #loop through one by one (to save memory) and create cropped rgb and write to disk
     for(i in 1:nrow(stac_df)){
       dat <- stac_df[i,]

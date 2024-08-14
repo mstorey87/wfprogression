@@ -43,15 +43,30 @@ fire_search_stac <- function(fire_bbox,
 
   #set bands that will be used for rgb images
   #this depends on satellite type
-  dat.x.sentinel2 <- dat.x %>% dplyr::filter(stringr::str_starts(product,"ga_s2")) %>%
+  dat.x.sentinel2 <- dat.x %>% dplyr::filter(stringr::str_starts(product,"ga_s2"))
+
+  #if there are any sentinel 2 results, give common band names
+  if(nrow(dat.x.sentinel2)>0){
+    dat.x.sentinel2 <- dat.x.sentinel2 %>%
     dplyr::mutate(band1=nbart_swir_3,band2=nbart_swir_2,band3=nbart_red)
 
-  dat.x.landsat <- dat.x %>% dplyr::filter(stringr::str_starts(product,"ga_ls"))%>%
+  }
+
+
+
+  dat.x.landsat <- dat.x %>% dplyr::filter(stringr::str_starts(product,"ga_ls"))
+
+  #if there are any landsat results, give common band names
+  if(nrow(dat.x.landsat)>0){
+    dat.x.landsat <- dat.x.landsat %>%
     dplyr::mutate(band1=nbart_swir_2,band2=nbart_nir,band3=nbart_red)
+
+  }
+
 
 
   #combine data and calculate https path and date times strings for file names
-  dat.aws <- rbind(dat.x.sentinel2,dat.x.landsat) %>%
+  dat.aws <- dplyr::bind_rows(dat.x.landsat,dat.x.sentinel2) %>%
     dplyr::select(band1,band2,band3,datetime,product) %>%
     dplyr::mutate(dplyr::across(dplyr::starts_with("band"),
                                 ~stringr::str_replace(.x,"s3://dea-public-data","https://dea-public-data.s3.ap-southeast-2.amazonaws.com")) )
@@ -73,13 +88,7 @@ fire_search_stac <- function(fire_bbox,
     dplyr::select(dplyr::matches("datetime|product|tile"),dplyr::everything())
 
 
-  #stream and crop all the bands
-  dat.aws <- dat.aws %>%
-    dplyr::mutate(band1_stream=purrr::map(band1,~terra::rast(paste0("/vsicurl/",.x))),
-                  band2_stream=purrr::map(band2,~terra::rast(paste0("/vsicurl/",.x))),
-                  band3_stream=purrr::map(band3,~terra::rast(paste0("/vsicurl/",.x))),
-                  #crop all the images to extent of bounding box
-                  crs=purrr::map(band1_stream,terra::crs))
+
 
 
 

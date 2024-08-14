@@ -66,7 +66,7 @@ fire_search_copernicus <- function(fire_bbox,
   dat.x.all <- dat.x.all %>%
     dplyr::mutate(datetimeutc=as.POSIXct(datetime,format="%Y-%m-%dT%H:%M:%OS",tz="UTC"),
                   datetimelocal=lubridate::with_tz(datetimeutc,tz=my_tz),
-                  datetimelocal_chr=format(datetimelocal,format="%Y%m%d_%H%M%S"))%>%
+                  datetimelocal_chr=format(datetimelocal,format="%Y%m%d%H%M%S"))%>%
 
     #filter to RBT, which is radiances
     dplyr::filter(product=="SL_1_RBT___")%>%

@@ -1,5 +1,6 @@
-fire_write_plot <- function(){
+fire_write_plot <- function(tif_path,polygon,dest_folder){
 
+  image <- terra::rast(tif_path)
     if(length(names(image))<3){
       image <- c(image,image,image)
       names(image) <- c("b1","b2","b3")
@@ -17,7 +18,7 @@ fire_write_plot <- function(){
       tmap::tm_borders(col="blue")+
       tmap::tm_layout(asp = 0,crs=4326)
 
-    out_image <- paste0(outpath,"\\",chr_datetime,"_plot_sentinel3.jpg")
+    out_image <- paste0(dest_folder,"\\quickview_",tools::file_path_sans_ext(basename(tif_path)),".jpg")
     tmap::tmap_save(tmap_image,out_image,outer.margins = c(0,0,0,0))
 
 
