@@ -7,7 +7,7 @@
 #' @param end_date_col A character vector of the column in the polygon with the fire end date. Column must be date format.
 #' @param n_days_before Number of days before the start date to subtract, e.g. so images a few days before the fire can be searched for.
 #' @param n_days_after Number of days after the end date to subtract, e.g. so images a few days after the fire can be searched for.
-#' @param buffer_km How many km to buffer the fire polygon by during the creation of a bounding box.
+#' @param bbox_buffer_km How many km to buffer the fire polygon by during the creation of a bounding box.
 #'
 #' @return A list with one fire polygon and one bounding box polygon
 #' @export
@@ -15,10 +15,10 @@
 #' @examples
 #' #x <- fire_process_polygon()
 fire_process_polygon <- function(fire_polygon,
-                                 new_crs=NULL,
                                  start_date,
                                  end_date,
-                                 buffer_km){
+                                 bbox_buffer_km,
+                                 new_crs=NULL){
 
 
   #select only the start and end date and fire name column
@@ -59,7 +59,7 @@ fire_process_polygon <- function(fire_polygon,
 
     fire_bbox <- fire_polygon_2 %>%
       sf::st_transform(3112) %>%
-      sf::st_buffer(buffer_km*1000) %>%
+      sf::st_buffer(bbox_buffer_km*1000) %>%
       sf::st_transform(sf::st_crs(fire_polygon_2)) %>%
       sf::st_bbox() %>%
       sf::st_as_sfc() %>%
