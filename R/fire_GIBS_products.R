@@ -1,3 +1,10 @@
+#' Print a list of useful NASA GIBS WMS products
+#'
+#' @return Print a list
+#' @export
+#'
+#' @examples
+#' fire_GIBS_products()
 fire_GIBS_products <- function(){
 
    product_names <- c(
@@ -21,5 +28,5 @@ fire_GIBS_products <- function(){
    Brightness temperature may be useful for night spread.
    More layers at https://wiki.earthdata.nasa.gov/display/GIBS/GIBS+Available+Imagery+Products#"
 
-   return(print(product_names))
+   return(product_names)
 }

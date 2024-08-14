@@ -82,19 +82,13 @@ fire_search_hotspots <- function(fire_bbox,mapkey,start_date,end_date,dest_fold,
 
     #get the time zone based on fire centroid and add a local time field
     #get the time zone for the fire
-    dat.aus <- rnaturalearth::ne_states(country="Australia") %>%
-      dplyr::select(name) %>%
-      sf::st_transform(3112)
-
-    dat.tz <- dat.aus%>%
-      sf::st_intersection(sf::st_centroid(fire_bbox %>% sf::st_transform(3112) %>% sf::st_union())) %>%
-      dplyr::left_join(dat.timezone.names)
+    my_tz <- fire_get_timezone(fire_bbox)
 
     dat.hotspots <- dat.hotspots %>%
       dplyr::mutate(acq_time=paste0("0000",acq_time),
                     acq_time=substr(acq_time,nchar(acq_time)-3,nchar(acq_time)),
                     datetimeutc=lubridate::fast_strptime(paste0(acq_date," ",acq_time),format="%Y-%m-%d %H%M",tz="UTC"),
-                    timezone=dat.tz$tz_name,
+                    timezone=my_tz,
                     datetimelocal=lubridate::with_tz(datetimeutc,tzone=timezone),
                                                             datelocal=format(datetimelocal,format="%Y-%m-%d"))
 
