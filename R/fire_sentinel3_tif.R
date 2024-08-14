@@ -1,7 +1,8 @@
 fire_sentinel3_tif <- function(fire_bbox,sen3_folder){
 
   my.zips<- list.files(sen3_folder,full.names = T,pattern = ".zip") %>%
-    tibble::tibble(path=.)
+    tibble::tibble(path=.) %>%
+    dplyr::filter(stringr::str_detect(path,"SEN3.zip"))
 
 
 
@@ -10,40 +11,9 @@ fire_sentinel3_tif <- function(fire_bbox,sen3_folder){
     sf::st_transform(4326)
 
 
-  pth_s3_tifs <- paste0(sen3_folder,"\\tif_sentinel3\\")
-  dir.create(pth_s3_tifs)
-
-  fn_tmap_sentinel3 <- function(image,polygon,chr_datetime,outpath){
-
-    if(length(names(image))<3){
-      image <- c(image,image,image)
-      names(image) <- c("b1","b2","b3")
-    }
-    image <- terra::stretch(image)
-
-    #ensure same crs
-    polygon <- sf::st_transform(polygon,st_crs(image))
-
-
-
-    tmap_image <- tmap::tm_shape(image,bbox = polygon)+
-      tmap::tm_rgb(tmap::tm_mv(names(image)))+
-      tmap::tm_shape(polygon)+
-      tmap::tm_borders(col="blue")+
-      tmap::tm_layout(asp = 0,crs=4326)
-
-    out_image <- paste0(outpath,"\\",chr_datetime,"_plot_sentinel3.jpg")
-    tmap::tmap_save(tmap_image,out_image,outer.margins = c(0,0,0,0))
-  }
-
 
   #get the time zone based on footprint centroid and add a local time field
-  dat.aus <- rnaturalearth::ne_states(country="Australia") %>%
-    dplyr::select(name) %>%
-    sf::st_transform(3112)
-  dat.tz <- dat.aus%>%
-    sf::st_intersection(sf::st_centroid(fire_bbox %>% sf::st_transform(3112) %>% sf::st_union())) %>%
-    dplyr::left_join(dat.timezone.names)
+  my_tz <- fire_get_timezone(fire_bbox)
 
 
   for(i in 1:nrow(my.zips)){
@@ -62,7 +32,7 @@ fire_sentinel3_tif <- function(fire_bbox,sen3_folder){
 
     sen.fold <- paste0(temp.fold,"/",stringr::str_replace(basename(sen.zip),".zip",""))
 
-    rastime <- lubridate::with_tz(as.POSIXct(substr(basename(sen.fold),17,31),format="%Y%m%dT%H%M%S",tz="UTC"),tz=dat.tz$tz_name)
+    rastime <- lubridate::with_tz(as.POSIXct(substr(basename(sen.fold),17,31),format="%Y%m%dT%H%M%S",tz="UTC"),tz=my_tz)
     hour_of_day <- lubridate::hour(rastime)
 
     rastime_chr <- format(rastime,format="%Y%m%d_%H%M%S")
@@ -70,7 +40,7 @@ fire_sentinel3_tif <- function(fire_bbox,sen3_folder){
 
 
     #
-    outname <- paste0(pth_s3_tifs,"\\",rastime_chr,"_sentinel3")
+    outname <- paste0(sen3_folder,"\\",rastime_chr,"_sentinel3")
 
 
 
@@ -121,12 +91,6 @@ fire_sentinel3_tif <- function(fire_bbox,sen3_folder){
 
       }
       terra::writeRaster(out_ras,paste0(outname,".tif"))
-      fn_tmap_sentinel3(out_ras,fire_bbox,rastime_chr,sen3_folder)
-
-
-
-
-
 
 
       unlink(temp.fold,recursive = T)
