@@ -7,11 +7,8 @@
 fire_process_polygon(
   fire_polygon,
   new_crs = NULL,
-  fire_name_col,
-  start_date_col,
-  end_date_col,
-  n_days_before,
-  n_days_after,
+  start_date,
+  end_date,
   buffer_km
 )
 }
@@ -19,6 +16,8 @@ fire_process_polygon(
 \item{fire_polygon}{An sf object which is the fire boundary polygon (or search area)}
 
 \item{new_crs}{New epsg code if transformation is required. e.g. 4382}
+
+\item{buffer_km}{How many km to buffer the fire polygon by during the creation of a bounding box.}
 
 \item{fire_name_col}{A character vector of the column in the polygon with the fire name (or id)}
 
@@ -29,8 +28,6 @@ fire_process_polygon(
 \item{n_days_before}{Number of days before the start date to subtract, e.g. so images a few days before the fire can be searched for.}
 
 \item{n_days_after}{Number of days after the end date to subtract, e.g. so images a few days after the fire can be searched for.}
-
-\item{buffer_km}{How many km to buffer the fire polygon by during the creation of a bounding box.}
 }
 \value{
 A list with one fire polygon and one bounding box polygon
@@ -39,5 +36,5 @@ A list with one fire polygon and one bounding box polygon
 Create a processed fire polygon and bounding box polygon
 }
 \examples{
-#x <- fire_process_polygon(dat.fire.polygon,4283,"FireName","StartDate","EndDate",2,3,20)
+#x <- fire_process_polygon()
 }

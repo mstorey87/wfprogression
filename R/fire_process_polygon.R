@@ -13,14 +13,11 @@
 #' @export
 #'
 #' @examples
-#' #x <- fire_process_polygon(dat.fire.polygon,4283,"FireName","StartDate","EndDate",2,3,20)
+#' #x <- fire_process_polygon()
 fire_process_polygon <- function(fire_polygon,
                                  new_crs=NULL,
-                                 fire_name_col,
-                                 start_date_col,
-                                 end_date_col,
-                                 n_days_before,
-                                 n_days_after,
+                                 start_date,
+                                 end_date,
                                  buffer_km){
 
 
