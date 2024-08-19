@@ -92,6 +92,8 @@ fire_search_hotspots <- function(fire_bbox,mapkey,start_date,end_date,dest_fold,
                     datetimelocal=lubridate::with_tz(datetimeutc,tzone=timezone),
                                                             datelocal=format(datetimelocal,format="%Y-%m-%d"))
 
+    sf::st_write(dat.hotspots,paste0(dest_folder,"\\hotspots.shp"),delete_dsn=T)
+
   }
 
   return(dat.hotspots)

@@ -35,7 +35,7 @@ fire_sentinel3_tif <- function(fire_bbox,sen3_folder){
     rastime <- lubridate::with_tz(as.POSIXct(substr(basename(sen.fold),17,31),format="%Y%m%dT%H%M%S",tz="UTC"),tz=my_tz)
     hour_of_day <- lubridate::hour(rastime)
 
-    rastime_chr <- format(rastime,format="%Y%m%d_%H%M%S")
+    rastime_chr <- format(rastime,format="%Y%m%d%H%M%S")
 
 
 

@@ -1,4 +1,6 @@
-fire_download_himiwari <- function(fire_bbox,df_download,dest_folder){
+fire_download_himiwari <- function(fire_bbox,df_download,bands=c("B07","B04","B01"),dest_folder){
+
+
 
 
   #transform bbox to himiwari crs
@@ -10,6 +12,11 @@ fire_download_himiwari <- function(fire_bbox,df_download,dest_folder){
     sf::st_bbox()
 
 
+  df_download <- df_download %>%
+    #filter and arrange bands by user input
+    dplyr::filter(band %in% bands)%>%
+    dplyr::arrange(factor(band,levels=bands))
+
   times_unique <- unique(df_download$datetimelocal_chr)
 
 
@@ -17,10 +24,9 @@ fire_download_himiwari <- function(fire_bbox,df_download,dest_folder){
   for(i in 1:length(times_unique)){
 
     dat.i <- df_download %>%
-      dplyr::filter(datetimelocal_chr==times_unique[i]) %>%
-      dplyr::arrange(band)
+      dplyr::filter(datetimelocal_chr==times_unique[i])
 
-    if(dat.i$daynight[1]=="day" & nrow(dat.i==3)){
+    if(dat.i$daynight[1]=="day" & nrow(dat.i==3) & length(bands)==3){
 
       dat.i <- dat.i %>%
         dplyr::mutate(nc=purrr::map(path_download,tidync::tidync),
@@ -43,17 +49,17 @@ fire_download_himiwari <- function(fire_bbox,df_download,dest_folder){
     }else{
 
       dat.i <- dat.i %>%
-        dplyr::filter(band=="B07")
+        dplyr::filter(band==bands)
 
-      b7 <- tidync::tidync(dat.i$path_download)
-      b7.local <- b7  %>%
-        tidync::activate(b7$variable$name[6]) %>%
+      b <- tidync::tidync(dat.i$path_download)
+      b.local <- b  %>%
+        tidync::activate(b$variable$name[6]) %>%
         tidync::hyper_filter(y = y > bbox_him[2] & y < bbox_him[4],
                              x = x > bbox_him[1] & x < bbox_him[3]) %>%
 
         tidync::hyper_tibble() %>%
         dplyr::select(x,y,dplyr::everything(),-time)
-      r <- terra::rast(b7.local)
+      r <- terra::rast(b.local)
 
 
 
