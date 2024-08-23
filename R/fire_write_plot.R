@@ -1,4 +1,4 @@
-fire_write_plot <- function(tif_path,polygon,dest_folder){
+fire_write_plot <- function(tif_path,polygon,fire_bbox,dest_folder){
 
   image <- terra::rast(tif_path)
     if(length(names(image))<3){
@@ -8,11 +8,11 @@ fire_write_plot <- function(tif_path,polygon,dest_folder){
     image <- terra::stretch(image)
 
     #ensure same crs
-    polygon <- sf::st_transform(polygon,st_crs(image))
+    polygon <- sf::st_transform(polygon,sf::st_crs(image))
 
 
 
-    tmap_image <- tmap::tm_shape(image,bbox = polygon)+
+    tmap_image <- tmap::tm_shape(image,bbox = fire_bbox)+
       tmap::tm_rgb(tmap::tm_mv(names(image)))+
       tmap::tm_shape(polygon)+
       tmap::tm_borders(col="blue")+
