@@ -11,7 +11,7 @@ fire_bbox_polygon(fire_polygon, bbox_buffer_km, new_crs = NULL)
 
 \item{bbox_buffer_km}{How many km to buffer the fire polygon by during the creation of a bounding box.}
 
-\item{new_crs}{New epsg code if transformation is required. e.g. 4382}
+\item{new_crs}{New epsg code if transformation is required. Default to 4283 (GDA94)}
 }
 \value{
 A list with one fire polygon and one bounding box polygon
@@ -20,5 +20,5 @@ A list with one fire polygon and one bounding box polygon
 Create a bounding box polygon
 }
 \examples{
-#x <- fire_process_polygon()
+#x <- fire_bbox_polygon(fire_polygon = dat.fire.polygon,bbox_buffer_km = 20,new_crs = 4283)
 }

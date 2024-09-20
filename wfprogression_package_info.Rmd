@@ -12,7 +12,7 @@ knitr::opts_chunk$set(
 	message = FALSE,
 	warning = FALSE
 )
-load_all()
+library(wfprogression)
 library(mapview)
 ```
 
@@ -41,7 +41,7 @@ For all the image download function we need an output folder
 ```{r}
 #get start and end dates (or insert your own)
 datestart <- dat.fire.polygon$StartDate
-dateend <- "2023-12-09"
+dateend <- "2023-12-08"
 
 #set an output path for all the images that will be downloaded
 outdir <- "C:\\temp\\tifs2"

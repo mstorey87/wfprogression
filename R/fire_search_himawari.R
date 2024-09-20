@@ -5,10 +5,11 @@
 #' @param end_date The last date for which to search for images YYYY-mm-dd
 #' @param timestep_minutes minutes timestep in multiples of 10. e.g. search for images every 10 minutes or 60 minutes.
 #'
-#' @return
+#' @return Data frame with thredds path to Himawari data
 #' @export
 #'
 #' @examples
+#' #dat.himiwari <- fire_search_himawari(fire_bbox = dat.bbox,start_date = datestart, end_date = dateend,timestep_minutes = 120)
 fire_search_himawari <- function(fire_bbox,
                                  start_date,
                                  end_date,

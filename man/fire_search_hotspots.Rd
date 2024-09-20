@@ -9,7 +9,7 @@ fire_search_hotspots(
   mapkey,
   start_date,
   end_date,
-  dest_fold,
+  dest_folder,
   product_filter = NULL
 )
 }
@@ -22,9 +22,9 @@ fire_search_hotspots(
 
 \item{end_date}{Search end date in YYYY-mm-dd}
 
-\item{dest_fold}{Folder to temporarily download hotspots files (which are removed in function)}
-
 \item{product_filter}{Regex character string for filter hotspot products, e.g. 'VIIRS', 'MODIS', 'SNPP', 'NOAA20', 'NOAA21'}
+
+\item{dest_fold}{Folder to temporarily download hotspots files (which are removed in function)}
 }
 \value{
 sf point object

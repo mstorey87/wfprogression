@@ -10,6 +10,7 @@
 #' @export
 #'
 #' @examples
+#' #dat.stac <- fire_search_stac(fire_bbox = dat.bbox,start_date = datestart,end_date = dateend)
 fire_search_stac <- function(fire_bbox,
                              start_date,
                              end_date,
