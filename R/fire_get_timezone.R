@@ -1,3 +1,12 @@
+#' Title
+#'
+#' @param fire_bbox Fire bounding box polygon
+#'
+#' @return String of time zone name
+#' @export
+#'
+#' @examples
+#' #fire_get_timezone(dat.bbox)
 fire_get_timezone <- function(fire_bbox){
 
   #get the time zone based on footprint centroid and add a local time field

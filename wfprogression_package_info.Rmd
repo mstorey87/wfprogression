@@ -59,7 +59,8 @@ dat.aus <- rnaturalearth::ne_countries(country = "Australia") %>%
   dplyr::select(brk_name)
 
 map <- mapview(dat.aus)
-mapedit::drawFeatures(map)
+mapedit::drawFeatures(map) %>% 
+  sf::st_transform(4283)
 
 ```
 
@@ -72,7 +73,7 @@ we can search for these together using the Geoscience Australia STAC browser
 There is a function that searches this database, where the inputs are a polygon and dates.
 It returns the paths of three bands from each satellite product that can be used to make false colour images
 Here we'll get the start and end dates from the fire polygon, which was originally from NSW Fire History
-
+Sentinel and Landsat images are not captured daily, so the function may not return anything
 ```{r}
 
 
@@ -85,6 +86,7 @@ head(dat.stac)
 Download the data
 The images file are cloud-optimised geotiffs, which means we can only download the part of the image we need i.e. crop before downloading
 Inputs are the data frame produced by fire_search_stac and an output folder
+
 ```{r}
 
 fire_download_stac(dat.bbox,dat.stac,outdir)
@@ -126,6 +128,9 @@ The geotiffs will be cropped to fire_bbox
 fire_sentinel3_tif(fire_bbox = dat.fire.polygon,
                     sen3_folder = outdir)
 
+#read and plot the output tifs.
+list.files(outdir,full.names=T,pattern="sentinel3.tif") %>% 
+  purrr::map(.,~terra::plotRGB(terra::rast(.x))[[1]])
 ```
 
 
@@ -143,7 +148,9 @@ fire_hotspot_map(fire_bbox = dat.bbox,
                  end_date = dateend,
                  dest_folder = outdir)
 
-
+#read and plot the output tifs.
+list.files(outdir,full.names=T,pattern="VIIRS_|MODIS_") %>% 
+  purrr::map(.,~terra::plotRGB(terra::rast(.x))[[1]])
 
 ```
 
@@ -152,12 +159,12 @@ fire_hotspot_map(fire_bbox = dat.bbox,
 BOM keeps an updated collection of 10-min Himiwari cloud optimised geotiffs
 These can be accessed via a thredds server.
 There is a function to search and return a dataframe of available images.
-Set the timestep_minutes argument to find images at selected timesteps, e.g. every 10 minutes or 60 minutes.
+Set the timestep_minutes argument to find images at selected timesteps, e.g. every 10 minutes or 60 or 240 minutes.
 We can then filter that and download selected images, cropped to our bounding box polygon or fire
 
 ```{r}
 
-dat.himiwari <- fire_search_himawari(fire_bbox = dat.bbox,start_date = datestart, end_date = dateend,timestep_minutes = 120)
+dat.himiwari <- fire_search_himawari(fire_bbox = dat.bbox,start_date = datestart, end_date = dateend,timestep_minutes = 240)
 
 ```
 Download the data

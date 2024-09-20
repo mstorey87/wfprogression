@@ -112,6 +112,7 @@ fire_sentinel3_tif <- function(fire_bbox,sen3_folder){
 
         }
 
+        out_ras <- terra::stretch(out_ras)
         print(paste0("writing ",outname))
         terra::writeRaster(out_ras,outname)
 

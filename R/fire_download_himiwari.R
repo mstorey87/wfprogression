@@ -1,3 +1,15 @@
+#' Title
+#'
+#' @param fire_bbox Fire bounding box polygon
+#' @param df_download Data frame of himawari paths from fire_search_himiwari() function
+#' @param bands Himawari bands to download. Default is 7, 4 and 1
+#' @param dest_folder File local destination
+#'
+#' @return Writes geotifs to disk
+#' @export
+#'
+#' @examples
+#' # fire_download_himiwari(fire_bbox = dat.bbox,df_download = dat.himiwari,dest_folder = outdir)
 fire_download_himiwari <- function(fire_bbox,df_download,bands=c("B07","B04","B01"),dest_folder){
 
 
