@@ -1,3 +1,13 @@
+#' Convert a list of Sentinel-3 SEN3.zips to geotiffs
+#'
+#' @param fire_bbox Bounding box polygon which the output tifs will be cropped to.
+#' @param sen3_folder path to folder where "SEN3.zips" are stored. All SEN3.zip in folder will be converted.
+#'
+#' @return Geotiffs written to disk
+#' @export
+#'
+#' @examples
+#' #fire_sentinel3_tif(fire_bbox = dat.fire.polygon,sen3_folder = outdir)
 fire_sentinel3_tif <- function(fire_bbox,sen3_folder){
 
   my.zips<- list.files(sen3_folder,full.names = T,pattern = ".zip") %>%

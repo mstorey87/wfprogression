@@ -1,9 +1,21 @@
-fire_hotspot_map <- function(fire_bbox,start_date,end_date,mapkey,dest_folder){
+#' Title
+#'
+#' @param fire_bbox Polygon of fire or area to search for images
+#' @param start_date First date from which to search for images
+#' @param end_date Final date to search for image
+#' @param mapkey A mapkey reuired to download hotspots, https://firms.modaps.eosdis.nasa.gov/api/map_key/
+#' @param dest_folder Folder to save output tifs other files used in processing, including hotspots
+#'
+#' @return Write a geotiff to disk. Also writes hotspots csv
+#' @export
+#'
+#' @examples
+fire_hotspot_map <- function(fire_bbox,start_date,end_date,mapkey="a5452249ca7c7a4ee2e1e6da787f57cc",dest_folder){
 
   #create a series of GIBS and hotspots maps
   date_seq <- seq(as.Date(start_date),as.Date(end_date),by="1 day")
 
-  hotspots <- fire_search_hotspots(fire_bbox,"a5452249ca7c7a4ee2e1e6da787f57cc",
+  hotspots <- fire_search_hotspots(fire_bbox,mapkey,
                                    min(date_seq)-1,#dates are in utc, so include day prior to capture local date
                                    max(date_seq),
                                    dest_folder) %>%

@@ -1,4 +1,17 @@
-fire_download_stac <- function(stac_df,dest_folder){
+#' Download and save false colour Landsat and Sentinel 2 images.
+#'
+#' @param fire_bbox Polygon of search area, same polygon used as input to fire_search_stac()
+#' @param stac_df Data frame that is the output of fire_search_stac
+#' @param dest_folder the output folder for geotifs.
+#'
+#' @return No return, save geotifs to file
+#' @export
+#'
+#' @examples
+#' #outdir <- "C:\\temp\\landsat_and_sentinel"
+#' #dir.create(outdir)
+#' #fire_download_stac(dat.bbox,dat.stac,outdir)
+fire_download_stac <- function(fire_bbox,stac_df,dest_folder){
 
 
   #stream and crop all the bands

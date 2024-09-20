@@ -10,7 +10,7 @@ fire_search_progs <- function(fire_poly,start_date,end_date){
                        port = 5432)
 
   #simplify fire polygon shape
-  fire_poly <- fire_poli %>%
+  fire_poly <- fire_poly %>%
     sf::st_transform(4283) %>%
     sf::st_concave_hull(ratio = 0.8)
 
@@ -18,8 +18,8 @@ fire_search_progs <- function(fire_poly,start_date,end_date){
   start_date <- paste0(start_date," 00:00:00")
   end_date <- paste0(as.Date(end_date)+1," 00:00:00")
 
-  #estract geometry of fire as text
-  txt_geom <- st_as_text(x2$geometry,EWKT=T)
+  #extract geometry of fire as text
+  txt_geom <- sf::st_as_text(fire_poly$geometry,EWKT=T)
 
   #create date part of query
   txt_date <- paste0("datetime between '",start_date, "' AND '", end_date,"'")
@@ -28,7 +28,8 @@ fire_search_progs <- function(fire_poly,start_date,end_date){
   myquery <- paste0("SELECT * FROM fires.progressions WHERE st_intersects(fires.progressions.geom,'",txt_geom,"') AND ", txt_date)
 
   #run query and get results
-  x <- sf::st_read(dsn=DB,query=myquery)
+  x <- sf::st_read(dsn=DB,query=myquery)%>%
+    sf::st_as_sf()
 
   DBI::dbDisconnect(DB)
 

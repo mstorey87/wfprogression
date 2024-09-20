@@ -1,3 +1,14 @@
+#' Search BOM repository of Himiwari data via thredds
+#'
+#' @param fire_bbox A polygon, usually fire bounding box, to search for images
+#' @param start_date The first date for which to search for images YYYY-mm-dd
+#' @param end_date The last date for which to search for images YYYY-mm-dd
+#' @param timestep_minutes minutes timestep in multiples of 10. e.g. search for images every 10 minutes or 60 minutes.
+#'
+#' @return
+#' @export
+#'
+#' @examples
 fire_search_himawari <- function(fire_bbox,
                                  start_date,
                                  end_date,

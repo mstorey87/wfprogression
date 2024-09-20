@@ -1,8 +1,6 @@
 fire_download_himiwari <- function(fire_bbox,df_download,bands=c("B07","B04","B01"),dest_folder){
 
 
-
-
   #transform bbox to himiwari crs
   #buffer first to capture wider area
   bbox_him <-fire_bbox %>%

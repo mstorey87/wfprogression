@@ -1,3 +1,15 @@
+#' Search Geoscience Aus. STAC for Landsat and Sentinel 2
+#' At the moment this export only 3 bands used to create false colour images
+#'
+#' @param fire_bbox A polygon, usually fire bounding box, to search for images
+#' @param start_date The first date for which to search for images YYYY-mm-dd
+#' @param end_date The last date for which to search for images YYYY-mm-dd
+#' @param collection_names Names of which Landsat and Sentinel 2 products to search for. Defaults to all products from Landsat 5 onwards.
+#'
+#' @return data frame with image paths
+#' @export
+#'
+#' @examples
 fire_search_stac <- function(fire_bbox,
                              start_date,
                              end_date,
