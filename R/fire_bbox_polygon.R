@@ -40,6 +40,7 @@ fire_bbox_polygon <- function(fire_polygon,
   fire_bbox <- fire_bbox %>%
     cbind(sf::st_drop_geometry(fire_polygon))
 
+  sf::st_geometry(fire_bbox) <- "geometry"
 
 
   return(fire_bbox)

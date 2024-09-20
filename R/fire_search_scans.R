@@ -1,4 +1,15 @@
-fire_search_scans <- function(fire_poly,start_date,end_date){
+#' Search for line scans
+#'
+#' @param fire_bbox A polygon, usually fire bounding box, to search for images
+#' @param start_date The first date for which to search for images YYYY-mm-dd
+#' @param end_date The last date for which to search for images YYYY-mm-dd
+#'
+#' @return sf object
+#' @export
+#'
+#' @examples
+#' #dat.scans.sf <- fire_search_scans(fire_bbox=dat.bbox,start_date=datestart,end_date=dateend)
+fire_search_scans <- function(fire_bbox,start_date,end_date){
 
   #connect to database
   DB <- DBI::dbConnect(RPostgres::Postgres(),
@@ -11,7 +22,7 @@ fire_search_scans <- function(fire_poly,start_date,end_date){
 
 
   #simplify fire polygon shape
-    fire_poly <- fire_poly %>%
+    fire_bbox <- fire_bbox %>%
        sf::st_transform(4283) %>%
        sf::st_concave_hull(ratio = 0.8)
 
@@ -20,7 +31,7 @@ fire_search_scans <- function(fire_poly,start_date,end_date){
   end_date <- paste0(as.Date(end_date)+1," 00:00:00")
 
   #extract geometry of fire as text
-  txt_geom <- sf::st_as_text(fire_poly$geometry,EWKT=T)
+  txt_geom <- sf::st_as_text(fire_bbox$geometry,EWKT=T)
 
   #create date part of query
   txt_date <- paste0("datetimelocal between '",start_date, "' AND '", end_date,"'")

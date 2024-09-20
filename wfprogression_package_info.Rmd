@@ -185,4 +185,13 @@ list.tifs <- list.files(outdir,pattern="\\.tif$",full.names = T)
 
 purrr::map(list.tifs,~fire_write_plot(.x,dat.fire.polygon,dat.bbox,outdir))
 ```
+```{r}
+dat.scans.sf <- fire_search_scans(fire_bbox=dat.bbox,
+                  start_date=datestart,
+                  end_date="2023-12-20")
+```
+
+```{r}
+dat.progs.sf <- fire_search_progs(fire_bbox=dat.bbox, start_date=datestart,  end_date="2023-12-20")
+```
 
