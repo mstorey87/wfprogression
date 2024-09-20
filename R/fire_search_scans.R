@@ -37,7 +37,7 @@ fire_search_scans <- function(fire_bbox,start_date,end_date){
   txt_date <- paste0("datetimelocal between '",start_date, "' AND '", end_date,"'")
 
   #create query
-  myquery <- paste0("SELECT * FROM fires.footprints WHERE st_intersects(fires.footprints.geom,'",txt_geom,"') AND ", txt_date)
+  myquery <- paste0("SELECT * FROM fires.ras_convexhulls2 WHERE st_intersects(fires.ras_convexhulls2.geom,'",txt_geom,"') AND ", txt_date)
 
   #run query and get results
   x <- sf::st_read(dsn=DB,query=myquery) %>%
