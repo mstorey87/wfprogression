@@ -1,3 +1,15 @@
+#' Title
+#'
+#' @param tif_path Path to geotiff
+#' @param polygon Polygon to map, usually fire hsitory boundary
+#' @param fire_bbox Fire bounding box polygon from fire_bbox_polygon()
+#' @param dest_folder Path to write jpg plots
+#'
+#' @return write jpgs to file
+#' @export
+#'
+#' @examples
+#' #purrr::map(list.tifs,~fire_write_plot(.x,dat.fire.polygon,dat.bbox,outdir))
 fire_write_plot <- function(tif_path,polygon,fire_bbox,dest_folder){
 
   image <- terra::rast(tif_path)

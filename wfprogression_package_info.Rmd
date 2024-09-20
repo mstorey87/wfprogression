@@ -181,8 +181,8 @@ fire_download_himiwari(fire_bbox = dat.bbox,df_download = dat.himiwari,dest_fold
 ```
 
 ```{r}
-dat.tifs <- list.files(outdir,pattern="\\.tif$",full.names = T)
+list.tifs <- list.files(outdir,pattern="\\.tif$",full.names = T)
 
-purrr::map(dat.tifs,~fire_write_plot(.x,dat.fire.polygon,dat.bbox,outdir))
+purrr::map(list.tifs,~fire_write_plot(.x,dat.fire.polygon,dat.bbox,outdir))
 ```
 

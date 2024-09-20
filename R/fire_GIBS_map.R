@@ -9,6 +9,19 @@
 # MODIS_Terra_Aerosol_Optical_Depth_3km
 # MODIS_Aqua_Aerosol_Optical_Depth_3km
 
+#' Create NASA GIBS map with NASA hotspots
+#'
+#' @param fire_bbox Fire bounding box polygon
+#' @param date_string Date for wms image request
+#' @param wms_lyr_name wms layer name. See fire_GIBS_products()
+#' @param add_hotspots Add VIIRS or MODIS hotspots. TRUE/FALSE
+#' @param hotspots hotspots sf object from fire_search_hotspots()
+#'
+#' @return leaflet map
+#' @export
+#'
+#' @examples
+#' # fire_GIBS_map(fire_bbox,date_seq[i],wms,T,hotspots)
 fire_GIBS_map <- function(fire_bbox,date_string,wms_lyr_name,add_hotspots=F,hotspots=NULL){
 
 

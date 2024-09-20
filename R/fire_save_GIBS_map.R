@@ -4,6 +4,17 @@
 
 
 
+#' Capture wms map screenshot and write geotiff
+#'
+#' @param fire_bbox Fire bounding box polygon
+#' @param wms_GIBS_map Leaflet map from fire_GIBS_map()
+#' @param dest_folder Output folder for geotiffs
+#'
+#' @return write geotiff to disk
+#' @export
+#'
+#' @examples
+#' # fire_save_GIBS_map(fire_bbox,m,dest_folder)
 fire_save_GIBS_map <- function(fire_bbox,wms_GIBS_map,dest_folder){
 
   #get bounding box coordinates
