@@ -29,3 +29,6 @@ data frame with image paths
 Search Geoscience Aus. STAC for Landsat and Sentinel 2
 At the moment this export only 3 bands used to create false colour images
 }
+\examples{
+#dat.stac <- fire_search_stac(fire_bbox = dat.bbox,start_date = datestart,end_date = dateend)
+}

@@ -15,6 +15,12 @@ fire_search_himawari(fire_bbox, start_date, end_date, timestep_minutes = 10)
 
 \item{timestep_minutes}{minutes timestep in multiples of 10. e.g. search for images every 10 minutes or 60 minutes.}
 }
+\value{
+Data frame with thredds path to Himawari data
+}
 \description{
 Search BOM repository of Himiwari data via thredds
+}
+\examples{
+#dat.himiwari <- fire_search_himawari(fire_bbox = dat.bbox,start_date = datestart, end_date = dateend,timestep_minutes = 120)
 }

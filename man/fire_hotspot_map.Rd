@@ -29,3 +29,6 @@ Write a geotiff to disk. Also writes hotspots csv
 \description{
 Title
 }
+\examples{
+#fire_hotspot_map(fire_bbox = dat.bbox,start_date = datestart,end_date = dateend,dest_folder = outdir)
+}
