@@ -2,7 +2,7 @@
 % Please edit documentation in R/fire_get_timezone.R
 \name{fire_get_timezone}
 \alias{fire_get_timezone}
-\title{Title}
+\title{Internal function to get time zone via sf intersect}
 \usage{
 fire_get_timezone(fire_bbox)
 }
@@ -13,7 +13,7 @@ fire_get_timezone(fire_bbox)
 String of time zone name
 }
 \description{
-Title
+Internal function to get time zone via sf intersect
 }
 \examples{
 #fire_get_timezone(dat.bbox)

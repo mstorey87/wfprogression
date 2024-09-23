@@ -20,12 +20,13 @@ fire_search_progs <- function(fire_bbox,start_date,end_date){
                        host = "charus.ad.uow.edu.au",
                        port = 5432)
 
-  #simplify fire polygon shape
+  #simplify fire polygon shape for intersect
+  #mainly useful when fire polygon is complex
   fire_bbox <- fire_bbox %>%
     sf::st_transform(4283) %>%
     sf::st_concave_hull(ratio = 0.8)
 
-  #add times on to dates for searching
+  #add times on to start and end dates
   start_date <- paste0(start_date," 00:00:00")
   end_date <- paste0(as.Date(end_date)+1," 00:00:00")
 
@@ -35,13 +36,14 @@ fire_search_progs <- function(fire_bbox,start_date,end_date){
   #create date part of query
   txt_date <- paste0("datetime between '",start_date, "' AND '", end_date,"'")
 
-  #create query
+  #create whole SQL query
   myquery <- paste0("SELECT * FROM fires.progressions WHERE st_intersects(fires.progressions.geom,'",txt_geom,"') AND ", txt_date)
 
   #run query and get results
   x <- sf::st_read(dsn=DB,query=myquery)%>%
     sf::st_as_sf()
 
+  #disconnect from database
   DBI::dbDisconnect(DB)
 
   if(nrow(x)==0){

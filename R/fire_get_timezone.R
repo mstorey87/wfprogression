@@ -1,4 +1,4 @@
-#' Title
+#' Internal function to get time zone via sf intersect
 #'
 #' @param fire_bbox Fire bounding box polygon
 #'

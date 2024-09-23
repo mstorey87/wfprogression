@@ -1,5 +1,4 @@
-#' Search Geoscience Aus. STAC for Landsat and Sentinel 2
-#' At the moment this export only 3 bands used to create false colour images
+#' Search Geoscience Aus. STAC for Landsat and Sentinel 2 data
 #'
 #' @param fire_bbox A polygon, usually fire bounding box, to search for images
 #' @param start_date The first date for which to search for images YYYY-mm-dd
@@ -54,6 +53,7 @@ fire_search_stac <- function(fire_bbox,
     dplyr::bind_rows()
 
 
+  #test if any images were found
   if(nrow(dat.x)>0){
 
 
@@ -63,11 +63,11 @@ fire_search_stac <- function(fire_bbox,
 
 
 
-    #set bands that will be used for rgb images
-    #this depends on satellite type
-    dat.x.sentinel2 <- dat.x %>% dplyr::filter(stringr::str_starts(product,"ga_s2"))
+    #set bands that will be used for rgb images. This only uses 3 bands at the moment to create false colour images.
+    #landsat and sentinel 2 bands have different names. So we need to rename bands depending on which satellite it is
 
     #if there are any sentinel 2 results, give common band names
+    dat.x.sentinel2 <- dat.x %>% dplyr::filter(stringr::str_starts(product,"ga_s2"))
     if(nrow(dat.x.sentinel2)>0){
       dat.x.sentinel2 <- dat.x.sentinel2 %>%
         dplyr::mutate(band1=nbart_swir_3,band2=nbart_swir_2,band3=nbart_red)
@@ -75,10 +75,8 @@ fire_search_stac <- function(fire_bbox,
     }
 
 
-
-    dat.x.landsat <- dat.x %>% dplyr::filter(stringr::str_starts(product,"ga_ls"))
-
     #if there are any landsat results, give common band names
+    dat.x.landsat <- dat.x %>% dplyr::filter(stringr::str_starts(product,"ga_ls"))
     if(nrow(dat.x.landsat)>0){
       dat.x.landsat <- dat.x.landsat %>%
         dplyr::mutate(band1=nbart_swir_2,band2=nbart_nir,band3=nbart_red)
@@ -100,6 +98,7 @@ fire_search_stac <- function(fire_bbox,
     my_tz <- fire_get_timezone(fire_bbox)
 
 
+    #calculate the time and image tile id fields
     dat.aws <- dat.aws %>%
       dplyr::mutate(datetimeutc=as.POSIXct(datetime,format="%Y-%m-%dT%H:%M:%OS",tz="UTC"),
                     datetimelocal=lubridate::with_tz(datetimeutc,tz=my_tz),

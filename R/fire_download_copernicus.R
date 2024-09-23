@@ -19,6 +19,7 @@ fire_download_copernicus <-  function(fire_bbox,
 
 
 
+  #define output paths
   download_df <- download_df %>%
     dplyr::mutate(outfile=paste0(dest_folder,"\\",filename,".zip"))
 
@@ -31,7 +32,7 @@ fire_download_copernicus <-  function(fire_bbox,
 
 
 
-#extract refresh token
+#extract refresh token from returned string
 myrefreshtoken <- purrr::map_chr(stringr::str_split(mytoken,"refresh_token"),2)
 myrefreshtoken <- purrr::map_chr(stringr::str_split(myrefreshtoken,":"),2)
 myrefreshtoken <- purrr::map_chr(stringr::str_split(myrefreshtoken,","),1)

@@ -2,8 +2,7 @@
 % Please edit documentation in R/fire_search_stac.R
 \name{fire_search_stac}
 \alias{fire_search_stac}
-\title{Search Geoscience Aus. STAC for Landsat and Sentinel 2
-At the moment this export only 3 bands used to create false colour images}
+\title{Search Geoscience Aus. STAC for Landsat and Sentinel 2 data}
 \usage{
 fire_search_stac(
   fire_bbox,
@@ -26,8 +25,7 @@ fire_search_stac(
 data frame with image paths
 }
 \description{
-Search Geoscience Aus. STAC for Landsat and Sentinel 2
-At the moment this export only 3 bands used to create false colour images
+Search Geoscience Aus. STAC for Landsat and Sentinel 2 data
 }
 \examples{
 #dat.stac <- fire_search_stac(fire_bbox = dat.bbox,start_date = datestart,end_date = dateend)

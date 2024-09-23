@@ -1,4 +1,4 @@
-#' Title
+#' Create geoferenced hotspot and WMS image
 #'
 #' @param fire_bbox Polygon of fire or area to search for images
 #' @param start_date First date from which to search for images
@@ -14,8 +14,10 @@
 fire_hotspot_map <- function(fire_bbox,start_date,end_date,mapkey="a5452249ca7c7a4ee2e1e6da787f57cc",dest_folder){
 
   #create a series of GIBS and hotspots maps
+  #define the sequence of dates
   date_seq <- seq(as.Date(start_date),as.Date(end_date),by="1 day")
 
+  #download hotspots
   hotspots <- fire_search_hotspots(fire_bbox,mapkey,
                                    min(date_seq)-1,#dates are in utc, so include day prior to capture local date
                                    max(date_seq),
@@ -25,6 +27,8 @@ fire_hotspot_map <- function(fire_bbox,start_date,end_date,mapkey="a5452249ca7c7
 
 
 
+  #define all the WMS layers that will be used. All of these have infrered or thermal bands that highlight active fire.
+  #these can be viewed through NASA worldview
   wms_layers <- c("MODIS_Aqua_CorrectedReflectance_Bands721",
                   "MODIS_Terra_CorrectedReflectance_Bands721",
                   "VIIRS_SNPP_CorrectedReflectance_BandsM11-I2-I1",
@@ -36,7 +40,7 @@ fire_hotspot_map <- function(fire_bbox,start_date,end_date,mapkey="a5452249ca7c7
                   "VIIRS_SNPP_Brightness_Temp_BandI5_Night")
 
 
-  #for each day download hotspots and create map
+  #for each day, create and save the wms map image
   for(i in 1:length(date_seq)){
 
 

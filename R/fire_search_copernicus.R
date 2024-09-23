@@ -5,7 +5,7 @@
 #' @param end_date Final date to search for image
 #' @param collection_names Defaults to "SENTINEL-3", but can be changed to access other image on copernicus stac. https://documentation.dataspace.copernicus.eu/APIs/STAC.html
 #'
-#' @return data frame with url to copernicus data
+#' @return data frame with urls for copernicus data
 #' @export
 #'
 #' @examples
@@ -22,15 +22,7 @@ fire_search_copernicus <- function(fire_bbox,
   )
 
 
-  #query based on location, date and collection name
-  stac_query <- rstac::stac_search(
-    q = stac_source,
-    bbox = sf::st_bbox(sf::st_transform(fire_bbox,4326)),#which crs??
-    collections = collection_names,
-    datetime = paste0(start_date,"T00:00:00Z","/",end_date,"T00:00:00Z"),
-     limit = 5000
-  )
-
+  #create sequence of dates in correct format for stac query
   date_seq <- as.POSIXct(paste0(seq(as.Date(start_date),as.Date(end_date),by="1 day"),"T00:00:00Z"),tz="UTC")
   date_seq_2 <- date_seq+lubridate::days(1)
   dates_chr <- paste0(format(date_seq,format="%Y-%m-%dT%H:%M:%SZ"),"/",format(date_seq_2,format="%Y-%m-%dT%H:%M:%SZ"))
@@ -46,10 +38,10 @@ fire_search_copernicus <- function(fire_bbox,
   ))
 
 
+  #run the queries
   executed_stac_query <- purrr::map(stac_queries, rstac::get_request)
 
-  #loop through each and   extract items properties including path and url
-
+  #loop through each and  extract items properties including path and url
   res.list <- list()
   for(i in 1:length(executed_stac_query)){
     exec.i <- executed_stac_query[[i]]
@@ -69,7 +61,7 @@ fire_search_copernicus <- function(fire_bbox,
   dat.x.all <- do.call(rbind,res.list)
 
 
-  #get the time zone
+  #get the time zone for the fire
   my_tz <- fire_get_timezone(fire_bbox)
 
 
@@ -83,7 +75,7 @@ fire_search_copernicus <- function(fire_bbox,
     #filter to RBT, which is radiances
     dplyr::filter(product=="SL_1_RBT___")%>%
 
-    #we only need one image for each time. Remove one of the files with identical time
+    #we only need one image for each time. Remove one of the files with identical acquisition time
     #sort by processing numbers first.
     dplyr::mutate(processing=substr(filename,87,87),
                   NNN=substr(filename,92,94))%>%

@@ -21,7 +21,7 @@ fire_search_copernicus(
 \item{collection_names}{Defaults to "SENTINEL-3", but can be changed to access other image on copernicus stac. https://documentation.dataspace.copernicus.eu/APIs/STAC.html}
 }
 \value{
-data frame with url to copernicus data
+data frame with urls for copernicus data
 }
 \description{
 Search copernicus stac browser for sentinel 3 (or other) images

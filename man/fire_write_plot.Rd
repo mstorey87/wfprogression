@@ -2,7 +2,7 @@
 % Please edit documentation in R/fire_write_plot.R
 \name{fire_write_plot}
 \alias{fire_write_plot}
-\title{Title}
+\title{Write R plots of geotiffs to file}
 \usage{
 fire_write_plot(tif_path, polygon, fire_bbox, dest_folder)
 }
@@ -19,7 +19,7 @@ fire_write_plot(tif_path, polygon, fire_bbox, dest_folder)
 write jpgs to file
 }
 \description{
-Title
+Write R plots of geotiffs to file
 }
 \examples{
 #purrr::map(list.tifs,~fire_write_plot(.x,dat.fire.polygon,dat.bbox,outdir))

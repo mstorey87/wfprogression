@@ -33,12 +33,14 @@ fire_GIBS_map <- function(fire_bbox,date_string,wms_lyr_name,add_hotspots=F,hots
   wms_map<-leaflet::leaflet(options = leaflet::leafletOptions(zoomSnap=0,crs = leaflet::leafletCRS("L.CRS.EPSG4326"))) %>%
     leaflet::addPolygons(data = fire_bbox,fillOpacity = 0,color = "red",weight = 2.4)
 
+  #add wms base layer
   wms_map2<-wms_map %>%
       leaflet::addWMSTiles('https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi',
                            layers = wms_lyr_name,
                            options = leaflet::WMSTileOptions(time = date_string))
 
 
+  #add hotspots
   if(add_hotspots==T){
 
     #create unique values for legend and filter hotspots by time and satellite
@@ -65,6 +67,7 @@ fire_GIBS_map <- function(fire_bbox,date_string,wms_lyr_name,add_hotspots=F,hots
     }
 
 
+    #add some useful columns for satellite/sensor name and a label for the map
     hotspots <- hotspots %>%
       dplyr::filter(sat_name==wms_lyr_name_abbrev) %>%
       dplyr::mutate(label=paste0(sat_name," ",datetimelocal)) %>%
@@ -72,13 +75,14 @@ fire_GIBS_map <- function(fire_bbox,date_string,wms_lyr_name,add_hotspots=F,hots
 
 
 
+    #test if any hotspots were found. If yes, add to map.
     if(nrow(hotspots)>0){
 
 
 
 
 
-    #add the hotspots
+    #add the hotspots to the leaflet map
     colpal <- leaflet::colorFactor(palette ="BrBG", unique(hotspots$label),reverse = T)
 
     wms_map2 <- wms_map2 %>%

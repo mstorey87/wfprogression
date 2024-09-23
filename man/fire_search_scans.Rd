@@ -2,7 +2,7 @@
 % Please edit documentation in R/fire_search_scans.R
 \name{fire_search_scans}
 \alias{fire_search_scans}
-\title{Search for line scans}
+\title{Search database for line scans}
 \usage{
 fire_search_scans(fire_bbox, start_date, end_date)
 }
@@ -17,7 +17,7 @@ fire_search_scans(fire_bbox, start_date, end_date)
 sf object
 }
 \description{
-Search for line scans
+Search database for line scans
 }
 \examples{
 #dat.scans.sf <- fire_search_scans(fire_bbox=dat.bbox,start_date=datestart,end_date=dateend)

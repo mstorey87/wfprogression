@@ -1,9 +1,3 @@
-#mapkey <- "a5452249ca7c7a4ee2e1e6da787f57cc"
-#product <- "VIIRS_SNPP_SP"#"VIIRS_SNPP_NRT",VIIRS_SNPP_SP,VIIRS_NOAA20_NRT,VIIRS_NOAA21_NRT,MODIS_SP,MODIS_NRT
-#start_date="2023-12-01"
-#end_date="2023-12-31"
-#dest_fold <- "C:\\temp_data\\xxx"
-
 #' Search NASA FIRMS hotspots API
 #'
 #' @param fire_bbox Bounding sf polygon of search area
@@ -20,13 +14,13 @@
 #' #z <- fire_search_hotspots(x$fire_bbox,mapkey,x$fire_bbox$startdate_search,x$fire_bbox$enddate_search,"C:/temp_data","NRT")
 fire_search_hotspots <- function(fire_bbox,mapkey,start_date,end_date,dest_folder,product_filter=NULL){
 
-  #API only allows 10 days per query, queries will need to be in groups of 10 days
+  #API only allows 10 days per query, so queries need to be iterated in groups of 10 days
   #get the groups of 10 (or less) days
   n_days <- as.numeric(difftime(end_date,start_date,units="days"))+1
   date_seq <- as.character(seq(as.Date(start_date),as.Date(end_date),by="1 day"))
   date_groups <- split(date_seq,ceiling(seq_along(date_seq)/10))
 
-  #create a date string required for the api path n_days/startdate
+  #create a date string required for the api path: n_days/startdate
   date_groups <- paste0(unlist(lapply(date_groups,length)),"/",unlist(lapply(date_groups, `[[`, 1)))
 
   #a string of the bounding box coordinates for the api path
@@ -51,12 +45,12 @@ fire_search_hotspots <- function(fire_bbox,mapkey,start_date,end_date,dest_folde
     dplyr::mutate(pth=paste0(Var1,Var2)) %>%
     .$pth
 
-  #download both. If no hotspots are found, a file with only headers will be downloaded
+  #create local paths to save downloaded hotspots
   out.files <- paste0(dest_folder,"\\hotspots\\hs_",seq(length(path_api)),"_",
                       purrr::map_chr(stringr::str_split(path_api,"/"),8),".csv")
-
-
   dir.create(unique(dirname(out.files)), showWarnings = F)
+
+  #download hotspots. If no hotspots are found, a file with only headers will be downloaded
   download.file(path_api,out.files,mode="wb")
 
   #load hotspots and combine
@@ -84,6 +78,7 @@ fire_search_hotspots <- function(fire_bbox,mapkey,start_date,end_date,dest_folde
     #get the time zone for the fire
     my_tz <- fire_get_timezone(fire_bbox)
 
+    #calcualte date and time fields
     dat.hotspots <- dat.hotspots %>%
       dplyr::mutate(acq_time=paste0("0000",acq_time),
                     acq_time=substr(acq_time,nchar(acq_time)-3,nchar(acq_time)),
@@ -92,6 +87,7 @@ fire_search_hotspots <- function(fire_bbox,mapkey,start_date,end_date,dest_folde
                     datetimelocal=lubridate::with_tz(datetimeutc,tzone=timezone),
                                                             datelocal=format(datetimelocal,format="%Y-%m-%d"))
 
+    #write a hotspots shapefile
     sf::st_write(dat.hotspots,paste0(dest_folder,"\\hotspots.shp"),delete_dsn=T)
 
   }

@@ -1,4 +1,4 @@
-#' Title
+#' Download Himawari images from BOM thredds server
 #'
 #' @param fire_bbox Fire bounding box polygon
 #' @param df_download Data frame of himawari paths from fire_search_himiwari() function
@@ -21,16 +21,14 @@ fire_download_himiwari <- function(fire_bbox,df_download,bands=c("B07","B04","B0
     sf::st_transform("+proj=geos +lon_0=140.7 +h=35785863 +x_0=0 +y_0=0 +a=6378137 +b=6356752.3 +units=m +no_defs") %>%
     sf::st_bbox()
 
-
-  df_download <- df_download %>%
     #filter and arrange bands by user input
+  df_download <- df_download %>%
     dplyr::filter(band %in% bands)%>%
     dplyr::arrange(factor(band,levels=rev(bands)))
 
+
+  #loop through each time and make an rgb or single band depending on time of day
   times_unique <- unique(df_download$datetimelocal_chr)
-
-
-  #loop through and make an rgb or single band depending on time of day
   for(i in 1:length(times_unique)){
 
     dat.i <- df_download %>%
@@ -38,6 +36,7 @@ fire_download_himiwari <- function(fire_bbox,df_download,bands=c("B07","B04","B0
 
     if(dat.i$daynight[1]=="day" & nrow(dat.i==3) & length(bands)==3){
 
+      #stream and crop nc using tidync and terra
       dat.i <- dat.i %>%
         dplyr::mutate(nc=purrr::map(path_download,tidync::tidync),
                       rast=purrr::map(nc,~.x %>%
@@ -61,6 +60,7 @@ fire_download_himiwari <- function(fire_bbox,df_download,bands=c("B07","B04","B0
       dat.i <- dat.i %>%
         dplyr::filter(band==bands[1])
 
+      #stream and crop
       b <- tidync::tidync(dat.i$path_download)
       b.local <- b  %>%
         tidync::activate(b$variable$name[6]) %>%
@@ -81,6 +81,8 @@ fire_download_himiwari <- function(fire_bbox,df_download,bands=c("B07","B04","B0
     r <- r %>%  terra::stretch()
     #set Himawari crs
     terra::crs(r) <- "+proj=geos +lon_0=140.7 +h=35785863 +x_0=0 +y_0=0 +a=6378137 +b=6356752.3 +units=m +no_defs"
+
+    #write to disk
     outtif <- paste0(dest_folder,"\\",dat.i$datetimelocal_chr[1],"_",
                      dat.i$satellite[1],"_",paste0(bands,collapse = ""),".tif")
     terra::writeRaster(r,outtif)

@@ -4,7 +4,7 @@
 #' @param stac_df Data frame that is the output of fire_search_stac
 #' @param dest_folder the output folder for geotifs.
 #'
-#' @return No return, save geotifs to file
+#' @return Writes geotifs to file
 #' @export
 #'
 #' @examples
@@ -15,6 +15,7 @@ fire_download_stac <- function(fire_bbox,stac_df,dest_folder){
 
 
   #stream and crop all the bands
+  #these functions only deal with 3 selected bands for now.
   stac_df <- stac_df %>%
     dplyr::mutate(band1_stream=purrr::map(band1,~terra::rast(paste0("/vsicurl/",.x))),
                   band2_stream=purrr::map(band2,~terra::rast(paste0("/vsicurl/",.x))),
@@ -33,7 +34,7 @@ fire_download_stac <- function(fire_bbox,stac_df,dest_folder){
       b3 <- terra::resample(b3,b1)
       b2 <- terra::resample(b2,b1)
 
-      #create rgb
+      #create rgb and write to file
       rgb <- c(b1,b2,b3)
 
       out.file <- paste0(dest_folder,"/",dat$datetimelocal_chr,"_",dat$product,"_",dat$tile_dateutc,"utc",".tif")

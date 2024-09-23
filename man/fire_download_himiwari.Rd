@@ -2,7 +2,7 @@
 % Please edit documentation in R/fire_download_himiwari.R
 \name{fire_download_himiwari}
 \alias{fire_download_himiwari}
-\title{Title}
+\title{Download Himawari images from BOM thredds server}
 \usage{
 fire_download_himiwari(
   fire_bbox,
@@ -24,7 +24,7 @@ fire_download_himiwari(
 Writes geotifs to disk
 }
 \description{
-Title
+Download Himawari images from BOM thredds server
 }
 \examples{
 # fire_download_himiwari(fire_bbox = dat.bbox,df_download = dat.himiwari,dest_folder = outdir)

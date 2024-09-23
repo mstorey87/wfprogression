@@ -14,7 +14,7 @@ fire_download_stac(fire_bbox, stac_df, dest_folder)
 \item{dest_folder}{the output folder for geotifs.}
 }
 \value{
-No return, save geotifs to file
+Writes geotifs to file
 }
 \description{
 Download and save false colour Landsat and Sentinel 2 images.

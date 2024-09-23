@@ -2,7 +2,7 @@
 % Please edit documentation in R/fire_hotspot_map.R
 \name{fire_hotspot_map}
 \alias{fire_hotspot_map}
-\title{Title}
+\title{Create geoferenced hotspot and WMS image}
 \usage{
 fire_hotspot_map(
   fire_bbox,
@@ -27,7 +27,7 @@ fire_hotspot_map(
 Write a geotiff to disk. Also writes hotspots csv
 }
 \description{
-Title
+Create geoferenced hotspot and WMS image
 }
 \examples{
 #fire_hotspot_map(fire_bbox = dat.bbox,start_date = datestart,end_date = dateend,dest_folder = outdir)
