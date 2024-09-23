@@ -189,6 +189,10 @@ purrr::map(list.tifs,~fire_write_plot(.x,dat.fire.polygon,dat.bbox,outdir))
 dat.scans.sf <- fire_search_scans(fire_bbox=dat.bbox,
                   start_date=datestart,
                   end_date="2023-12-20")
+
+dat.scans.sf <- dat.scans.sf %>% 
+  head() %>% 
+  dplyr::mutate(ras=purrr::map(s3path,terra::rast))
 ```
 
 ```{r}
