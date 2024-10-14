@@ -79,6 +79,9 @@ Inputs are the data frame produced by fire_search_stac and an output folder
 ```{r}
 
 fire_download_stac(dat.bbox,dat.stac,outdir)
+
+list.files(outdir,full.names=T,pattern="_ga_") %>% 
+  purrr::map(.,~terra::plotRGB(terra::rast(.x))[[1]])
 ```
 
 
@@ -116,6 +119,8 @@ We can then filter that and download selected images, cropped to our bounding bo
 dat.himiwari <- fire_search_himawari(fire_bbox = dat.bbox,start_date = datestart, end_date = dateend,timestep_minutes = 240)
 
 ```
+
+
 Download the data
 Filter this data frame first to download one day as an example.
 Only the part of image within the bbox will be downloaded. 
@@ -127,46 +132,11 @@ dat.himiwari.filt <- dat.himiwari %>%
   dplyr::filter(date_local==min(date_local),daynight=="day")
 
 fire_download_himiwari(fire_bbox = dat.bbox,df_download = dat.himiwari,dest_folder = outdir)
-```
 
-```{r}
-list.tifs <- list.files(outdir,pattern="\\.tif$",full.names = T)
 
-purrr::map(list.tifs,~fire_write_plot(.x,dat.fire.polygon,dat.bbox,outdir))
-```
-```{r}
-dat.scans.sf <- fire_search_scans(fire_bbox=dat.bbox,
-                  start_date=datestart,
-                  end_date="2023-12-20")
-
-mapview::mapview(dat.scans.sf,col.regions="s3name")
 ```
 
 
-
-
-```{r}
-dat.scans.sf <- dat.scans.sf %>% 
-  head() %>% 
-  dplyr::mutate(ras=purrr::map(s3path,terra::rast))
-```
-
-
-search for progressions.
-There are no progressions for the example fire in the database yet, so as an example do a search with very broad dates to see if there are any progressions from other fires nearby
-```{r}
-dat.progs.sf <- fire_search_progs(fire_bbox=dat.bbox, start_date="2015-01-01",  end_date="2024-01-01")
-mapview(dat.progs.sf)
-```
-
-
-Get the associated line scans
-Each polygon have more than one scan in the s3name field, seperate by ;
-```{r}
-list.scans <- dat.progs.sf$s3name %>% 
-  stringr::str_split(.,";")
-
-```
 
 
 ## Sentinel 3
@@ -209,3 +179,47 @@ fire_sentinel3_tif(fire_bbox = dat.fire.polygon,
 list.files(outdir,full.names=T,pattern="sentinel3.tif") %>% 
   purrr::map(.,~terra::plotRGB(terra::rast(.x))[[1]])
 ```
+
+
+
+<!-- # Plot all images -->
+<!-- plot all images at standard scale -->
+<!-- ```{r} -->
+<!-- list.tifs <- list.files(outdir,pattern="\\.tif$",full.names = T) -->
+
+
+<!-- purrr::map(list.tifs,~fire_write_plot(.x,dat.fire.polygon,dat.bbox,outdir)) -->
+<!-- ``` -->
+
+
+
+
+# Line scans
+Function to search line scan bounding box polygons charus database
+Data are still being corrected and uploaded to the database, so this function does not work properly yet
+
+```{r}
+dat.scans.sf <- fire_search_scans(fire_bbox=dat.bbox,
+                  start_date=datestart,
+                  end_date="2023-12-20")
+
+mapview::mapview(dat.scans.sf)
+```
+
+# Progressions.
+Search database on charus for fire progression polygons
+There are no progressions for the example fire in the database yet, so as an example do a search with very broad dates to see if there are any progressions from other fires nearby
+```{r}
+dat.progs.sf <- fire_search_progs(fire_bbox=dat.bbox, start_date="2015-01-01",  end_date="2024-01-01")
+mapview(dat.progs.sf)
+```
+
+
+Get the associated line scans names
+Each polygon can have more than one scan in the s3name field, seperate by ;
+The scans are not uploaded to storage grid yet, so we can download yet
+```{r}
+stringr::str_split(dat.progs.sf$s3name,";")
+
+```
+
