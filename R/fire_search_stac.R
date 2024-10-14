@@ -106,7 +106,8 @@ fire_search_stac <- function(fire_bbox,
                     #tile and date string to use in output file name
                     tile_dateutc=paste0(purrr::map_chr(stringr::str_split(basename(band1),"_"),5),"_",
                                         purrr::map_chr(stringr::str_split(basename(band1),"_"),6))) %>%
-      dplyr::select(dplyr::matches("datetime|product|tile"),dplyr::everything())
+      dplyr::select(dplyr::matches("datetime|product|tile"),dplyr::everything()) %>%
+      dplyr::arrange(datetimelocal)
 
 
 

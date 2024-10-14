@@ -37,6 +37,8 @@ fire_download_stac <- function(fire_bbox,stac_df,dest_folder){
       #create rgb and write to file
       rgb <- c(b1,b2,b3)
 
+      rgb <- terra::stretch(rgb)
+
       out.file <- paste0(dest_folder,"/",dat$datetimelocal_chr,"_",dat$product,"_",dat$tile_dateutc,"utc",".tif")
 
       terra::writeRaster(rgb,out.file)

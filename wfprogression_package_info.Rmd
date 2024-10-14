@@ -1,8 +1,10 @@
 ---
 title: "wfprogression"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 date: "2024-09-18"
-editor_options: 
+editor_options:
   chunk_output_type: inline
 ---
 
@@ -40,29 +42,16 @@ for all the image search functions we need a start date and end date to search
 For all the image download function we need an output folder
 ```{r}
 #get start and end dates (or insert your own)
-datestart <- "2021-12-06"#dat.fire.polygon$StartDate
-dateend <- "2021-12-10"#"2023-12-08"
+datestart <- as.character(dat.fire.polygon$StartDate)
+dateend <- "2023-12-10"
 
 #set an output path for all the images that will be downloaded
-outdir <- "C:\\temp\\cald"
+outdir <- "C:\\temp\\data_test"
 dir.create(outdir)
 
 ```
 
 
-
-
-
-We can also draw a polygon for the area we would like to search
-```{r}
-dat.aus <- rnaturalearth::ne_countries(country = "Australia") %>% 
-  dplyr::select(brk_name)
-
-map <- mapview(dat.aus)
-mapedit::drawFeatures(map) %>% 
-  sf::st_transform(4283)
-
-```
 
 ## Search for satellite images
 There are functions to search for satellite images of a fire area (using the bounding box polygon).
@@ -78,7 +67,7 @@ Sentinel and Landsat images are not captured daily, so the function may not retu
 
 
 #run function. Leave "collection_names" to default to all Landsat and Sentinel 2
-dat.stac <- fire_search_stac(fire_bbox = dat.bbox,start_date = datestart,end_date = "2021-12-17")
+dat.stac <- fire_search_stac(fire_bbox = dat.bbox,start_date = datestart,end_date = dateend)
 head(dat.stac)
 
 ```
@@ -92,46 +81,6 @@ Inputs are the data frame produced by fire_search_stac and an output folder
 fire_download_stac(dat.bbox,dat.stac,outdir)
 ```
 
-## Sentinel 3
-Sentinel 3 are course scale images, more similar to MODIS.
-These are not held by Geoscience Australia, but we can search for and download from the copernicus STAC browser.
-Sentinel 3 data may only be useful for large fires where nothing else is available, given its coarse resolution.
-collection_names can be changed to search for other available products, see here: https://documentation.dataspace.copernicus.eu/APIs/STAC.html
-
-```{r}
-dat.sen3 <- fire_search_copernicus(fire_bbox = dat.bbox,start_date = datestart,end_date = dateend)
-
-```
-
-Download the data
-These are not cloud-optimised geotiffs, so we need to download the whole files, which can be slow.
-There is then a seperate function to create the false colour RGBs.
-We can filter the data frame to download just some of the images.
-A copernicus account is required to download the data. I have defaulted the user name and password to my mstorey account, but this would need to be changed. Sign up here:
-https://dataspace.copernicus.eu/
-
-
-```{r}
-#downloading these files takes a long time
-#but we can extract just some of the files to download e.g. daytime images
-dat.sen3.filt <- dat.sen3 %>% 
-  dplyr::filter(lubridate::hour(datetimelocal) %in% 8:19)
-
-fire_download_copernicus(fire_bbox = dat.bbox,download_df = dat.sen3.filt,dest_folder = outdir)
-```
-
-convert downloaded sentinel 3 zips to geotiffs
-Input path is folder where SEN3.zips where written. The function will list and convert all SEN3.zips in that folder to geotiffs.
-There are no atmospheric or topographic corrections performed.
-The geotiffs will be cropped to fire_bbox
-```{r message=FALSE, warning=FALSE}
-fire_sentinel3_tif(fire_bbox = dat.fire.polygon,
-                    sen3_folder = outdir)
-
-#read and plot the output tifs.
-list.files(outdir,full.names=T,pattern="sentinel3.tif") %>% 
-  purrr::map(.,~terra::plotRGB(terra::rast(.x))[[1]])
-```
 
 
 
@@ -219,3 +168,44 @@ list.scans <- dat.progs.sf$s3name %>%
 
 ```
 
+
+## Sentinel 3
+Sentinel 3 are course scale images, more similar to MODIS.
+These are not held by Geoscience Australia, but we can search for and download from the copernicus STAC browser.
+Sentinel 3 data may only be useful for large fires where nothing else is available, given its coarse resolution.
+collection_names can be changed to search for other available products, see here: https://documentation.dataspace.copernicus.eu/APIs/STAC.html
+
+```{r}
+dat.sen3 <- fire_search_copernicus(fire_bbox = dat.bbox,start_date = datestart,end_date = dateend)
+
+```
+
+Download the data
+These are not cloud-optimised geotiffs, so we need to download the whole files, which can be slow.
+There is then a separate function to create the false colour RGBs.
+We can filter the data frame to download just some of the images.
+A copernicus account is required to download the data. I have defaulted the user name and password to my mstorey account, but this would need to be changed. Sign up here:
+https://dataspace.copernicus.eu/
+
+
+```{r}
+#downloading these files takes a long time
+#but we can extract just some of the files to download e.g. daytime images
+dat.sen3.filt <- dat.sen3 %>% 
+  dplyr::filter(lubridate::hour(datetimelocal) %in% 8:19)
+
+fire_download_copernicus(fire_bbox = dat.bbox,download_df = dat.sen3.filt,dest_folder = outdir)
+```
+
+convert downloaded sentinel 3 zips to geotiffs
+Input path is folder where SEN3.zips where written. The function will list and convert all SEN3.zips in that folder to geotiffs.
+There are no atmospheric or topographic corrections performed.
+The geotiffs will be cropped to fire_bbox
+```{r message=FALSE, warning=FALSE}
+fire_sentinel3_tif(fire_bbox = dat.fire.polygon,
+                    sen3_folder = outdir)
+
+#read and plot the output tifs.
+list.files(outdir,full.names=T,pattern="sentinel3.tif") %>% 
+  purrr::map(.,~terra::plotRGB(terra::rast(.x))[[1]])
+```
