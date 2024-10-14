@@ -40,11 +40,11 @@ for all the image search functions we need a start date and end date to search
 For all the image download function we need an output folder
 ```{r}
 #get start and end dates (or insert your own)
-datestart <- dat.fire.polygon$StartDate
-dateend <- "2023-12-08"
+datestart <- "2021-12-06"#dat.fire.polygon$StartDate
+dateend <- "2021-12-10"#"2023-12-08"
 
 #set an output path for all the images that will be downloaded
-outdir <- "C:\\temp\\tifs2"
+outdir <- "C:\\temp\\cald"
 dir.create(outdir)
 
 ```
@@ -78,7 +78,7 @@ Sentinel and Landsat images are not captured daily, so the function may not retu
 
 
 #run function. Leave "collection_names" to default to all Landsat and Sentinel 2
-dat.stac <- fire_search_stac(fire_bbox = dat.bbox,start_date = datestart,end_date = dateend)
+dat.stac <- fire_search_stac(fire_bbox = dat.bbox,start_date = datestart,end_date = "2021-12-17")
 head(dat.stac)
 
 ```
@@ -203,8 +203,19 @@ dat.scans.sf <- dat.scans.sf %>%
 ```
 
 
-
+search for progressions.
+There are no progressions for the example fire in the database yet, so as an example do a search with very broad dates to see if there are any progressions from other fires nearby
 ```{r}
-dat.progs.sf <- fire_search_progs(fire_bbox=dat.bbox, start_date=datestart,  end_date="2023-12-20")
+dat.progs.sf <- fire_search_progs(fire_bbox=dat.bbox, start_date="2015-01-01",  end_date="2024-01-01")
+mapview(dat.progs.sf)
+```
+
+
+Get the associated line scans
+Each polygon have more than one scan in the s3name field, seperate by ;
+```{r}
+list.scans <- dat.progs.sf$s3name %>% 
+  stringr::str_split(.,";")
+
 ```
 

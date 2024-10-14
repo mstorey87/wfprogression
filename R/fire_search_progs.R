@@ -34,10 +34,10 @@ fire_search_progs <- function(fire_bbox,start_date,end_date){
   txt_geom <- sf::st_as_text(fire_bbox$geometry,EWKT=T)
 
   #create date part of query
-  txt_date <- paste0("datetime between '",start_date, "' AND '", end_date,"'")
+  txt_date <- paste0("dt_local between '",start_date, "' AND '", end_date,"'")
 
   #create whole SQL query
-  myquery <- paste0("SELECT * FROM fires.progressions WHERE st_intersects(fires.progressions.geom,'",txt_geom,"') AND ", txt_date)
+  myquery <- paste0("SELECT * FROM fires.progressions2 WHERE st_intersects(fires.progressions2.geom,'",txt_geom,"') AND ", txt_date)
 
   #run query and get results
   x <- sf::st_read(dsn=DB,query=myquery)%>%
