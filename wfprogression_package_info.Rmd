@@ -51,7 +51,7 @@ datestart <- as.character(dat.fire.polygon$StartDate)
 dateend <- "2023-12-10"
 
 #set an output path for all the images that will be downloaded
-outdir <- "C:\\temp\\datatest"
+outdir <- "C:\\temp\\datatest1"
 dir.create(outdir)
 
 ```

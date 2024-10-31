@@ -71,6 +71,7 @@ fire_search_himawari <- function(fire_bbox,
 
 
 
+  return(dat.paths)
 
 }
 
