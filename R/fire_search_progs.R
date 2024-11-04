@@ -42,13 +42,13 @@ fire_search_progs <- function(fire_bbox=fire_bbox_polygon(),start_date="1990-01-
   #user input option to return results without geometry to save time
   #run query and get results
   if(return_geom==TRUE){
-    myquery <- paste0("SELECT * FROM fires.progressions2 WHERE st_intersects(fires.progressions2.geom,'",txt_geom,"') AND ", txt_date)
+    myquery <- paste0("SELECT * FROM fires.prog_polygons WHERE st_intersects(fires.prog_polygons.geom,'",txt_geom,"') AND ", txt_date)
     x <- sf::st_read(dsn=DB,query=myquery) %>%
       sf::st_as_sf()
   }
 
   if(return_geom==FALSE){
-    myquery <- paste0("SELECT dt_utc,firetype,progid,notes,sourceshp,firename,season,sourcetype,aus_state,dt_local,scanname,id,s3name FROM fires.progressions2 WHERE st_intersects(fires.progressions2.geom,'",txt_geom,"') AND ", txt_date)
+    myquery <- paste0("SELECT dt_utc,firetype,progid,notes,sourceshp,firename,season,sourcetype,aus_state,dt_local,scanname,id,s3name FROM fires.prog_polygons WHERE st_intersects(fires.prog_polygons.geom,'",txt_geom,"') AND ", txt_date)
     x <- DBI::dbGetQuery(DB,myquery)
   }
 
