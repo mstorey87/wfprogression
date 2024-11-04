@@ -9,7 +9,7 @@
 #'
 #' @examples
 #' #dat.scans.sf <- fire_search_scans(fire_bbox=dat.bbox,start_date=datestart,end_date=dateend)
-fire_search_scans <- function(fire_bbox,start_date,end_date){
+fire_search_scans <- function(fire_bbox=NULL,start_date=NULL,end_date=NULL){
 
   #connect to database
   DB <- DBI::dbConnect(RPostgres::Postgres(),
@@ -21,11 +21,25 @@ fire_search_scans <- function(fire_bbox,start_date,end_date){
 
 
 
+  #if no bounding box entered, use all of australia
+  if(is.null(fire_bbox)){
+    fire_bbox=fire_bbox_polygon()
+  }
+  #if no start or end dates entered, use deaults to capture all scans
+    if(is.null(start_date)){
+      start_date="1800-01-01"
+    }
+    if(is.null(end_date)){
+      end_date="3000-01-01"
+    }
+
   #simplify fire polygon shape
   #this is useful if a complex fire polygon is the input.
     fire_bbox <- fire_bbox %>%
        sf::st_transform(4283) %>%
        sf::st_concave_hull(ratio = 0.8)
+
+
 
   #add times on to dates for searching
   start_date <- paste0(start_date," 00:00:00")

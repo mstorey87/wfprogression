@@ -23,6 +23,18 @@ fire_search_progs <- function(fire_bbox,start_date,end_date){
   #simplify fire polygon shape for intersect
   #mainly useful when fire polygon is complex
 
+  #if no bounding box entered, use all of australia
+  if(is.null(fire_bbox)){
+    fire_bbox=fire_bbox_polygon()
+  }
+  #if no start or end dates entered, use deaults to capture all scans
+  if(is.null(start_date)){
+    start_date="1800-01-01"
+  }
+  if(is.null(end_date)){
+    end_date="3000-01-01"
+  }
+
 
   fire_bbox <- fire_bbox %>%
     sf::st_transform(4283) %>%
