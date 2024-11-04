@@ -48,7 +48,7 @@ fire_search_progs <- function(fire_bbox=fire_bbox_polygon(),start_date="1990-01-
 
   if(return_geom==FALSE){
     myquery <- paste0("SELECT dt_utc,firetype,progid,notes,sourceshp,firename,season,sourcetype,aus_state,dt_local,scanname,id,s3name FROM fires.progressions2 WHERE st_intersects(fires.progressions2.geom,'",txt_geom,"') AND ", txt_date)
-    x <- sf::st_read(dsn=DB,query=myquery)
+    x <- DBI::dbGetQuery(DB,myquery)
   }
 
 
