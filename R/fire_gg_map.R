@@ -1,4 +1,14 @@
-#make and save plot with linescan background
+#' create gg plot with image and or polgon
+#'
+#' @param image terra::rast() object
+#' @param prog sf polygons
+#' @param agg value for terra::aggregate()
+#'
+#' @return gg plot
+#' @export
+#'
+#' @examples
+#' #
 fn_gg_map <- function(image=NULL,prog=NULL,agg=5){
 
   #replace na with zero to ensure terrainr function works

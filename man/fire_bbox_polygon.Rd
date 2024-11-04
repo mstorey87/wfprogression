@@ -4,14 +4,14 @@
 \alias{fire_bbox_polygon}
 \title{Create a bounding box polygon}
 \usage{
-fire_bbox_polygon(fire_polygon, bbox_buffer_km, new_crs = NULL)
+fire_bbox_polygon(search_polygon = NULL, bbox_buffer_km = 0, new_crs = NULL)
 }
 \arguments{
-\item{fire_polygon}{An sf object which is the fire boundary polygon (or search area)}
-
 \item{bbox_buffer_km}{How many km to buffer the fire polygon by during the creation of a bounding box.}
 
 \item{new_crs}{New epsg code if transformation is required. Default to 4283 (GDA94)}
+
+\item{fire_polygon}{An sf object which is the fire boundary polygon (or search area)}
 }
 \value{
 A list with one fire polygon and one bounding box polygon

@@ -4,7 +4,11 @@
 \alias{fire_search_scans}
 \title{Search database for line scans}
 \usage{
-fire_search_scans(fire_bbox, start_date, end_date)
+fire_search_scans(
+  fire_bbox = fire_bbox_polygon(),
+  start_date = "1990-01-01",
+  end_date = "2100-01-01"
+)
 }
 \arguments{
 \item{fire_bbox}{A polygon, usually fire bounding box, to search for images}

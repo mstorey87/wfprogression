@@ -4,7 +4,12 @@
 \alias{fire_search_progs}
 \title{Search for fire progression polygons}
 \usage{
-fire_search_progs(fire_bbox, start_date, end_date)
+fire_search_progs(
+  fire_bbox = fire_bbox_polygon(),
+  start_date = "1990-01-01",
+  end_date = "2100-01-01",
+  return_geom = TRUE
+)
 }
 \arguments{
 \item{fire_bbox}{A polygon, usually fire bounding box, to search for images}
