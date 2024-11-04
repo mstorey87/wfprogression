@@ -13,6 +13,7 @@ RoxygenNote: 7.3.2
 Imports: 
     dplyr,
     gdalcubes,
+    ggplot2,
     leaflegend,
     leaflet,
     lubridate,
@@ -26,6 +27,8 @@ Imports:
     rvest,
     sf,
     stringr,
+    terra,
+    terrainr,
     tibble,
     tidyr,
     tools,

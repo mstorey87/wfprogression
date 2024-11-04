@@ -1,4 +1,4 @@
-#' create gg plot with image and or polgon
+#' create gg plot with image and or polygon
 #'
 #' @param image terra::rast() object
 #' @param prog sf polygons
@@ -9,7 +9,7 @@
 #'
 #' @examples
 #' #
-fn_gg_map <- function(image=NULL,prog=NULL,agg=5){
+fire_gg_map <- function(image=NULL,prog=NULL,agg=5){
 
   #replace na with zero to ensure terrainr function works
   image <- terra::subst(image,NA,0)

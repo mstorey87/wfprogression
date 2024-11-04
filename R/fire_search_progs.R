@@ -3,6 +3,7 @@
 #' @param fire_bbox A polygon, usually fire bounding box, to search for images
 #' @param start_date The first date for which to search for images YYYY-mm-dd
 #' @param end_date The last date for which to search for images YYYY-mm-dd
+#' @param return_geom TRUE return sf object, FALSE return data frame
 #'
 #' @return sf object
 #' @export

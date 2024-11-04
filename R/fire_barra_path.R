@@ -10,7 +10,7 @@
 #' @examples
 #' #fn_barra_path(datetimeutc = as.POSIXct("2019-12-01 10:00:00",tz="utc"),barraid = "R2",varname = "sfcWind")
 
-fn_barra_path <- function(datetimeutc,barraid,varname){
+fire_barra_path <- function(datetimeutc,barraid,varname){
   #construct thredds file path
   if(barraid=="R2")  barraid1="AUS-11"
   if(barraid=="C2")  barraid1="AUST-04"

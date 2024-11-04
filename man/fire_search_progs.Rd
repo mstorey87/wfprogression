@@ -17,6 +17,8 @@ fire_search_progs(
 \item{start_date}{The first date for which to search for images YYYY-mm-dd}
 
 \item{end_date}{The last date for which to search for images YYYY-mm-dd}
+
+\item{return_geom}{TRUE return sf object, FALSE return data frame}
 }
 \value{
 sf object
