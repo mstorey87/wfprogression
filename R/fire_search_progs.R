@@ -10,7 +10,7 @@
 #'
 #' @examples
 #' #dat.progs.sf <- fire_search_progs(fire_bbox=dat.bbox,start_date=datestart,end_date=dateend)
-fire_search_progs <- function(fire_bbox=fire_bbox_polygon(),start_date="1990-01-01",end_date="2100-01-01",return_geom=TRUE){
+fire_search_progs <- function(fire_bbox=fire_bbox_polygon(),start_date="1900-01-01",end_date="2100-01-01",return_geom=TRUE){
 
 
   #connect to database
@@ -42,13 +42,13 @@ fire_search_progs <- function(fire_bbox=fire_bbox_polygon(),start_date="1990-01-
   #user input option to return results without geometry to save time
   #run query and get results
   if(return_geom==TRUE){
-    myquery <- paste0("SELECT * FROM fires.prog_polygons WHERE st_intersects(fires.prog_polygons.geom,'",txt_geom,"') AND ", txt_date)
+    myquery <- paste0("SELECT * FROM fires.prog_polys WHERE st_intersects(fires.prog_polys.geom,'",txt_geom,"') AND ", txt_date)
     x <- sf::st_read(dsn=DB,query=myquery) %>%
       sf::st_as_sf()
   }
 
   if(return_geom==FALSE){
-    myquery <- paste0("SELECT dt_utc,firetype,progid,notes,sourceshp,firename,season,sourcetype,aus_state,dt_local,scanname,id,s3name FROM fires.prog_polygons WHERE st_intersects(fires.prog_polygons.geom,'",txt_geom,"') AND ", txt_date)
+    myquery <- paste0("SELECT dt_utc,dt_local,rowid,s3name,firetype,progid,notes,sourceshp,firename,season,sourcetype,aus_state,scanname FROM fires.prog_polys WHERE st_intersects(fires.prog_polys.geom,'",txt_geom,"') AND ", txt_date)
     x <- DBI::dbGetQuery(DB,myquery)
   }
 

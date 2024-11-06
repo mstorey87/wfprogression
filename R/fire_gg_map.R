@@ -26,6 +26,13 @@ fire_gg_map <- function(image=NULL,prog=NULL,agg=5){
   }
 
   if(!is.null(prog)){
+
+    #project prog to match image crs
+    if(!is.null(image)){
+      prog <- sf::st_transform(prog,sf::st_crs(image))
+    }
+
+
     g <- g+
       ggplot2::geom_sf(data=prog,fill=NA,lwd=0.8,ggplot2::aes(col=firetype))+
       ggplot2::geom_sf(data=prog,fill=NA,lwd=0.8,ggplot2::aes(col=firetype))+
