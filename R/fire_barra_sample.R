@@ -10,7 +10,7 @@
 #'
 #' @examples
 #' #
-fire_barra_sample<- function(nc_conn,datetimeutc,sf_points,varname){
+fire_barra_sample<- function(nc_conn,datetimeutc,sf_points,varname,allcells=F){
 
   #get the origin time from the nc file
   ncorigin <- ncmeta::nc_atts(nc_conn$source$source,variable = "time")$value$units
@@ -51,11 +51,24 @@ fire_barra_sample<- function(nc_conn,datetimeutc,sf_points,varname){
   #extract raster values if polygon type. fun argument ignorned if sampling with points
   # if(max(str_detect(st_geometry_type(sf_points),"POLY"))==1){
   #
-  res <- terra::extract(r,sf_points,fun=mean,ID=F)
+  #if not returning all cell, return single row with mean
+  if(allcells==F){
+      res <- terra::extract(r,sf_points,fun=mean,ID=F)
+      res <- cbind(sf_points,res)
+
+  }
+
+  #if returning all cells, add nested list
+  if(allcells==T){
+    res <- terra::extract(r,sf_points,raw=F,ID=F)
+    sf_points[[varname]] <- list(res)
+    res <- sf_points
+  }
+
   #}
 
 
-  res <- cbind(sf_points,res)
+
 
   return(res)
 
