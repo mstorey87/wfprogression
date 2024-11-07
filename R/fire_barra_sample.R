@@ -10,7 +10,7 @@
 #'
 #' @examples
 #' #
-fire_barra_sample<- function(nc_conn,datetimeutc,sf_points,varname,allcells=F){
+fire_barra_sample<- function(nc_conn,datetimeutc,sf_points,varname,allcells=F,extract_fun="mean"){
 
   #get the origin time from the nc file
   ncorigin <- ncmeta::nc_atts(nc_conn$source$source,variable = "time")$value$units
@@ -53,7 +53,7 @@ fire_barra_sample<- function(nc_conn,datetimeutc,sf_points,varname,allcells=F){
   #
   #if not returning all cell, return single row with mean
   if(allcells==F){
-      res <- terra::extract(r,sf_points,fun=mean,ID=F)
+      res <- terra::extract(r,sf_points,fun=extract_fun,ID=F)
       res <- cbind(sf_points,res)
 
   }
