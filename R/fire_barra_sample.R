@@ -10,7 +10,7 @@
 #'
 #' @examples
 #' #
-fn_sample_nc<- function(nc_conn,datetimeutc,sf_points,varname){
+fire_barra_sample<- function(nc_conn,datetimeutc,sf_points,varname){
 
   #get the origin time from the nc file
   ncorigin <- ncmeta::nc_atts(nc_conn$source$source,variable = "time")$value$units

@@ -6,7 +6,7 @@
 \usage{
 fire_search_progs(
   fire_bbox = fire_bbox_polygon(),
-  start_date = "1990-01-01",
+  start_date = "1900-01-01",
   end_date = "2100-01-01",
   return_geom = TRUE
 )
