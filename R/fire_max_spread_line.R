@@ -90,7 +90,7 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,include_backb
 
 
   if(max_only==TRUE){
-    res.all <- res.all %>% group_by(timeid) %>% filter(line_metres==max(line_metres))
+    res.all <- res.all %>% group_by(timeid) %>% filter(line_metres==max(line_metres)) %>% ungroup()
   }
 
   return(res.all)
