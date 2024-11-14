@@ -79,7 +79,10 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,include_backb
       }
 
       res[[i]] <- dat.lines %>%
-        mutate(start_time=unique(dat.cnvx.split[[i-1]]$dt_local),end_time=unique(dat.cnvx.split[[i]]$dt_local),firename=unique(dat.cnvx.split[[i-1]]$firename))
+        mutate(lineid=dplyr::row_number(),
+               start_time=unique(dat.cnvx.split[[i-1]]$dt_local),
+               end_time=unique(dat.cnvx.split[[i]]$dt_local),
+               firename=unique(dat.cnvx.split[[i-1]]$firename))
     }
 
 
