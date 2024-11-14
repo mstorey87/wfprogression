@@ -11,6 +11,11 @@
 #' @examples
 #' #
 fire_barra_sample<- function(nc_conn,datetimeutc,sf_points,varname,allcells=F,extract_fun="mean"){
+  #see end of this document for variable names http://www.bom.gov.au/research/publications/researchreports/BRR-067.pdf
+  #example here of R2 variables on thredds https://thredds.nci.org.au/thredds/catalog/ob53/output/reanalysis/AUS-11/BOM/ERA5/historical/hres/BARRA-R2/v1/1hr/catalog.html
+  #some variables are sfcWind (surface wind), tas (temperature), hurs (RH), vas and uas (wind components). These are the values on the hour. Some variables
+  #have variations e.g. tasmean is mean hourly temperature
+
 
   #get the origin time from the nc file
   ncorigin <- ncmeta::nc_atts(nc_conn$source$source,variable = "time")$value$units

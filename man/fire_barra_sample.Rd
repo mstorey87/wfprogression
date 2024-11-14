@@ -4,7 +4,14 @@
 \alias{fire_barra_sample}
 \title{Function to stream and sample BARRA weather netcdf}
 \usage{
-fire_barra_sample(nc_conn, datetimeutc, sf_points, varname)
+fire_barra_sample(
+  nc_conn,
+  datetimeutc,
+  sf_points,
+  varname,
+  allcells = F,
+  extract_fun = "mean"
+)
 }
 \arguments{
 \item{nc_conn}{netcdf connection using tidync::tidync()}
