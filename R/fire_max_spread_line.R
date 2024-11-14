@@ -78,7 +78,8 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,include_backb
 
       }
 
-      res[[i]] <- dat.lines
+      res[[i]] <- dat.lines %>%
+        mutate(lineid=row_number())
     }
 
 
