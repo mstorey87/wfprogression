@@ -71,18 +71,20 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,include_backb
         dat.lines$internal <- apply(st_within(dat.lines,dat.cnvx.split[[i]],sparse = F),MARGIN = 1,max)
         #give zero m lines a internal flag
         dat.lines <- dat.lines %>%
-          mutate(internal=ifelse(line_metres==0|internal==1,1,0)) %>%
-          mutate(internal=as.logical(internal)) %>%
-          filter(internal)
+          dplyr::mutate(internal=ifelse(line_metres==0|internal==1,1,0)) %>%
+          dplyr::mutate(internal=as.logical(internal)) %>%
+          dplyr::filter(internal)
 
 
       }
 
       res[[i]] <- dat.lines %>%
-        mutate(lineid=dplyr::row_number(),
-               start_time=unique(dat.cnvx.split[[i-1]]$time),
+        dplyr::mutate(timeid=dplyr::row_number(),start_time=unique(dat.cnvx.split[[i-1]]$time),
                end_time=unique(dat.cnvx.split[[i]]$time),
-               ros_kmh=(line_metres/1000)/as.numeric(difftime(end_time,start_time,units="hours")))
+               timestep_hours=as.numeric(difftime(end_time,start_time,units="hours")),
+               ros_kmh=(line_metres/1000)/timestep_hours) %>%
+        dplyr::select(start_time,end_time,timestep_hours,ros_kmh,timeid)
+
     }
 
 
@@ -93,7 +95,7 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,include_backb
 
 
   if(max_only==TRUE){
-    res.all <- res.all %>% group_by(timeid) %>% filter(line_metres==max(line_metres)) %>% ungroup()
+    res.all <- res.all %>% dplyr::group_by(timeid) %>% dplyr::filter(line_metres==max(line_metres)) %>% dplyr::ungroup()
   }
 
   return(res.all)
