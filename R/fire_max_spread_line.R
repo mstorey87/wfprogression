@@ -82,8 +82,9 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,include_backb
         dplyr::mutate(timeid=dplyr::row_number(),start_time=unique(dat.cnvx.split[[i-1]]$time),
                end_time=unique(dat.cnvx.split[[i]]$time),
                timestep_hours=as.numeric(difftime(end_time,start_time,units="hours")),
-               ros_kmh=(line_metres/1000)/timestep_hours) %>%
-        dplyr::select(start_time,end_time,line_metres,timestep_hours,ros_kmh,timeid)
+               line_km=line_metres/1000,
+               ros_kmh=line_km/timestep_hours) %>%
+        dplyr::select(start_time,end_time,line_km,timestep_hours,ros_kmh,timeid)
 
     }
 
@@ -95,7 +96,7 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,include_backb
 
 
   if(max_only==TRUE){
-    res.all <- res.all %>% dplyr::group_by(timeid) %>% dplyr::filter(line_metres==max(line_metres)) %>% dplyr::ungroup()
+    res.all <- res.all %>% dplyr::group_by(timeid) %>% dplyr::filter(line_km==max(line_km)) %>% dplyr::ungroup()
   }
 
   return(res.all)
