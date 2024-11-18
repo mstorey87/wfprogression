@@ -97,7 +97,7 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,include_backb
 
   if(max_only==TRUE){
 
-    res.all <- res.all %>% dplyr::group_by(end_time) %>% dplyr::filter(line_km==max(line_km)) %>% dplyr::slice_sample(1) %>% dplyr::ungroup()
+    res.all <- res.all %>% dplyr::group_by(end_time) %>% dplyr::filter(line_km==max(line_km)) %>% dplyr::slice_sample(n=1) %>% dplyr::ungroup()
   }
 
   return(res.all)
