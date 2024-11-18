@@ -81,7 +81,8 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,include_backb
       res[[i]] <- dat.lines %>%
         mutate(lineid=dplyr::row_number(),
                start_time=unique(dat.cnvx.split[[i-1]]$time),
-               end_time=unique(dat.cnvx.split[[i]]$time))
+               end_time=unique(dat.cnvx.split[[i]]$time),
+               ros_kmh=(line_metres/1000)/as.numeric(difftime(end_time,start_time,units="hours")))
     }
 
 
