@@ -5,20 +5,29 @@
 \title{Find maximum fire spread line}
 \usage{
 fire_max_spread_line(
-  polygon,
+  polygons,
   time_col,
   include_spots = F,
-  include_backburns = F
+  include_backburns = F,
+  convex_hull = T,
+  max_only = T,
+  internal_only = F
 )
 }
 \arguments{
-\item{polygon}{SF polygons. Polygon at time two should completely cover time 1 polygon. Time 3 completely cover time 2 etc.}
+\item{polygons}{Fire polygons sf object}
 
 \item{time_col}{Name of date time column (posix)}
 
 \item{include_spots}{T/F to include spot fire in spread line creation. Data must have firetype column populated with "spot", "main" or "backburn"}
 
 \item{include_backburns}{T/F to include backburns in spread line creation. Data must have firetype column populated with "spot", "main" or "backburn"}
+
+\item{convex_hull}{T/F whether to convert fire polygon to convex hull first}
+
+\item{max_only}{T/F return only the max spread line}
+
+\item{internal_only}{T/F return only lines completely within the fire polygon at time 2}
 }
 \value{
 sf object
