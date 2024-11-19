@@ -1,9 +1,12 @@
 #' Find maximum fire spread line
 #'
-#' @param polygon SF polygons. Polygon at time two should completely cover time 1 polygon. Time 3 completely cover time 2 etc.
 #' @param time_col Name of date time column (posix)
 #' @param include_spots T/F to include spot fire in spread line creation. Data must have firetype column populated with "spot", "main" or "backburn"
 #' @param include_backburns T/F to include backburns in spread line creation. Data must have firetype column populated with "spot", "main" or "backburn"
+#' @param polygons Fire polygons sf object
+#' @param convex_hull T/F whether to convert fire polygon to convex hull first
+#' @param max_only T/F return only the max spread line
+#' @param internal_only T/F return only lines completely within the fire polygon at time 2
 #'
 #' @return sf object
 #' @export
