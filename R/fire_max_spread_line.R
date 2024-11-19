@@ -10,7 +10,7 @@
 #'
 #' @examples
 #' #
-fire_max_spread_line <- function(polygons,time_col,include_spots=F,include_backburns=F,max_only=T,internal_only=F){
+fire_max_spread_line <- function(polygons,time_col,include_spots=F,include_backburns=F,convex_hull=T,max_only=T,internal_only=F){
 
   polygons$time <- polygons[[time_col]]
 
@@ -34,12 +34,12 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,include_backb
     #arrange in order of time and give a time id
      dplyr::arrange(time) %>%
 
-     dplyr::mutate(timeid=dplyr::row_number())%>%
+     dplyr::mutate(timeid=dplyr::row_number())
 
     #get convex hull of polygon to save processing time
-    sf::st_convex_hull() %>%
+    if(convex_hull==T) dat.cnvx <- dat.cnvx %>% sf::st_convex_hull()
     #ensure there are points at least every 100 m
-    smoothr::densify(max_distance = 100)
+   dat.cnvx <- dat.cnvx %>% smoothr::densify(max_distance = 100)
 
    #split by time to create separate objects
   dat.cnvx.split <- split(dat.cnvx,as.factor(dat.cnvx$timeid))
