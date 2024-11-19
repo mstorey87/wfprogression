@@ -37,7 +37,7 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,include_backb
      dplyr::mutate(timeid=dplyr::row_number())%>%
 
     #get convex hull of polygon to save processing time
-   # sf::st_convex_hull() %>%
+    sf::st_convex_hull() %>%
     #ensure there are points at least every 100 m
     smoothr::densify(max_distance = 100)
 
