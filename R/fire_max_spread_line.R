@@ -23,6 +23,12 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,include_backb
     #convert crs to projected so we can use meters
     st_transform(3112)
 
+   #add a season variable if needed
+   dat.poly <- dat.poly %>%
+     dplyr::mutate(semes=lubridate::semester(dt_local),yr=lubridate::year(dt_local),season=ifelse(semes==1,paste0(yr-1,"-",yr),paste0(yr,"-",yr+1))) %>%
+     dplyr::select(-semes,-yr)
+
+
 
     #keep only main fire polygon, or spot or backburn depending on user input
     if(include_spots==F & include_backburns == F)    dat.poly <- dat.poly %>% filter(firetype == "main")
@@ -40,25 +46,6 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,include_backb
     #get convex hull of polygon to save processing time
     if(convex_hull==T) dat.poly <- dat.poly %>% sf::st_convex_hull()
 
-   #  #ensure there are points at least every 100 m
-   # dat.poly <- dat.poly %>% smoothr::densify(max_distance = 100)
-   #
-
-   ##merge together touching polygons and give each group a unique id.
-   #this is so lines aren't created between different fires that happen to have progressions at the same time.
-   # dat.union <- dat.poly %>%
-   #   sf::st_union() %>%
-   #   sf::st_as_sf() %>%
-   #   sf::st_cast("MULTIPOLYGON") %>%
-   #   sf::st_cast("POLYGON") %>%
-   #   dplyr::mutate(union_id=row_number())
-
-   # #use intersection transfer the union id
-   # dat.poly <- dat.poly %>%
-   #   sf::st_intersection(dat.union) %>%
-   #   #ensure all main polygon are in one multipolygon
-   #    dplyr::group_by(time,union_id) %>%
-   #    dplyr::summarise()
 
 
 
@@ -72,7 +59,10 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,include_backb
      #get all prior polygons that intersect current loop polygon
      dat.prior.all <- dat.poly %>%
        dplyr::filter(dt_local < dat.i$dt_local)%>%
+       #ensure we only consider prior polygons from the same season, otherwise the code will mistake fire from previous seasons as being part of the same fire
+       dplyr::filter(season==dat.i$season) %>%
        dplyr::filter(as.logical(sf::st_intersects(.,dat.i)))
+
 
 
      #skip if not prior intersecting polygon
@@ -83,7 +73,18 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,include_backb
          dplyr::filter(dt_local==max(dt_local))
 
        #convert second polygon to points every x metres along boundary
-       dat.i <- dat.i %>% smoothr::densify(max_distance = 100)
+       #dat.i <- dat.i %>% smoothr::densify(max_distance = 100)
+
+       #take different between poly1 and poly2, with snap tolerance to avoid tiny polygons
+       dat.i <- sf::st_snap(dat.i,sf::st_union(dat.prior),tolerance=10) %>%
+         sf::st_buffer(0) %>%
+         sf::st_difference(.,sf::st_union(dat.prior)) %>%
+         sf::st_cast("MULTIPOLYGON") %>%
+         sf::st_cast("POLYGON") %>%
+         dplyr::mutate(area=as.numeric(sf::st_area(.))) %>%
+         dplyr::filter(area>1) %>%
+         dplyr::summarise(time=unique(time),rowid=unique(rowid))
+
        dat.points <- sf::st_cast(sf::st_geometry(dat.i),"POINT")
 
        #get nearest line from each time 2 vertice (point) back to the time 1 polygon
@@ -130,9 +131,11 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,include_backb
 
 
        #remove lines from results if it crosses polygons with prior times (can happen when fires merge)
-       dat.lines.intersect <- st_intersection(dat.lines,dat.prior.all %>% dplyr::select(dt_local_poly=dt_local)) %>%
+       dat.lines.intersect <- sf::st_intersection(sf::st_geometry(dat.lines),dat.prior.all %>% dplyr::select(dt_local_poly=dt_local)) %>%
+         sf::st_as_sf() %>%
          dplyr::mutate(len=as.numeric(sf::st_length(.))) %>%
-         dplyr::filter(len>0)
+         #check if any lines intersect y more than a cm. 0 should result when intersecting the line end with a boundary point, but sometimes there is a small error
+         dplyr::filter(len>0.01)
 
        # if(nrow(dat.lines.intersect)>0){
        #      dat.lines.x <- dat.lines %>% dplyr::filter(start_time < min(dat.lines.intersect$dt_local_poly))
