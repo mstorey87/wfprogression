@@ -64,9 +64,15 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,include_backb
        dplyr::filter(as.logical(sf::st_intersects(.,dat.i)))
 
 
+     #the script requires the second poly to contain the first. Filter out examples when this is not the case, or at least there is not enough crossover
+     dat.intersect <- sf::st_intersection(sf::st_geometry(dat.i),sf::st_geometry(dat.prior.all)) %>%
+       sf::st_as_sf()%>%
+       dplyr::mutate(area=as.numeric(sf::st_area(.)),area_prc=area/as.numeric(sf::st_area(dat.i))*100) %>%
+       sf::st_drop_geometry() %>%
+       summarise(area_prc=sum(area_prc))
 
      #skip if not prior intersecting polygon
-     if(nrow(dat.prior.all)>0){
+     if(nrow(dat.prior.all)>0 & dat.intersect$area_prc > 10){
 
        #get only most recent prior polygon
        dat.prior <- dat.prior.all %>%
