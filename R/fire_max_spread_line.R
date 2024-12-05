@@ -19,13 +19,14 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,
                                  max_minutes=360,
                                  densify_m=100){
 
+
+  polygons_crs <- sf::st_crs(polygons)$wkt
+  checkmate::assert(stringr::str_detect(polygons_crs,"PROJCRS"),"Error: polygons must be projected crs")
   #add time column with standard name
   polygons$time <- polygons[[time_col]]
 
 
-   dat.poly <- polygons %>%
-    #convert crs to projected so we can use meters
-    st_transform(3112)
+   dat.poly <- polygons
 
    #add a season variable if needed
    dat.poly <- dat.poly %>%
@@ -65,8 +66,13 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,
      dat.prior.all <- dat.poly %>%
        dplyr::filter(dt_local < dat.i$dt_local)%>%
        #ensure we only consider prior polygons from the same season, otherwise the code will mistake fire from previous seasons as being part of the same fire
-       dplyr::filter(season==dat.i$season) %>%
-       dplyr::filter(as.logical(sf::st_intersects(.,dat.i)))
+       dplyr::filter(season==dat.i$season)
+
+     #get only prior polygon that intesect current polygon.
+
+     #intersect by unaltered polygons
+     dat.prior.all <- dat.prior.all %>%
+       sf::st_filter(dat.i,.predicate = st_intersects)
 
      #get difference in time between poly and prior poly. Filter by user input minutes
      if(nrow(dat.prior.all)>0){
