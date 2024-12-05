@@ -13,7 +13,9 @@
 #'
 #' @examples
 #' #
-fire_max_spread_line <- function(polygons,time_col,include_spots=F,include_backburns=F,convex_hull=T,max_only=T,internal_only=F){
+fire_max_spread_line <- function(polygons,time_col,include_spots=F,
+                                 include_backburns=F,convex_hull=T,max_only=T,internal_only=F,
+                                 max_minutes=360){
 
   #add time column with standard name
   polygons$time <- polygons[[time_col]]
@@ -52,6 +54,7 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,include_backb
 
    res <- list()
    for(i in 1:nrow(dat.poly)){
+     print(i)
 
      #get current loop polygon
      dat.i <- dat.poly[i,]
@@ -63,35 +66,33 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,include_backb
        dplyr::filter(season==dat.i$season) %>%
        dplyr::filter(as.logical(sf::st_intersects(.,dat.i)))
 
+     #get difference in time between poly and prior poly. Filter by user input minutes
+     mins_diff <- as.numeric(difftime(unique(dat.i$time),unique(max(dat.prior.all$time)),units = "mins"))
 
-     # #the script requires the second poly to contain the first. Filter out examples when this is not the case, or at least there is not enough crossover
-     # dat.intersect <- sf::st_intersection(sf::st_geometry(dat.i),sf::st_geometry(dat.prior.all)) %>%
-     #   sf::st_as_sf()%>%
-     #   dplyr::mutate(area=as.numeric(sf::st_area(.)),area_prc=area/as.numeric(sf::st_area(dat.i))*100) %>%
-     #   sf::st_drop_geometry() %>%
-     #   summarise(area_prc=sum(area_prc))
+
+
 
      #skip if not prior intersecting polygon
-     if(nrow(dat.prior.all)>0 ){
+     if(nrow(dat.prior.all)>0 & mins_diff <= max_minutes){
 
        #get only most recent prior polygon
        dat.prior <- dat.prior.all %>%
-         dplyr::filter(dt_local==max(dt_local))
+         dplyr::filter(dt_local==max(dt_local)) %>% smoothr::densify(100)
 
        #convert second polygon to points every x metres along boundary
        #dat.i <- dat.i %>% smoothr::densify(max_distance = 100)
 
-       #take different between poly1 and poly2, with snap tolerance to avoid tiny polygons
-       dat.i <- sf::st_snap(dat.i,sf::st_union(dat.prior),tolerance=10) %>%
-         sf::st_buffer(0) %>%
-         sf::st_difference(.,sf::st_union(dat.prior)) %>%
-         sf::st_cast("MULTIPOLYGON") %>%
-         sf::st_cast("POLYGON") %>%
-         dplyr::mutate(area=as.numeric(sf::st_area(.))) %>%
-         dplyr::filter(area>1) %>%
-         dplyr::summarise(time=unique(time),rowid=unique(rowid))
+       #take difference between poly1 and poly2, with snap tolerance to avoid tiny polygons
+       # dat.i <- sf::st_snap(dat.i,sf::st_union(dat.prior),tolerance=10) %>%
+       #   sf::st_buffer(0) %>%
+       #   sf::st_difference(.,sf::st_union(dat.prior)) %>%
+       #   sf::st_cast("MULTIPOLYGON") %>%
+       #   sf::st_cast("POLYGON") %>%
+       #   dplyr::mutate(area=as.numeric(sf::st_area(.))) %>%
+       #   dplyr::filter(area>1) %>%
+       #   dplyr::summarise(time=unique(time),rowid=unique(rowid))
 
-       dat.points <- sf::st_cast(sf::st_geometry(dat.i),"POINT")
+       dat.points <- sf::st_cast(sf::st_geometry(dat.i %>% smoothr::densify(100)),"POINT")
 
        #get nearest line from each time 2 vertice (point) back to the time 1 polygon
        dat.lines <- sf::st_nearest_points( dat.points, sf::st_union(dat.prior)) %>%

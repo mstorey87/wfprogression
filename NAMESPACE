@@ -3,6 +3,7 @@
 export("%>%")
 export(fire_GIBS_map)
 export(fire_GIBS_products)
+export(fire_RANN_nearest_points)
 export(fire_barra_path)
 export(fire_barra_sample)
 export(fire_bbox_polygon)

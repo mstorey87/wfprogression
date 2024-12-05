@@ -11,7 +11,8 @@ fire_max_spread_line(
   include_backburns = F,
   convex_hull = T,
   max_only = T,
-  internal_only = F
+  internal_only = F,
+  max_minutes = 360
 )
 }
 \arguments{
