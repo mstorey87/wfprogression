@@ -14,8 +14,10 @@
 #' @examples
 #' #
 fire_max_spread_line <- function(polygons,time_col,include_spots=F,
-                                 include_backburns=F,convex_hull=T,max_only=T,internal_only=F,
-                                 max_minutes=360){
+                                 include_backburns=F,
+                                 convex_hull=T,max_only=T,internal_only=F,
+                                 max_minutes=360,
+                                 densify_m=100){
 
   #add time column with standard name
   polygons$time <- polygons[[time_col]]
@@ -67,8 +69,11 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,
        dplyr::filter(as.logical(sf::st_intersects(.,dat.i)))
 
      #get difference in time between poly and prior poly. Filter by user input minutes
-     mins_diff <- as.numeric(difftime(unique(dat.i$time),unique(max(dat.prior.all$time)),units = "mins"))
-
+     if(nrow(dat.prior.all)>0){
+        mins_diff <- as.numeric(difftime(unique(dat.i$time),unique(max(dat.prior.all$time)),units = "mins"))
+     }else{
+       mins_diff <- NA
+     }
 
 
 
@@ -77,27 +82,10 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,
 
        #get only most recent prior polygon
        dat.prior <- dat.prior.all %>%
-         dplyr::filter(dt_local==max(dt_local)) %>% smoothr::densify(100)
+         dplyr::filter(time==max(time))
 
-       #convert second polygon to points every x metres along boundary
-       #dat.i <- dat.i %>% smoothr::densify(max_distance = 100)
 
-       #take difference between poly1 and poly2, with snap tolerance to avoid tiny polygons
-       # dat.i <- sf::st_snap(dat.i,sf::st_union(dat.prior),tolerance=10) %>%
-       #   sf::st_buffer(0) %>%
-       #   sf::st_difference(.,sf::st_union(dat.prior)) %>%
-       #   sf::st_cast("MULTIPOLYGON") %>%
-       #   sf::st_cast("POLYGON") %>%
-       #   dplyr::mutate(area=as.numeric(sf::st_area(.))) %>%
-       #   dplyr::filter(area>1) %>%
-       #   dplyr::summarise(time=unique(time),rowid=unique(rowid))
-
-       dat.points <- sf::st_cast(sf::st_geometry(dat.i %>% smoothr::densify(100)),"POINT")
-
-       #get nearest line from each time 2 vertice (point) back to the time 1 polygon
-       dat.lines <- sf::st_nearest_points( dat.points, sf::st_union(dat.prior)) %>%
-         sf::st_as_sf()
-
+       dat.lines <- fire_RANN_nearest_points(dat.i,dat.prior,densify_m=densify_m,max_only = max_only)
 
        #combine attributes
        dat.lines <- cbind(dat.lines,sf::st_drop_geometry(dat.i))
@@ -105,27 +93,6 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,
        #get line distance
        dat.lines$line_metres <- as.numeric(sf::st_length(dat.lines))
 
-       #arrange by distance
-       dat.lines <- dat.lines %>%
-         dplyr::arrange(dplyr::desc(line_metres))
-
-       #remove any line that goes any distance outside the second time polygon based on user input
-       if(internal_only==T){
-
-         dat.lines$internal <- apply(st_within(dat.lines,dat.i,sparse = F),MARGIN = 1,max)
-         #give zero m lines a internal flag
-         dat.lines <- dat.lines %>%
-           dplyr::mutate(internal=ifelse(line_metres==0|internal==1,1,0)) %>%
-           dplyr::mutate(internal=as.logical(internal)) %>%
-           dplyr::filter(internal)
-
-
-       }
-
-       if(max_only==TRUE){
-
-         dat.lines <- dat.lines %>% dplyr::filter(line_metres==max(line_metres)) %>% dplyr::slice_sample(n=1)
-       }
 
        dat.lines <- dat.lines %>%
          #select final attributes
@@ -137,17 +104,12 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,
          dplyr::select(start_time,end_time,line_km,timestep_hours,ros_kmh)
 
 
-       #remove lines from results if it crosses polygons with prior times (can happen when fires merge)
+       #flag lines from results if it crosses polygons with prior times (can happen when fires merge)
        dat.lines.intersect <- sf::st_intersection(sf::st_geometry(dat.lines),dat.prior.all %>% dplyr::select(dt_local_poly=dt_local)) %>%
          sf::st_as_sf() %>%
          dplyr::mutate(len=as.numeric(sf::st_length(.))) %>%
          #check if any lines intersect y more than a cm. 0 should result when intersecting the line end with a boundary point, but sometimes there is a small error
          dplyr::filter(len>0.01)
-
-       # if(nrow(dat.lines.intersect)>0){
-       #      dat.lines.x <- dat.lines %>% dplyr::filter(start_time < min(dat.lines.intersect$dt_local_poly))
-       #
-       # }
 
        res[[i]] <- dat.lines %>% mutate(prior_intersects=nrow(dat.lines.intersect)>0)
      }
@@ -162,160 +124,6 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,
 
    res.all <- do.call(rbind,res)
 
-
-
-   #get unique union_id groups and loop through
-   # unique_unionid <- unique(dat.poly$union_id)
-   #
-   #
-   #
-   # res.0 <- list()
-   # for(i in 1:length(unique_unionid)){
-   #
-   #   #get current union id group
-   #   dat.u <- dat.poly %>%
-   #     dplyr::filter(union_id==unique_unionid[i]) %>%
-   #     dplyr::arrange(time)
-   #
-   #   #split polygons by time and loop through each
-   #   dat.poly.split <-  split(dat.u,as.factor(dat.u$time))
-   #
-   #   res <- list()
-   #   for(xi in 1:length(dat.poly.split)){
-   #
-   #
-   #
-   #     #skip first spread time because there is no prior polygon to measure ROS
-   #     if(xi >1){
-   #       #measure lines from current time to time prior. Summarise time prior to single feature to simplify processing
-   #       #convert second polygon time to points first
-   #       dat.time.1 <- dat.poly.split[[xi-1]]
-   #       dat.time.2 <- dat.poly.split[[xi]]
-   #
-   #
-   #       #convert polygon time2 vertices to points
-   #       dat.points <- sf::st_cast(dat.time.2,"POINT")
-   #
-   #       #get nearest line from each time 2 vertice (point) back to the time 1 polygon
-   #       dat.lines <- sf::st_nearest_points( dat.points, dat.time.1) %>%
-   #         sf::st_as_sf()
-   #
-   #       #combine attributes
-   #       dat.lines <- cbind(dat.lines,sf::st_drop_geometry(dat.time.2))
-   #
-   #       #get line distance
-   #       dat.lines$line_metres <- as.numeric(sf::st_length(dat.lines))
-   #
-   #       #arrange by distance
-   #       dat.lines <- dat.lines %>%
-   #         dplyr::arrange(dplyr::desc(line_metres))
-   #
-   #       #remove any line that goes any distance outside the second time polygon based on user input
-   #       if(internal_only==T){
-   #
-   #         dat.lines$internal <- apply(st_within(dat.lines,dat.time.2,sparse = F),MARGIN = 1,max)
-   #         #give zero m lines a internal flag
-   #         dat.lines <- dat.lines %>%
-   #           dplyr::mutate(internal=ifelse(line_metres==0|internal==1,1,0)) %>%
-   #           dplyr::mutate(internal=as.logical(internal)) %>%
-   #           dplyr::filter(internal)
-   #
-   #
-   #       }
-   #
-   #       res[[xi]] <- dat.lines %>%
-   #         #select final attributes
-   #         dplyr::mutate(start_time=unique(dat.time.1$time),
-   #                       end_time=unique(dat.time.2$time),
-   #                       unionid=unique_unionid[i],
-   #                       timestep_hours=as.numeric(difftime(end_time,start_time,units="hours")),
-   #                       line_km=(line_metres/1000),
-   #                       ros_kmh=line_km/timestep_hours) %>%
-   #         dplyr::select(start_time,end_time,line_km,timestep_hours,ros_kmh,unionid)
-   #
-   #     }
-   #
-   #
-   #
-   #
-   #   }
-   #
-   #   #keep all records from current union_id group. Some will have no results when there is only on time in a group.
-   #   res.0[[i]] <- do.call(rbind,res)
-   #
-   # }
-   #
-   # res.all <- do.call(rbind,res.0)
-   #
-   # if(max_only==TRUE){
-   #
-   #   res.all <- res.all %>% dplyr::group_by(end_time,unionid) %>% dplyr::filter(line_km==max(line_km)) %>% dplyr::slice_sample(n=1) %>% dplyr::ungroup()
-   # }
-
-
-  #  #split by time to create separate objects
-  # dat.poly.split <- split(dat.poly,as.factor(dat.poly$timeid))
-  #
-  # #measure distance from each point on polygon time 2 to polygon time 1
-  # res <- list()
-  # for(i in 1:length(dat.poly.split)){
-  #
-  #   #skip first spread time
-  #   if(i >1){
-  #     #measure lines from current time to time prior. Summarise time prior to single feature to simplify processing
-  #     #convert second polygon time to points first
-  #     dat.time.1 <- dat.poly.split[[i-1]]
-  #     dat.time.2 <- dat.poly.split[[i]]
-  #
-  #
-  #
-  #     dat.points <- sf::st_cast(dat.time.2,"POINT")
-  #     dat.lines <- sf::st_nearest_points( dat.points, dat.time.1) %>%
-  #       sf::st_as_sf()
-  #     #combine with original points
-  #     dat.lines <- cbind(dat.lines,sf::st_drop_geometry(dat.time.2))
-  #
-  #     #get line distance
-  #     dat.lines$line_metres <- as.numeric(sf::st_length(dat.lines))
-  #
-  #     #arrange by distance
-  #     dat.lines <- dat.lines %>%
-  #       dplyr::arrange(dplyr::desc(line_metres))
-  #
-  #     #remove any line that go any distance outside the second time polygon based on user input
-  #     if(internal_only==T){
-  #
-  #       dat.lines$internal <- apply(st_within(dat.lines,dat.time.2,sparse = F),MARGIN = 1,max)
-  #       #give zero m lines a internal flag
-  #       dat.lines <- dat.lines %>%
-  #         dplyr::mutate(internal=ifelse(line_metres==0|internal==1,1,0)) %>%
-  #         dplyr::mutate(internal=as.logical(internal)) %>%
-  #         dplyr::filter(internal)
-  #
-  #
-  #     }
-  #
-  #     res[[i]] <- dat.lines %>%
-  #       dplyr::mutate(start_time=unique(dat.time.1$time),
-  #              end_time=unique(dat.time.2$time),
-  #              timestep_hours=as.numeric(difftime(end_time,start_time,units="hours")),
-  #              line_km=(line_metres/1000),
-  #              ros_kmh=line_km/timestep_hours) %>%
-  #       dplyr::select(start_time,end_time,line_km,timestep_hours,ros_kmh)
-  #
-  #   }
-  #
-  #
-  # }
-  #
-  # res.all <- do.call(rbind,res)
-  #
-  #
-  #
-  # if(max_only==TRUE){
-  #
-  #   res.all <- res.all %>% dplyr::group_by(end_time) %>% dplyr::filter(line_km==max(line_km)) %>% dplyr::slice_sample(n=1) %>% dplyr::ungroup()
-  # }
 
   return(res.all)
 }

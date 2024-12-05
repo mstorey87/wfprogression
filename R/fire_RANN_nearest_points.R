@@ -14,22 +14,29 @@ fire_RANN_nearest_points <- function(poly,poly.prior,densify_m,max_only=T){
 
 
   #poly to points function that is faster that st_cast
-  fn_poly_to_points <- function(poly_x){
+  fn_poly_to_points <- function(poly_x,densify_m){
 
-    poly_x1 <- poly_x %>%
-       smoothr::densify(max_distance = densify_m) %>%
-      sf::st_coordinates() %>%
-      as.data.frame() %>%
-      sf::st_as_sf(coords=c("X","Y"),crs=sf::st_crs(poly_x))
-    return(poly_x1)
+    if(densify_m > 0){
+
+
+
+      poly_x1 <- poly_x %>%
+        sf::st_segmentize(dfMaxLength =  densify_m) %>%
+        sf::st_coordinates() %>%
+        as.data.frame() %>%
+        sf::st_as_sf(coords=c("X","Y"),crs=sf::st_crs(poly_x))
+      return(poly_x1)
+    }else{
+      return(poly_x)
+    }
 
   }
   poly.union <- sf::st_union(sf::st_geometry(poly),sf::st_geometry(poly.prior)) %>%
     sf::st_union()
 
 
-  points.A <- fn_poly_to_points(poly.prior)
-  points.B <- fn_poly_to_points(poly.union)
+  points.A <- fn_poly_to_points(poly.prior,densify_m)
+  points.B <- fn_poly_to_points(poly.union,densify_m)
 
 
 
@@ -72,20 +79,20 @@ fire_RANN_nearest_points <- function(poly,poly.prior,densify_m,max_only=T){
   # Convert the list of LINESTRINGs to an sf object
   lines_sf <- sf::st_sf(geometry = sf::st_sfc(line_geometries, crs = sf::st_crs(points.A))) %>%
     sf::st_as_sf()
-   # dplyr::mutate(line_metres=as.numeric(sf::st_length(.)))
+  # dplyr::mutate(line_metres=as.numeric(sf::st_length(.)))
 
-#
-#   if(internal_only==T){
-#     lines_sf$internal <- apply(sf::st_within(lines_sf,poly,sparse = F),MARGIN = 1,max)
-#     lines_sf$intersects_prior <- apply(sf::st_intersects(lines_sf,poly.prior,sparse = F),MARGIN = 1,max)
-#
-#     #give zero m lines a internal flag
-#     lines_sf <- lines_sf %>%
-#       dplyr::mutate(internal=ifelse(line_metres==0|internal==1,1,0)) %>%
-#       dplyr::mutate(internal=as.logical(internal)) %>%
-#       dplyr::filter(internal)
-#   }
-    #get maximum distance only
+  #
+  #   if(internal_only==T){
+  #     lines_sf$internal <- apply(sf::st_within(lines_sf,poly,sparse = F),MARGIN = 1,max)
+  #     lines_sf$intersects_prior <- apply(sf::st_intersects(lines_sf,poly.prior,sparse = F),MARGIN = 1,max)
+  #
+  #     #give zero m lines a internal flag
+  #     lines_sf <- lines_sf %>%
+  #       dplyr::mutate(internal=ifelse(line_metres==0|internal==1,1,0)) %>%
+  #       dplyr::mutate(internal=as.logical(internal)) %>%
+  #       dplyr::filter(internal)
+  #   }
+  #get maximum distance only
   # if(max_only==T){
   #
   #   lines_sf <- lines_sf %>%
@@ -105,46 +112,46 @@ fire_RANN_nearest_points <- function(poly,poly.prior,densify_m,max_only=T){
 
 
 
-#
-#
-#   #get nearest points for each in prior to each in current poly
-#   nearest <- RANN::nn2(data = sf::st_coordinates(points.A),
-#                        query = sf::st_coordinates(points.B),
-#                        k = nrow(points.A)) %>%
-#     as.data.frame() %>%
-#     dplyr::mutate(nid=row_number()) %>%
-#     cbind(points.B %>% dplyr::select(-dplyr::everything())) %>%
-#     sf::st_as_sf()
-#
-#
-#
-#   #get maximum distance only
-#   if(max_only==T){
-#
-#     nearest <- nearest %>%
-#       dplyr::filter(nn.dists==max(nn.dists)) %>%
-#       dplyr::sample_n(1)
-#   }
-#
-#   #extract coords for each end of lines to be drawn based on results of RANN::nn2()
-#   nearest.A <- points.A[nearest$nn.idx,] %>% dplyr::select(-dplyr::everything())
-#
-#   # Extract coordinates as matrices
-#   coords.A<- sf::st_coordinates(nearest.A)[, 1:2] %>% matrix(ncol = 2) # X and Y for point1
-#   coords.B <- sf::st_coordinates(nearest)[, 1:2] %>% matrix(ncol = 2)  # X and Y for point2
-#
-#   # Combine coordinates into matrices for each line
-#   line_matrices <- lapply(1:nrow(coords.A), function(i) {
-#     rbind(coords.A[i, ], coords.B[i, ])  # Combine the two points for each line
-#   })
-#
-#   # Create LINESTRING geometries directly
-#   lines <- sf::st_sfc(lapply(line_matrices, sf::st_linestring), crs = sf::st_crs(points.A))
-#
-#   # Convert to sf object
-#   lines_sf <- sf::st_sf(geometry = lines) %>%
-#     sf::st_as_sf() %>%
-#     dplyr::mutate(len = as.numeric(sf::st_length(.)))
+  #
+  #
+  #   #get nearest points for each in prior to each in current poly
+  #   nearest <- RANN::nn2(data = sf::st_coordinates(points.A),
+  #                        query = sf::st_coordinates(points.B),
+  #                        k = nrow(points.A)) %>%
+  #     as.data.frame() %>%
+  #     dplyr::mutate(nid=row_number()) %>%
+  #     cbind(points.B %>% dplyr::select(-dplyr::everything())) %>%
+  #     sf::st_as_sf()
+  #
+  #
+  #
+  #   #get maximum distance only
+  #   if(max_only==T){
+  #
+  #     nearest <- nearest %>%
+  #       dplyr::filter(nn.dists==max(nn.dists)) %>%
+  #       dplyr::sample_n(1)
+  #   }
+  #
+  #   #extract coords for each end of lines to be drawn based on results of RANN::nn2()
+  #   nearest.A <- points.A[nearest$nn.idx,] %>% dplyr::select(-dplyr::everything())
+  #
+  #   # Extract coordinates as matrices
+  #   coords.A<- sf::st_coordinates(nearest.A)[, 1:2] %>% matrix(ncol = 2) # X and Y for point1
+  #   coords.B <- sf::st_coordinates(nearest)[, 1:2] %>% matrix(ncol = 2)  # X and Y for point2
+  #
+  #   # Combine coordinates into matrices for each line
+  #   line_matrices <- lapply(1:nrow(coords.A), function(i) {
+  #     rbind(coords.A[i, ], coords.B[i, ])  # Combine the two points for each line
+  #   })
+  #
+  #   # Create LINESTRING geometries directly
+  #   lines <- sf::st_sfc(lapply(line_matrices, sf::st_linestring), crs = sf::st_crs(points.A))
+  #
+  #   # Convert to sf object
+  #   lines_sf <- sf::st_sf(geometry = lines) %>%
+  #     sf::st_as_sf() %>%
+  #     dplyr::mutate(len = as.numeric(sf::st_length(.)))
 
 
 
