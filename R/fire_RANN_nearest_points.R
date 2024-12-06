@@ -42,8 +42,8 @@ fire_RANN_nearest_points <- function(poly,poly.prior,densify_m,max_only=T){
 
 
   # Extract coordinates from both sf objects
-  coords1 <- st_coordinates(points.B)[, 1:2]  # X and Y for point1
-  coords2 <- st_coordinates(points.A)[, 1:2]  # X and Y for point2
+  coords1 <- sf::st_coordinates(points.B)[, 1:2]  # X and Y for point1
+  coords2 <- sf::st_coordinates(points.A)[, 1:2]  # X and Y for point2
 
   # Define k as the number of neighbors you want to get for each point in point1
   k_neighbors <- 1  # Get the 10 nearest neighbors
