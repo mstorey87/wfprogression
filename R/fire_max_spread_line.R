@@ -70,20 +70,23 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,
     #get all prior polygons within
     #ensure we only consider prior polygons from the same season, otherwise the code will mistake fire from previous seasons as being part of the same fire
     dat.prior.all <- dat.poly %>%
-      dplyr::filter(time < dat.i$time & time > (dat.i$time - lubridate::minutes(max_minutes)),
-                    season==dat.i$season)
+      dplyr::filter(time < dat.i$time,season==dat.i$season)
+
+    #filter by max_minutes input
+    dat.prior.filtered <- dat.prior.all %>%
+      dplyr::filter(time > dat.i$time - lubridate::minutes(max_minutes))
 
     #get only prior polygon that intersect current polygon. dat.prior.all can be empty from above time filter
     #intersect by unaltered polygons
-    dat.prior.all <- dat.prior.all %>%
-        sf::st_filter(dat.i,.predicate = st_intersects)
+    dat.prior.filtered <- dat.prior.filtered %>%
+        sf::st_filter(dat.i,.predicate = sf::st_intersects)
 
 
     #skip if not prior intersecting polygon
-    if(nrow(dat.prior.all)>0){
+    if(nrow(dat.prior.filtered)>0){
 
       #get only most recent prior polygon
-      dat.prior <- dat.prior.all %>%
+      dat.prior <- dat.prior.filtered %>%
         dplyr::filter(time==max(time))
 
 
@@ -106,7 +109,7 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,
         dplyr::select(start_time,end_time,line_km,timestep_hours,ros_kmh)
 
 
-      #flag lines from results if it crosses polygons with prior times (can happen when fires merge)
+      #flag lines from results if it crosses polygons with prior times (can happen when fires merge), ie all prior times from same season (dat.prior.all)
       dat.lines.intersect <- sf::st_intersection(sf::st_geometry(dat.lines),dat.prior.all %>% dplyr::select(time_poly=time)) %>%
         sf::st_as_sf() %>%
         dplyr::mutate(len=as.numeric(sf::st_length(.))) %>%
