@@ -1,3 +1,12 @@
+#' Read a linescan with s3path
+#'
+#' @param s3name full https path or tif file name
+#'
+#' @return terra rast object
+#' @export
+#'
+#' @examples
+#' #
 fire_read_scan <- function(s3name){
 
   #if only the file name is input, add in the path
