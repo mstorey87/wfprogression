@@ -12,7 +12,8 @@ fire_max_spread_line(
   convex_hull = T,
   max_only = T,
   internal_only = F,
-  max_minutes = 360
+  max_minutes = 360,
+  densify_m = 100
 )
 }
 \arguments{
