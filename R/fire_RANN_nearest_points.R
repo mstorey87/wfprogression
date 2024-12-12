@@ -135,7 +135,7 @@ fire_RANN_nearest_points <- function(poly,poly.prior,densify_m,within_only=F,max
     #loop through each vertex from poly
     for(xi in 1:nrow(coords2)){
 
-      print(xi)
+     # print(xi)
       #get current vertex
       coords2.xi <- matrix(coords2[xi,],nrow = 1)
 
