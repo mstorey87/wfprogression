@@ -90,7 +90,7 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,
         dplyr::filter(time==max(time))
 
 
-      dat.lines <- wfprogression::fire_RANN_nearest_points(dat.i,dat.prior,densify_m=densify_m,max_only = max_only)
+      dat.lines <- wfprogression::fire_RANN_nearest_points(dat.i,dat.prior,densify_m=densify_m,max_only = max_only,within_only = internal_only)
 
       #combine attributes
       dat.lines <- cbind(dat.lines,sf::st_drop_geometry(dat.i))
