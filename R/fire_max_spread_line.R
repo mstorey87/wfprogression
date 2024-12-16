@@ -53,8 +53,7 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,
 
     #arrange in order of time and give a time id
     dplyr::arrange(time)
-  #get convex hull of polygon to save processing time
-  if(convex_hull==T) dat.poly <- dat.poly %>% sf::st_convex_hull()
+
 
 
 
@@ -66,11 +65,16 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,
 
     #get current loop polygon
     dat.i <- dat.poly[i,]
-
     #get all prior polygons within
     #ensure we only consider prior polygons from the same season, otherwise the code will mistake fire from previous seasons as being part of the same fire
     dat.prior.all <- dat.poly %>%
       dplyr::filter(time < dat.i$time,season==dat.i$season)
+
+    #get convex hull of polygon to save processing time
+    if(convex_hull==T){
+     dat.i <- dat.i %>% sf::st_convex_hull()
+     dat.prior.all <- dat.prior.all %>% sf::st_convex_hull()
+    }
 
     #filter by max_minutes input
     dat.prior.filtered <- dat.prior.all %>%
@@ -88,6 +92,8 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,
       #get only most recent prior polygon
       dat.prior <- dat.prior.filtered %>%
         dplyr::filter(time==max(time))
+
+
 
 
       dat.lines <- wfprogression::fire_RANN_nearest_points(dat.i,dat.prior,densify_m=densify_m,max_only = max_only,within_only = internal_only)
