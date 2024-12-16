@@ -70,11 +70,6 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,
     dat.prior.all <- dat.poly %>%
       dplyr::filter(time < dat.i$time,season==dat.i$season)
 
-    #get convex hull of polygon to save processing time
-    if(convex_hull==T){
-     dat.i <- dat.i %>% sf::st_convex_hull()
-     dat.prior.all <- dat.prior.all %>% sf::st_convex_hull()
-    }
 
     #filter by max_minutes input
     dat.prior.filtered <- dat.prior.all %>%
@@ -85,6 +80,12 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,
     dat.prior.filtered <- dat.prior.filtered %>%
         sf::st_filter(dat.i,.predicate = sf::st_intersects)
 
+    #get convex hull of polygon to save processing time
+    #run this in the filtered data, as we need to maintain the polygons of dat.prior.all for a later intersect
+    if(convex_hull==T){
+     dat.i <- dat.i %>% sf::st_convex_hull()
+     dat.prior.filtered <- dat.prior.filtered %>% sf::st_convex_hull()
+    }
 
     #skip if not prior intersecting polygon
     if(nrow(dat.prior.filtered)>0){
