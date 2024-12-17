@@ -78,14 +78,9 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,
     #get only prior polygon that intersect current polygon. dat.prior.all can be empty from above time filter
     #intersect by unaltered polygons
     dat.prior.filtered <- dat.prior.filtered %>%
-        sf::st_filter(dat.i,.predicate = sf::st_intersects)
+      sf::st_filter(dat.i,.predicate = sf::st_intersects)
 
-    #get convex hull of polygon to save processing time
-    #run this in the filtered data, as we need to maintain the polygons of dat.prior.all for a later intersect
-    if(convex_hull==T){
-     dat.i <- dat.i %>% sf::st_convex_hull()
-     dat.prior.filtered <- dat.prior.filtered %>% sf::st_convex_hull()
-    }
+
 
     #skip if not prior intersecting polygon
     if(nrow(dat.prior.filtered)>0){
@@ -94,7 +89,12 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,
       dat.prior <- dat.prior.filtered %>%
         dplyr::filter(time==max(time))
 
-
+      #get convex hull of polygon to save processing time
+      #run this in the filtered data, as we need to maintain the polygons of dat.prior.all for a later intersect
+      if(convex_hull==T){
+        dat.i <- dat.i %>% sf::st_convex_hull()
+        dat.prior <- dat.prior %>% sf::st_convex_hull()
+      }
 
 
       dat.lines <- wfprogression::fire_RANN_nearest_points(dat.i,dat.prior,densify_m=densify_m,max_only = max_only,within_only = internal_only)
