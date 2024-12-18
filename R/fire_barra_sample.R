@@ -17,32 +17,46 @@ fire_barra_sample<- function(nc_conn,datetimeutc,sf_points,varname,allcells=F,ex
   #have variations e.g. tasmean is mean hourly temperature
 
 
-  #get the origin time from the nc file
-  ncorigin <- ncmeta::nc_atts(nc_conn$source$source,variable = "time")$value$units
-  ncorigin <- stringr::str_replace(ncorigin,"days since ","")
-
-  #convert our time to nc format
-  datetimeutc_nc <- as.numeric(datetimeutc-as.POSIXct(ncorigin,tz="utc"))
+  # #get the origin time from the nc file
+  # ncorigin <- ncmeta::nc_atts(nc_conn$source$source,variable = "time")$value$units
+   #ncorigin <- stringr::str_replace(ncorigin,"days since ","")
+  #
+  # #convert our time to nc format
+   #datetimeutc_nc <- as.numeric(datetimeutc-as.POSIXct(ncorigin,tz="utc"))
 
   #get bounding box of all point for filtering data
   bbox <- sf::st_bbox(sf_points)
 
-  b.local <- nc_conn  %>%
-    tidync::activate(varname) %>%
+
+  #get the time in the format of the nc
+  datetimeutc_nc <- nc_conn$transforms$time %>%
+    dplyr::filter(timestamp==format(datetimeutc,format="%Y-%m-%d %H:%M:%S")) %>% .$time
+
+
+
+  #active nc variable
+    b.local <- nc_conn  %>%
+      tidync::activate(varname) %>%
+
     #filter roughly by lat long and to exact time
     tidync::hyper_filter(time= time==datetimeutc_nc,
                          lat = lat >= bbox[2]-1 & lat <= bbox[4]+1,
                          lon = lon >= bbox[1]-1 & lon <= bbox[3]+1) %>%
 
+
+
+
+
     tidync::hyper_tibble() %>%
 
     #convert time and filter again. More of a check that the time conversion I did above produces the same results
     #this could be excluded
-    dplyr::mutate(dtutc=as.POSIXct(time*24*60*60,origin=ncorigin,tz="UTC")) %>%
-    dplyr::filter(dtutc==datetimeutc)%>%
+    # dplyr::mutate(dtutc=as.POSIXct(time*24*60*60,origin=ncorigin,tz="UTC")) %>%
+    # dplyr::mutate(dtutc=as.POSIXct(time,tz="UTC")) %>%
+    # dplyr::filter(dtutc==datetimeutc)%>%
 
     #select required columns for conversion to raster (lon and lat first)
-    dplyr::select(lon,lat,dplyr::everything(),-time,-dtutc)
+    dplyr::select(lon,lat,dplyr::all_of(varname))
 
   #create raster
   r <- terra::rast(b.local)
