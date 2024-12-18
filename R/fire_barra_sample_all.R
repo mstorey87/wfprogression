@@ -1,12 +1,13 @@
-dat <- readRDS("D:\\temp\\lines.rds") %>%
-  head(50) %>%
-  sf::st_transform(3112) %>%
-  sf::st_segmentize(dfMaxLength = 100) %>%
-  dplyr::mutate(line_id=dplyr::row_number()) %>%
-  sf::st_cast("POINT")
-time_col_utc <- "start_time"
-barraid="C2"
-varnames=c("sfcWind","tas")
+# dat <- readRDS("D:\\temp\\lines.rds") %>%
+#   head(50) %>%
+#   sf::st_transform(3112) %>%
+#   sf::st_segmentize(dfMaxLength = 100) %>%
+#   dplyr::mutate(line_id=dplyr::row_number()) %>%
+#   sf::st_cast("POINT")
+# time_col_utc <- "start_time"
+# barraid="C2"
+# varnames=c("sfcWind","tas")
+
 
 #' Sample an sf object for BARRA data
 #'
