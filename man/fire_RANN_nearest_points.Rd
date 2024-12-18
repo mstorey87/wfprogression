@@ -4,7 +4,14 @@
 \alias{fire_RANN_nearest_points}
 \title{Fire nearest neighbour lines using RANN packages}
 \usage{
-fire_RANN_nearest_points(poly, poly.prior, densify_m, max_only = T)
+fire_RANN_nearest_points(
+  poly,
+  poly.prior,
+  densify_m,
+  within_only = F,
+  max_only = T,
+  within_buffer_m = 10
+)
 }
 \arguments{
 \item{poly}{sf polygon of fire progression}

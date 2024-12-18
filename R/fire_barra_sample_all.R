@@ -1,8 +1,25 @@
-dat <- readRDS("D:\\temp\\lines.rds")
+dat <- readRDS("D:\\temp\\lines.rds") %>%
+  head(50) %>%
+  sf::st_transform(3112) %>%
+  sf::st_segmentize(dfMaxLength = 100) %>%
+  dplyr::mutate(line_id=dplyr::row_number()) %>%
+  sf::st_cast("POINT")
 time_col_utc <- "start_time"
 barraid="C2"
 varnames=c("sfcWind","tas")
 
+#' Sample an sf object for BARRA data
+#'
+#' @param dat sf object
+#' @param time_col_utc character string of name of datetime column (posix, utc)
+#' @param barraid R2 (12 km product) or C2 (~4km product)
+#' @param varnames vector of barra variable names. BARRA variable name e.g. sfcWind (surface wind), tas (temperature), hurs (RH), vas and uas (wind components).  http://www.bom.gov.au/research/publications/researchreports/BRR-067.pdf
+#'
+#' @return sample sf object
+#' @export
+#'
+#' @examples
+#' #
 fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames){
   #add time column with standard name
   dat$time <- dat[[time_col_utc]]
@@ -43,49 +60,51 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames){
   #this functions loops the main barra sampling function.
   # you can run this function with a different barra variable each time
   #data need a time_round column
+  res.all.vars <- list()
   for(v in varnames){
+   # print(v)
 
     res.list <- list()
 
     for (i in 1:length(dat.split)) {
-      print(i)
+      print(paste0(v," ",names(dat.split)[i]))
       #data for current iteration (all associated with same nc)
-      dat <- dat.split[[i]] %>%
+      dat.i <- dat.split[[i]] %>%
         dplyr::mutate(ncpath=wfprogression::fire_barra_path(datetimeutc=time_round,barraid=barraid,varname=v)) %>%
         dplyr::select(id,time_round,ncpath)
 
       #connect to nc
-      nc_conn <- tidync::tidync(unique(dat$ncpath))
+      nc_conn <- tidync::tidync(unique(dat.i$ncpath))
 
       #create a list of sf object associated with current nc, each with unique times
-      dat.split.time <- split(dat,dat$time_round)
+      dat.split.time <- split(dat.i,dat.i$time_round)
 
       #for each sf object of the same datetime, run the barra nc sampling function
       res <- purrr::map(dat.split.time,~wfprogression::fire_barra_sample(nc_conn,unique(.x$time_round),.x,v))
 
-      res.list[[i]] <-  do.call(rbind,res)
+      res.list[[i]] <-  do.call(rbind,res) %>%
+        sf::st_drop_geometry() %>%
+        dplyr::select(-ncpath)
     }
 
 
-    res.all <- do.call(rbind,res.list)
-
-    return(res.all)
-
+    res.all.vars[[v]] <- do.call(rbind,res.list)
 
   }
 
 
 
   #run loop sampling function for each variable
-  res.wind <- fn_loop_sample(dat.drops.split,"sfcWind","C2")
-  res.tas <- fn_loop_sample(dat.drops.split,"tas","C2")
-  res.hurs <- fn_loop_sample(dat.drops.split,"hurs","C2")
-  res.vas <- fn_loop_sample(dat.drops.split,"vas","C2")
-  res.uas <- fn_loop_sample(dat.drops.split,"uas","C2")
+  #res.all <- do.call(rbind,res.all.vars)
 
 
 
+  res.all <- purrr::reduce(res.all.vars, dplyr::left_join, by = c('id','time_round')) %>%
+    dplyr::left_join(dat %>% dplyr::select(id),by="id") %>%
+    sf::st_as_sf() %>%
+    dplyr::arrange(id)
 
 
+  return(res.all)
 
 }
