@@ -65,7 +65,15 @@ fire_search_himawari <- function(fire_bbox,
 
     #remove NA results i.e. paths with no data (sometime a Himawari capture is missing)
 
-    dplyr::filter(!is.na(file_name)) %>%
+    dplyr::filter(!is.na(file_name))
+
+
+  #test if no images are found e.g. times prior to himawari existing
+  if(nrow(dat.paths)>0){
+
+
+
+  dat.paths <- dat.paths %>%
 
     #create fields for time date and download paths
     dplyr::mutate(path_download=stringr::str_replace(path_catalog,"catalog","dodsC"),
@@ -83,6 +91,14 @@ fire_search_himawari <- function(fire_bbox,
 
 
   return(dat.paths)
+
+
+  }else{
+
+    print("No images found")
+
+  }
+
 
 }
 
