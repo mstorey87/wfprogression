@@ -1,19 +1,27 @@
 #' Search BOM repository of Himiwari data via thredds
 #'
 #' @param fire_bbox A polygon, usually fire bounding box, to search for images
-#' @param start_date The first date for which to search for images YYYY-mm-dd
-#' @param end_date The last date for which to search for images YYYY-mm-dd
+#' @param start_time The first date for which to search for images YYYY-mm-dd local time
+#' @param end_time The last date for which to search for images YYYY-mm-dd local time
 #' @param timestep_minutes minutes timestep in multiples of 10. e.g. search for images every 10 minutes or 60 minutes.
 #'
 #' @return Data frame with thredds path to Himawari data
 #' @export
 #'
 #' @examples
-#' #dat.himiwari <- fire_search_himawari(fire_bbox = dat.bbox,start_date = datestart, end_date = dateend,timestep_minutes = 120)
+#' #dat.himiwari <- fire_search_himawari(fire_bbox = dat.bbox,start_time = datestart, end_time = dateend,timestep_minutes = 120)
 fire_search_himawari <- function(fire_bbox,
-                                 start_date,
-                                 end_date,
+                                 start_time,
+                                 end_time,
                                  timestep_minutes=10){
+
+
+  checkmate::assert(stringr::str_detect(class(start_time)[1],"POSIXct"),"Error: times must be posixct")
+  checkmate::assert(stringr::str_detect(class(end_time)[1],"POSIXct"),"Error: times must be posixct")
+
+
+
+
 
 
   nci_path <- "https://thredds.nci.org.au/thredds/catalog/ra22/satellite-products/arc/obs/himawari-ahi/fldk/v1-0"
@@ -21,8 +29,11 @@ fire_search_himawari <- function(fire_bbox,
 
   #get all datetimes to search for images from fire start to fire end, using user specified time step
   #this will be used to create thredds paths
-  #subtract 1 day from start date to account for himawari files being utc time
-  dates_fires <- seq(as.POSIXct(start_date,tz="UTC")-lubridate::days(1),as.POSIXct(end_date,tz="UTC"),by=paste0(timestep_minutes," mins"))
+  #ensure utc times are used because these are what the himawari files are written with
+  start_time <- lubridate::with_tz(start_time,tz="utc")
+  end_time <- lubridate::with_tz(end_time,tz="utc")
+
+  dates_fires <- seq(start_time,end_time,by=paste0(timestep_minutes," mins"))
 
 
   #get the time zone
@@ -67,7 +78,7 @@ fire_search_himawari <- function(fire_bbox,
                   file_name,path_download,band,satellite) %>%
 
     #ensure only dates input by user are included in output
-    dplyr::filter(as.Date(date_local) >= as.Date(start_date) & as.Date(date_local) <= as.Date(end_date))
+    dplyr::filter(as.Date(date_local) >= as.Date(start_time) & as.Date(date_local) <= as.Date(end_time))
 
 
 
