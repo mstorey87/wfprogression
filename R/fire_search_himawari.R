@@ -31,7 +31,12 @@ fire_search_himawari <- function(fire_bbox,
   #this will be used to create thredds paths
   #ensure utc times are used because these are what the himawari files are written with
   start_time <- lubridate::with_tz(start_time,tz="utc")
+  #round to nearest x minutes (himawari files are every 10 minutes)
+  start_time <- lubridate::round_date(start_time,unit = paste0(timestep_minutes," minutes"))
+
   end_time <- lubridate::with_tz(end_time,tz="utc")
+  #round to nearest x minutes (himawari files are every 10 minutes)
+  end_time <- lubridate::round_date(end_time,unit = paste0(timestep_minutes," minutes"))
 
   dates_fires <- seq(start_time,end_time,by=paste0(timestep_minutes," mins"))
 
