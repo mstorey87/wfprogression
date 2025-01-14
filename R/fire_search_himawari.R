@@ -27,18 +27,24 @@ fire_search_himawari <- function(fire_bbox,
   nci_path <- "https://thredds.nci.org.au/thredds/catalog/ra22/satellite-products/arc/obs/himawari-ahi/fldk/v1-0"
 
 
+  #round input times to nearest x minutes, max of 60 minutes
+  timestep_minutes_round <- ifelse(timestep_minutes>60,60,timestep_minutes)
+
   #get all datetimes to search for images from fire start to fire end, using user specified time step
   #this will be used to create thredds paths
   #ensure utc times are used because these are what the himawari files are written with
+
+
   start_time <- lubridate::with_tz(start_time,tz="utc")
   #round to nearest x minutes (himawari files are every 10 minutes)
-  start_time <- lubridate::round_date(start_time,unit = paste0(timestep_minutes," minutes"))
+  start_time <- lubridate::round_date(start_time,unit = paste0(timestep_minutes_round," minutes"))
 
   end_time <- lubridate::with_tz(end_time,tz="utc")
   #round to nearest x minutes (himawari files are every 10 minutes)
-  end_time <- lubridate::round_date(end_time,unit = paste0(timestep_minutes," minutes"))
+  end_time <- lubridate::round_date(end_time,unit = paste0(timestep_minutes_round," minutes"))
 
   dates_fires <- seq(start_time,end_time,by=paste0(timestep_minutes," mins"))
+
 
 
   #get the time zone
