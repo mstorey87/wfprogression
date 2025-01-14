@@ -37,7 +37,7 @@ fire_search_himawari <- function(fire_bbox,
 
 
   #get the time zone
-  my_tz <- fire_get_timezone(fire_bbox)
+  my_tz <- wfprogression::fire_get_timezone(fire_bbox)
 
 
 
@@ -56,7 +56,7 @@ fire_search_himawari <- function(fire_bbox,
 
     #use rvest based function to create a list of all files in each catalog path
     #some will be himiwari 8 and some will be 9
-    dplyr::mutate(file_name=purrr::map(path_catalog,~fire_thredds_list(.x,"ABOM_OBS_|ABOM_OBS_|ABOM_OBS_")))
+    dplyr::mutate(file_name=purrr::map(path_catalog,~wfprogression::fire_thredds_list(.x,"ABOM_OBS_|ABOM_OBS_|ABOM_OBS_")))
 
   dat.paths <- dat.paths %>%
 
