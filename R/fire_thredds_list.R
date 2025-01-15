@@ -36,6 +36,7 @@ fire_thredds_list <- function(catalog_url,regex){
     error=function(e) {
       #message('An Error Occurred')
       #print(paste0(catalog_url," ",e))
+      closeAllConnections()
       return(NA)
     },
     warning=function(w) {
