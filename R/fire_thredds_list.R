@@ -29,6 +29,7 @@ fire_thredds_list <- function(catalog_url,regex){
       #print(catalog_url," ok")
 
       return(thredds_filenames)
+      close(thredds_filenames)
 
     },
     error=function(e) {
