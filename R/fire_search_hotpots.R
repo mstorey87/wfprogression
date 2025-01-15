@@ -88,7 +88,8 @@ fire_search_hotspots <- function(fire_bbox,mapkey,start_date,end_date,dest_folde
                                                             datelocal=format(datetimelocal,format="%Y-%m-%d"))
 
     #write a hotspots shapefile
-    sf::st_write(dat.hotspots,paste0(dest_folder,"\\hotspots\\hotspots.shp"),delete_dsn=T)
+    write.csv( as.data.frame(dat.hotspots) %>%
+                 mutate(geometry = st_as_text(dat.hotspots)),paste0(dest_folder,"\\hotspots\\hotspots.csv"))
 
 
   }
