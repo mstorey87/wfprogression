@@ -89,9 +89,9 @@ fire_search_hotspots <- function(fire_bbox,mapkey,start_date,end_date,dest_folde
                     datetimeutc=as.character(datetimeutc),
                     datetimelocal=as.character(datetimelocal))
 
-    colnames(dat.hotspots) <- abbreviate(colnames(dat.hotspots),minlength = 10)
+    #colnames(dat.hotspots) <- abbreviate(colnames(dat.hotspots),minlength = 10)
     #write a hotspots shapefile
-    sf::st_write(dat.hotspots,paste0(dest_folder,"\\hotspots\\hotspots.shp"),delete_dsn=T)
+    sf::st_write(dat.hotspots %>%   dplyr::rename_with(~ abbreviate(., minlength = 10)),paste0(dest_folder,"\\hotspots\\hotspots.shp"),delete_dsn=T)
 
 
   }
