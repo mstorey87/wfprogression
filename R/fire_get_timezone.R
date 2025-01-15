@@ -9,6 +9,9 @@
 #' #fire_get_timezone(dat.bbox)
 fire_get_timezone <- function(fire_bbox){
 
+  checkmate::assert(curl::has_internet(),"Error: internet connection is required")
+
+
   closeAllConnections()
   #get the time zone based on footprint centroid and add a local time field
   dat.aus <- rnaturalearth::ne_states(country="Australia") %>%
