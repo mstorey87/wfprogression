@@ -37,8 +37,11 @@ fire_search_scans <- function(fire_bbox=fire_bbox_polygon(),start_time,end_time)
   #this is useful if a complex fire polygon is the input.
     fire_bbox <- fire_bbox %>%
        sf::st_transform(4283) %>%
-       sf::st_concave_hull(ratio = 0.8)
+       sf::st_concave_hull(ratio = 0.8) %>%
+      sf::st_union() %>%
+      sf::st_as_sf()
 
+    sf::st_geometry(fire_bbox) <- "geometry"
 
   #extract geometry of fire as text
   txt_geom <- sf::st_as_text(fire_bbox$geometry,EWKT=T)
