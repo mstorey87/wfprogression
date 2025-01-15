@@ -45,7 +45,7 @@ fire_download_himiwari <- function(fire_bbox,df_download,bands=c("B07","B04","B0
                                                              x = x > bbox_him[1] & x < bbox_him[3]) %>%
 
                                         tidync::hyper_tibble() %>%
-                                        dplyr::select(x,y,dplyr::everything(),-time)%>%
+                                        dplyr::select(x,y,dplyr::everything())%>%
                                         terra::rast()))
 
       #combine to rgb, resampling to match cell sizes
