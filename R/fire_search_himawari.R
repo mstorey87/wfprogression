@@ -106,7 +106,7 @@ fire_search_himawari <- function(fire_bbox,
 
   }else{
 
-    print("No images found")
+    print("No himawari images found")
 
   }
 
