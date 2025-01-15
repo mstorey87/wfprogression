@@ -76,7 +76,7 @@ fire_search_hotspots <- function(fire_bbox,mapkey,start_date,end_date,dest_folde
 
     #get the time zone based on fire centroid and add a local time field
     #get the time zone for the fire
-    my_tz <- fire_get_timezone(fire_bbox)
+    my_tz <- wfprogression::fire_get_timezone(fire_bbox)
 
     #calcualte date and time fields
     dat.hotspots <- dat.hotspots %>%
@@ -85,11 +85,13 @@ fire_search_hotspots <- function(fire_bbox,mapkey,start_date,end_date,dest_folde
                     datetimeutc=lubridate::fast_strptime(paste0(acq_date," ",acq_time),format="%Y-%m-%d %H%M",tz="UTC"),
                     timezone=my_tz,
                     datetimelocal=lubridate::with_tz(datetimeutc,tzone=timezone),
-                                                            datelocal=format(datetimelocal,format="%Y-%m-%d"))
+                                                            datelocal=format(datetimelocal,format="%Y-%m-%d"),
+                    datetimeutc=as.character(datetimeutc),
+                    datetimelocal=as.character(datetimelocal))
 
+    colnames(dat.hotspots) <- abbreviate(colnames(dat.hotspots),minlength = 10)
     #write a hotspots shapefile
-    write.csv( as.data.frame(dat.hotspots) %>%
-                 mutate(geometry = st_as_text(dat.hotspots)),paste0(dest_folder,"\\hotspots\\hotspots.csv"))
+    sf::st_write(dat.hotspots,paste0(dest_folder,"\\hotspots\\hotspots.shp"),delete_dsn=T)
 
 
   }
