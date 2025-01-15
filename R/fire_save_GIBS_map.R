@@ -11,12 +11,13 @@
 #' # fire_save_GIBS_map(fire_bbox,m,dest_folder)
 fire_save_GIBS_map <- function(fire_bbox,wms_GIBS_map,dest_folder){
 
+  checkmate::assert("webshot" %in% rownames(installed.packages()),"Error: install the 'webshot' package")
   #get bounding box coordinates
    bb <- sf::st_bbox(fire_bbox)
 
    #calculate a scaling for the output image based on bounding box size
-   v1 <- round((bb[4]-bb[2])*2000)
-   v2 <- round((bb[3]-bb[1])*2000)
+   v1 <- round((bb[4]-bb[2])*7000)
+   v2 <- round((bb[3]-bb[1])*7000)
 
 
    #extract datetime of hotspots, if they have been added to the map from wms leaflet data

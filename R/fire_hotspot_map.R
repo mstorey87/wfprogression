@@ -18,7 +18,7 @@ fire_hotspot_map <- function(fire_bbox,start_date,end_date,mapkey="a5452249ca7c7
   date_seq <- seq(as.Date(start_date),as.Date(end_date),by="1 day")
 
   #download hotspots
-  hotspots <- fire_search_hotspots(fire_bbox,mapkey,
+  hotspots <- wfprogression::fire_search_hotspots(fire_bbox,mapkey,
                                    min(date_seq)-1,#dates are in utc, so include day prior to capture local date
                                    max(date_seq),
                                    dest_folder) %>%
@@ -47,8 +47,8 @@ fire_hotspot_map <- function(fire_bbox,start_date,end_date,mapkey="a5452249ca7c7
     for(wms in wms_layers){
 
 
-   m <-  fire_GIBS_map(fire_bbox,date_seq[i],wms,T,hotspots)
-      fire_save_GIBS_map(fire_bbox,m,dest_folder)
+   m <-  wfprogression::fire_GIBS_map(fire_bbox,date_seq[i],wms,T,hotspots)
+         wfprogression::fire_save_GIBS_map(fire_bbox,m,dest_folder)
 
     }
 
