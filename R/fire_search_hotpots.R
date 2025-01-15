@@ -14,6 +14,8 @@
 #' #z <- fire_search_hotspots(x$fire_bbox,mapkey,x$fire_bbox$startdate_search,x$fire_bbox$enddate_search,"C:/temp_data","NRT")
 fire_search_hotspots <- function(fire_bbox,mapkey,start_date,end_date,dest_folder,product_filter=NULL){
 
+  #set timeout to longer
+  options(timeout = 240)
   #API only allows 10 days per query, so queries need to be iterated in groups of 10 days
   #get the groups of 10 (or less) days
   n_days <- as.numeric(difftime(end_date,start_date,units="days"))+1
@@ -51,7 +53,10 @@ fire_search_hotspots <- function(fire_bbox,mapkey,start_date,end_date,dest_folde
   dir.create(unique(dirname(out.files)), showWarnings = F)
 
   #download hotspots. If no hotspots are found, a file with only headers will be downloaded
-  download.file(path_api,out.files,mode="wb")
+  for(xi in 1:length(path_api)){
+      download.file(path_api[xi],out.files[xi],mode="wb")
+  }
+
 
   #load hotspots and combine
   dat.hotspots <- purrr::map(out.files,~readr::read_csv(.x,show_col_types = F) %>%
@@ -98,6 +103,7 @@ fire_search_hotspots <- function(fire_bbox,mapkey,start_date,end_date,dest_folde
 
   return(dat.hotspots)
 
+  options(timeout=60)
 
 
 
