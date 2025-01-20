@@ -38,14 +38,16 @@ fire_search_progs <- function(fire_bbox=wfprogression::fire_bbox_polygon(),start
 
   fire_bbox <- fire_bbox %>%
     sf::st_transform(4283) %>%
-    sf::st_concave_hull(ratio = 0.8)
+    sf::st_concave_hull(ratio = 0.8) %>%
+    sf::st_union() %>%
+    sf::st_as_sf()
 
 
   #extract geometry of fire as text
   txt_geom <- sf::st_as_text(sf::st_geometry(fire_bbox),EWKT = T)
 
   #create date part of query
-  txt_date <- paste0("datetimelocal between '",format(start_time,format="%Y-%m-%d %H:%M:%S"), "' AND '", format(end_time,format="%Y-%m-%d %H:%M:%S"),"'")
+  txt_date <- paste0("dt_local between '",format(start_time,format="%Y-%m-%d %H:%M:%S"), "' AND '", format(end_time,format="%Y-%m-%d %H:%M:%S"),"'")
 
   #create whole SQL query
   #user input option to return results without geometry to save time
