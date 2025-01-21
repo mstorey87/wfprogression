@@ -21,12 +21,12 @@ fire_get_timezone <- function(fire_bbox){
   dat.cent <- fire_bbox %>%
     sf::st_union() %>%
     sf::st_centroid() %>%
-    sf::st_transform(3112)
+    sf::st_transform(3112) %>%
+    sf::st_as_sf()
 
-  dat.tz <- dat.aus%>%
-    sf::st_filter(dat.cent,.predicate=sf::st_intersects) %>%
+  #get nearest state to each point
+  dat.tz <-dat.aus[sf::st_nearest_feature(dat.cent,dat.aus),] %>%
     dplyr::left_join(wfprogression::dat.timezone.names,by="name")
-
 
   closeAllConnections()
   return(dat.tz$tz_name)
