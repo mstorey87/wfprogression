@@ -16,13 +16,13 @@ fire_hotspot_map <- function(fire_bbox,start_date,end_date,mapkey="a5452249ca7c7
 
   #create a series of GIBS and hotspots maps
   #define the sequence of dates
-  date_seq <- seq(as.Date(start_date),as.Date(end_date),by="1 day")
+  date_seq <- seq(as.Date(start_date),as.Date(end_date)+1,by="1 day")#dates are in utc, so include day post to capture local date
 
   if(add_hotspots==T){
 
     #download hotspots
     hotspots <- wfprogression::fire_search_hotspots(fire_bbox,mapkey,
-                                                    min(date_seq)-1,#dates are in utc, so include day prior to capture local date
+                                                    min(date_seq),
                                                     max(date_seq),
                                                     dest_folder)
 
