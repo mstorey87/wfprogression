@@ -10,7 +10,7 @@
 #'
 #' @examples
 #' #dat.progs.sf <- fire_search_progs(fire_bbox=dat.bbox,start_time=datestart,end_time=dateend)
-fire_search_progs <- function(fire_bbox=wfprogression::fire_bbox_polygon(),start_time,end_time){
+fire_search_drops <- function(fire_bbox=wfprogression::fire_bbox_polygon(),start_time,end_time){
 
 
 

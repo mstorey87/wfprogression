@@ -4,18 +4,14 @@
 \alias{fire_search_scans}
 \title{Search database for line scans}
 \usage{
-fire_search_scans(
-  fire_bbox = fire_bbox_polygon(),
-  start_date = "1990-01-01",
-  end_date = "2100-01-01"
-)
+fire_search_scans(fire_bbox = fire_bbox_polygon(), start_time, end_time)
 }
 \arguments{
 \item{fire_bbox}{A polygon, usually fire bounding box, to search for images}
 
-\item{start_date}{The first date for which to search for images YYYY-mm-dd}
+\item{start_time}{The first date for which to search for images YYYY-mm-dd}
 
-\item{end_date}{The last date for which to search for images YYYY-mm-dd}
+\item{end_time}{The last date for which to search for images YYYY-mm-dd}
 }
 \value{
 sf object
@@ -24,5 +20,5 @@ sf object
 Search database for line scans
 }
 \examples{
-#dat.scans.sf <- fire_search_scans(fire_bbox=dat.bbox,start_date=datestart,end_date=dateend)
+#dat.scans.sf <- fire_search_scans(fire_bbox=dat.bbox,start_time=datestart,end_time=dateend)
 }

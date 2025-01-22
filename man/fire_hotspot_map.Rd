@@ -9,7 +9,8 @@ fire_hotspot_map(
   start_date,
   end_date,
   mapkey = "a5452249ca7c7a4ee2e1e6da787f57cc",
-  dest_folder
+  dest_folder,
+  add_hotspots = T
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ fire_hotspot_map(
 \item{mapkey}{A mapkey reuired to download hotspots, https://firms.modaps.eosdis.nasa.gov/api/map_key/}
 
 \item{dest_folder}{Folder to save output tifs other files used in processing, including hotspots}
+
+\item{add_hotspots}{T/F to add or exclude hotspots from output images}
 }
 \value{
 Write a geotiff to disk. Also writes hotspots csv

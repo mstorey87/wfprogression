@@ -6,8 +6,8 @@
 \usage{
 fire_search_stac(
   fire_bbox,
-  start_date,
-  end_date,
+  start_time,
+  end_time,
   collection_names = c("ga_ls7e_ard_3", "ga_ls8c_ard_3", "ga_ls9c_ard_3",
     "ga_ls5t_ard_3", "ga_s2am_ard_3", "ga_s2bm_ard_3")
 )
@@ -15,9 +15,9 @@ fire_search_stac(
 \arguments{
 \item{fire_bbox}{A polygon, usually fire bounding box, to search for images}
 
-\item{start_date}{The first date for which to search for images YYYY-mm-dd}
+\item{start_time}{The first date for which to search for images YYYY-mm-dd}
 
-\item{end_date}{The last date for which to search for images YYYY-mm-dd}
+\item{end_time}{The last date for which to search for images YYYY-mm-dd}
 
 \item{collection_names}{Names of which Landsat and Sentinel 2 products to search for. Defaults to all products from Landsat 5 onwards.}
 }
@@ -28,5 +28,5 @@ data frame with image paths
 Search Geoscience Aus. STAC for Landsat and Sentinel 2 data
 }
 \examples{
-#dat.stac <- fire_search_stac(fire_bbox = dat.bbox,start_date = datestart,end_date = dateend)
+#dat.stac <- fire_search_stac(fire_bbox = dat.bbox,start_time = datestart,end_time = dateend)
 }

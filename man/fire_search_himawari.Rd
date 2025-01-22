@@ -4,14 +4,14 @@
 \alias{fire_search_himawari}
 \title{Search BOM repository of Himiwari data via thredds}
 \usage{
-fire_search_himawari(fire_bbox, start_date, end_date, timestep_minutes = 10)
+fire_search_himawari(fire_bbox, start_time, end_time, timestep_minutes = 10)
 }
 \arguments{
 \item{fire_bbox}{A polygon, usually fire bounding box, to search for images}
 
-\item{start_date}{The first date for which to search for images YYYY-mm-dd}
+\item{start_time}{The first date for which to search for images YYYY-mm-dd local time}
 
-\item{end_date}{The last date for which to search for images YYYY-mm-dd}
+\item{end_time}{The last date for which to search for images YYYY-mm-dd local time}
 
 \item{timestep_minutes}{minutes timestep in multiples of 10. e.g. search for images every 10 minutes or 60 minutes.}
 }
@@ -22,5 +22,5 @@ Data frame with thredds path to Himawari data
 Search BOM repository of Himiwari data via thredds
 }
 \examples{
-#dat.himiwari <- fire_search_himawari(fire_bbox = dat.bbox,start_date = datestart, end_date = dateend,timestep_minutes = 120)
+#dat.himiwari <- fire_search_himawari(fire_bbox = dat.bbox,start_time = datestart, end_time = dateend,timestep_minutes = 120)
 }
