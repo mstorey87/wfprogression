@@ -81,13 +81,21 @@ fire_hotspot_map <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca7c7
     for(wms in wms_layers){
 
 
-      m <-  wfprogression::fire_GIBS_map(fire_bbox,date_seq[i],wms,add_hotspots,hotspots)
+    #test if circle markers have been added (hotspots)
+      #if not don't save map
+     m <-  wfprogression::fire_GIBS_map(fire_bbox,date_seq[i],wms,add_hotspots,hotspots)
+     m_meths <- m$x$calls %>% as.list()
+     circles <- max(stringr::str_detect(purrr::map(1:length(m_meths),~m_meths[[.x]]$method) %>% unlist(),
+                          "addCircleMarkers"))
+
+     if(circles==1){
+             wfprogression::fire_save_GIBS_map(fire_bbox,m,dest_folder)
+
+     }else{
+       print(paste0("no ",wms," hotspots, not saving map"))
+     }
 
 
-      # z <- x$x$calls %>% tibble()
-      # purrr::map(1:nrow(z),~z$.[[.x]]$method) %>% unlist()
-
-      wfprogression::fire_save_GIBS_map(fire_bbox,m,dest_folder)
 
     }
 
