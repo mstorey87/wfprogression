@@ -90,13 +90,15 @@ fire_search_hotspots <- function(fire_bbox,mapkey,start_date,end_date,dest_folde
                     datetimeutc=lubridate::fast_strptime(paste0(acq_date," ",acq_time),format="%Y-%m-%d %H%M",tz="UTC"),
                     timezone=my_tz,
                     datetimelocal=lubridate::with_tz(datetimeutc,tzone=timezone),
-                                                            datelocal=format(datetimelocal,format="%Y-%m-%d"),
-                    datetimeutc=as.character(datetimeutc),
-                    datetimelocal=as.character(datetimelocal))
+                                                            datelocal=format(datetimelocal,format="%Y-%m-%d"))
 
     #colnames(dat.hotspots) <- abbreviate(colnames(dat.hotspots),minlength = 10)
     #write a hotspots shapefile
-    sf::st_write(dat.hotspots %>%   dplyr::rename_with(~ abbreviate(., minlength = 10)),paste0(dest_folder,"\\hotspots\\hotspots.shp"))
+    sf::st_write(dat.hotspots %>%
+                   dplyr::mutate(datetimeutc=as.character(datetimeutc),
+                                 datetimelocal=as.character(datetimelocal))%>%
+                   dplyr::rename_with(~ abbreviate(., minlength = 10)),
+                 paste0(dest_folder,"\\hotspots\\hotspots.shp"))
 
 
   }

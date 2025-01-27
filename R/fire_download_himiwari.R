@@ -34,7 +34,7 @@ fire_download_himiwari <- function(fire_bbox,df_download,bands=c("B07","B04","B0
     dat.i <- df_download %>%
       dplyr::filter(datetimelocal_chr==times_unique[i])
 
-    if(dat.i$daynight[1]=="day" & nrow(dat.i==3) & length(bands)==3){
+    if(dat.i$daynight[1]=="day" & nrow(dat.i)==3 & length(bands)==3){
 
       #stream and crop nc using tidync and terra
       dat.i <- dat.i %>%

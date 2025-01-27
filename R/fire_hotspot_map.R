@@ -12,10 +12,22 @@
 #'
 #' @examples
 #' #fire_hotspot_map(fire_bbox = dat.bbox,start_date = datestart,end_date = dateend,dest_folder = outdir)
-fire_hotspot_map <- function(fire_bbox,start_date,end_date,mapkey="a5452249ca7c7a4ee2e1e6da787f57cc",dest_folder,add_hotspots=T){
+fire_hotspot_map <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca7c7a4ee2e1e6da787f57cc",dest_folder,add_hotspots=T, draw_when_no_hotspots=T){
+
+
+  checkmate::assert(stringr::str_detect(class(start_time)[1],"POSIXct"),"Error: times must be posixct")
+  checkmate::assert(stringr::str_detect(class(end_time)[1],"POSIXct"),"Error: times must be posixct")
+
+  mytz=wfprogression::fire_get_timezone(fire_bbox)
+
+  start_time=lubridate::with_tz(start_time,tz=mytz)
+  end_time=lubridate::with_tz(end_time,tz=mytz)
 
   #create a series of GIBS and hotspots maps
   #define the sequence of dates
+  start_date=format(start_time,format="%Y-%m-%d")
+  end_date=format(end_time,format="%Y-%m-%d")
+
   date_seq <- seq(as.Date(start_date),as.Date(end_date)+1,by="1 day")#dates are in utc, so include day post to capture local date
 
   if(add_hotspots==T){
@@ -26,9 +38,16 @@ fire_hotspot_map <- function(fire_bbox,start_date,end_date,mapkey="a5452249ca7c7
                                                     max(date_seq),
                                                     dest_folder)
 
+    if(nrow(hotspots)>0){
+      hotspots <- hotspots  %>%
+        dplyr::filter(datelocal %in% date_seq,
+                      datetimelocal>start_time & datetimelocal<end_time)
+    }
+
+
     #if no hotspots are found, don't add hotspots to map
     if(nrow(hotspots)>0){
-      hotspots <- hotspots %>% dplyr::filter(datelocal %in% date_seq)
+      hotspots <- hotspots
 
     }else{
       add_hotspots=F
@@ -63,6 +82,11 @@ fire_hotspot_map <- function(fire_bbox,start_date,end_date,mapkey="a5452249ca7c7
 
 
       m <-  wfprogression::fire_GIBS_map(fire_bbox,date_seq[i],wms,add_hotspots,hotspots)
+
+
+      # z <- x$x$calls %>% tibble()
+      # purrr::map(1:nrow(z),~z$.[[.x]]$method) %>% unlist()
+
       wfprogression::fire_save_GIBS_map(fire_bbox,m,dest_folder)
 
     }
