@@ -6,8 +6,8 @@
 \usage{
 fire_hotspot_map(
   fire_bbox,
-  start_date,
-  end_date,
+  start_time,
+  end_time,
   mapkey = "a5452249ca7c7a4ee2e1e6da787f57cc",
   dest_folder,
   add_hotspots = T
@@ -16,15 +16,15 @@ fire_hotspot_map(
 \arguments{
 \item{fire_bbox}{Polygon of fire or area to search for images}
 
-\item{start_date}{First date from which to search for images}
-
-\item{end_date}{Final date to search for image}
-
 \item{mapkey}{A mapkey reuired to download hotspots, https://firms.modaps.eosdis.nasa.gov/api/map_key/}
 
 \item{dest_folder}{Folder to save output tifs other files used in processing, including hotspots}
 
 \item{add_hotspots}{T/F to add or exclude hotspots from output images}
+
+\item{start_date}{First date from which to search for images}
+
+\item{end_date}{Final date to search for image}
 }
 \value{
 Write a geotiff to disk. Also writes hotspots csv
