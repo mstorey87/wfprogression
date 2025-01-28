@@ -119,7 +119,8 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,
       # Initialize results list
       line_results <- lapply(1:nrow(dat.lines), function(i) {
         # Extract the geometry of the current line
-        line <- sf::st_geometry(dat.lines)[i]
+        line <- sf::st_geometry(dat.lines)[i] %>%
+          sf::st_transform(4283)
 
         # Extract coordinates
         coords <- sf::st_coordinates(line)
@@ -134,10 +135,9 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,
 
         # Return as a named vector
         return(data.frame(
-          start_x = start_point[1], start_y = start_point[2],
-          end_x = end_point[1], end_y = end_point[2],
-          epsg=sf::st_crs(lines)$epsg,
-          direction = direction
+          start_x_gda94 = start_point[1], start_y_gda94 = start_point[2],
+          end_x_gda94 = end_point[1], end_y_gda94 = end_point[2],
+          direction_gda94 = direction
         ))
       })
 
