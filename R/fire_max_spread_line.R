@@ -122,8 +122,9 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,
         line <- sf::st_geometry(dat.lines)[i] %>%
           sf::st_transform(4283)
 
-        # Extract coordinates
+        # Extract coordinates, reverse the order
         coords <- sf::st_coordinates(line)
+        coords <-coords[nrow(coords):1, ]
 
         # Get start and end points
         start_point <- coords[1, ]
