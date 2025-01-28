@@ -110,10 +110,10 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,
         #select final attributes
         dplyr::mutate(start_time=unique(dat.prior$time),
                       end_time=unique(dat.i$time),
-                      timestep_hours=as.numeric(difftime(end_time,start_time,units="hours")),
+                      timestep_mins=as.numeric(difftime(end_time,start_time,units="mins")),
                       line_km=(line_metres/1000),
-                      ros_kmh=line_km/timestep_hours) %>%
-        dplyr::select(start_time,end_time,line_km,timestep_hours,ros_kmh)
+                      ros_kmh=line_km/(timestep_mins/60)) %>%
+        dplyr::select(start_time,end_time,line_km,timestep_mins,ros_kmh)
 
       ##add line start and end coordinates and directions
       # Initialize results list
