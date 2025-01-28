@@ -90,7 +90,7 @@ fire_hotspot_map <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca7c7
 
      }else if(add_hotspots==T & circles==0){
        print(paste0("no ",wms," hotspots, not saving map"))
-       wfprogression::fire_save_GIBS_map(fire_bbox,m,paste0(dest_folder,"2"))
+       #wfprogression::fire_save_GIBS_map(fire_bbox,m,paste0(dest_folder,"2"))
 
      }
 
