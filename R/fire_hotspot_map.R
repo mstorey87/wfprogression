@@ -12,7 +12,7 @@
 #'
 #' @examples
 #' #fire_hotspot_map(fire_bbox = dat.bbox,start_date = datestart,end_date = dateend,dest_folder = outdir)
-fire_hotspot_map <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca7c7a4ee2e1e6da787f57cc",dest_folder,add_hotspots=T, draw_when_no_hotspots=T){
+fire_hotspot_map <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca7c7a4ee2e1e6da787f57cc",dest_folder,add_hotspots=T){
 
 
   checkmate::assert(stringr::str_detect(class(start_time)[1],"POSIXct"),"Error: times must be posixct")
@@ -32,6 +32,8 @@ fire_hotspot_map <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca7c7
 
   if(add_hotspots==T){
 
+    add_hotspots_test=T
+
     #download hotspots
     hotspots <- wfprogression::fire_search_hotspots(fire_bbox,mapkey,
                                                     min(date_seq),
@@ -46,15 +48,10 @@ fire_hotspot_map <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca7c7
 
 
     #if no hotspots are found, don't add hotspots to map
-    if(nrow(hotspots)>0){
-      hotspots <- hotspots
+    if(nrow(hotspots)==0){
+      add_hotspots_test=F
 
-    }else{
-      add_hotspots=F
-      print("no hotspots found, none will be added")
     }
-
-
 
   }else{
     hotspots=NULL
@@ -83,16 +80,18 @@ fire_hotspot_map <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca7c7
 
     #test if circle markers have been added (hotspots)
       #if not don't save map
-     m <-  wfprogression::fire_GIBS_map(fire_bbox,date_seq[i],wms,add_hotspots,hotspots)
+     m <-  wfprogression::fire_GIBS_map(fire_bbox,date_seq[i],wms,add_hotspots=add_hotspots_test,hotspots)
      m_meths <- m$x$calls %>% as.list()
      circles <- max(stringr::str_detect(purrr::map(1:length(m_meths),~m_meths[[.x]]$method) %>% unlist(),
                           "addCircleMarkers"))
 
-     if(circles==1){
+     if((circles==1 & add_hotspots==T)|add_hotspots==F){
              wfprogression::fire_save_GIBS_map(fire_bbox,m,dest_folder)
 
-     }else{
+     }else if(add_hotspots==T & circles==0){
        print(paste0("no ",wms," hotspots, not saving map"))
+       wfprogression::fire_save_GIBS_map(fire_bbox,m,paste0(dest_folder,"2"))
+
      }
 
 
