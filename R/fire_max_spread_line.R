@@ -132,7 +132,7 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,
 
         # Calculate direction (bearing in degrees)
 
-        bearing_deg <- stplanr::line_bearing(lines,bidirectional = F)
+        bearing_deg <- stplanr::line_bearing(line,bidirectional = F)
         bearing_deg <- ifelse(bearing_deg < 180,bearing_deg+180,bearing_deg-180)
 
         # Return as a named vector
