@@ -133,7 +133,7 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,
         if (direction < 0) direction <- direction + 360
 
         # Return as a named vector
-        return(c(
+        return(data.frame(
           start_x = start_point[1], start_y = start_point[2],
           end_x = end_point[1], end_y = end_point[2],
           epsg=sf::st_crs(lines)$epsg,
