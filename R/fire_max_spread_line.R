@@ -131,20 +131,15 @@ fire_max_spread_line <- function(polygons,time_col,include_spots=F,
         end_point <- coords[nrow(coords), ]
 
         # Calculate direction (bearing in degrees)
-        # Calculate bearing in radians
-        bearing_rad <- atan2(
-          end_point[2] - start_point[2], # Difference in y (latitude)
-          end_point[1] - start_point[1]  # Difference in x (longitude)
-        )
 
-        # Convert to degrees and normalize to [0, 360)
-        bearing_deg <- (bearing_rad * (180 / pi)) %% 360
+        bearing_deg <- stplanr::line_bearing(lines,bidirectional = F)
+        bearing_deg <- ifelse(bearing_deg < 180,bearing_deg+180,bearing_deg-180)
 
         # Return as a named vector
         return(data.frame(
           start_x_gda94 = start_point[1], start_y_gda94 = start_point[2],
           end_x_gda94 = end_point[1], end_y_gda94 = end_point[2],
-          bearing_gda94 = bearing_deg
+          bearing = bearing_deg
         ))
       })
 
