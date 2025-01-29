@@ -21,15 +21,21 @@ fire_search_scans <- function(fire_bbox=fire_bbox_polygon(),start_time,end_time)
   end_time <- lubridate::with_tz(end_time,tz=my_tz)
 
 
+  # Establish the connection
+  DB <- dbConnect(RPostgres::Postgres(),
+                   dbname = 'postgres',
+                   host = "database-1.cn2u4ig8wad8.ap-southeast-2.rds.amazonaws.com",
+                   port = 5432,
+                   user = "postgres",
+                   password = "wfprogression2025")
 
-
-  #connect to database
-  DB <- DBI::dbConnect(RPostgres::Postgres(),
-                       dbname = "cermb_fires",
-                       user = "mstorey",
-                       password = "bushfires",
-                       host = "charus.ad.uow.edu.au",
-                       port = 5432)
+  # #connect to database
+  # DB <- DBI::dbConnect(RPostgres::Postgres(),
+  #                      dbname = "cermb_fires",
+  #                      user = "mstorey",
+  #                      password = "bushfires",
+  #                      host = "charus.ad.uow.edu.au",
+  #                      port = 5432)
 
 
 

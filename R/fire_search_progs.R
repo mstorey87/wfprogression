@@ -26,12 +26,21 @@ fire_search_progs <- function(fire_bbox=wfprogression::fire_bbox_polygon(),start
 
 
   #connect to database
-  DB <- DBI::dbConnect(RPostgres::Postgres(),
-                       dbname = "cermb_fires",
-                       user = "mstorey",
-                       password = "bushfires",
-                       host = "charus.ad.uow.edu.au",
-                       port = 5432)
+  # Establish the connection
+  DB <- dbConnect(RPostgres::Postgres(),
+                  dbname = 'postgres',
+                  host = "database-1.cn2u4ig8wad8.ap-southeast-2.rds.amazonaws.com",
+                  port = 5432,
+                  user = "postgres",
+                  password = "wfprogression2025")
+
+  # #connect to database
+  # DB <- DBI::dbConnect(RPostgres::Postgres(),
+  #                      dbname = "cermb_fires",
+  #                      user = "mstorey",
+  #                      password = "bushfires",
+  #                      host = "charus.ad.uow.edu.au",
+  #                      port = 5432)
 
   #simplify fire polygon shape for intersect
   #mainly useful when fire polygon is complex
