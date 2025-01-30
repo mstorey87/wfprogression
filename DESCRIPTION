@@ -4,17 +4,23 @@ Version: 0.0.0.9000
 Authors@R: 
     person("Michael", "Storey", , "mstorey@uow.edu.au", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-6662-9192"))
-Description: The package has functions that take a fire polygon and finds all the intersecting remote sensing data that may be used to measure the fires rate of spread.
-    This includes line scans from a database, Landsat and Sentinel imagery and MODIS and VIIRS imagery.
+Description: The package has functions that take a fire polygon and finds
+    all the intersecting remote sensing data that may be used to measure
+    the fires rate of spread.  This includes line scans from a database,
+    Landsat and Sentinel imagery and MODIS and VIIRS imagery.
 License: MIT + file LICENSE
-Encoding: UTF-8
-Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+URL: https://github.com/mstorey87/wfprogression
+BugReports: https://github.com/mstorey87/wfprogression/issues
+Depends: 
+    R (>= 2.10)
 Imports: 
     checkmate,
+    curl,
+    DBI,
     dplyr,
     gdalcubes,
     ggplot2,
+    ggspatial,
     leaflegend,
     leaflet,
     lubridate,
@@ -22,25 +28,30 @@ Imports:
     mapview,
     png,
     purrr,
+    RANN,
     raster,
+    readr,
     rnaturalearth,
     rnaturalearthhires,
+    RPostgres,
     rstac,
     rvest,
     sf,
+    stars,
+    stplanr,
     stringr,
     terra,
     terrainr,
     tibble,
     tidync,
     tidyr,
+    tmap,
     tools,
     yaml
-Depends: 
-    R (>= 2.10)
-LazyData: true
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-URL: https://github.com/mstorey87/wfprogression
-BugReports: https://github.com/mstorey87/wfprogression/issues
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
