@@ -40,7 +40,7 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames){
   dat <- dat %>%
     #currently data is only available until march 2024, but this will be updated.
     #so filter out any dates after march
-    dplyr::filter(time_round < as.POSIXct("2024-04-01 00:00:00",tz="utc"))
+    dplyr::filter(time_round < as.POSIXct("2024-04-01 00:00:00",tz="UTC"))
 
 
   #add columns of barra paths for each variable

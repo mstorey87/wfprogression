@@ -25,8 +25,8 @@ fire_search_stac <- function(fire_bbox,
   checkmate::assert(stringr::str_detect(class(end_time)[1],"POSIXct"),"Error: times must be posixct")
 
 
-  start_time <- lubridate::with_tz(start_time,tz="utc")
-  end_time <- lubridate::with_tz(end_time,tz="utc")
+  start_time <- lubridate::with_tz(start_time,tz="UTC")
+  end_time <- lubridate::with_tz(end_time,tz="UTC")
 
   start_time <- format(start_time, "%Y-%m-%dT%H:%M:%SZ")
   end_time <- format(end_time, "%Y-%m-%dT%H:%M:%SZ")
