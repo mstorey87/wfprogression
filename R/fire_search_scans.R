@@ -43,7 +43,8 @@ fire_search_scans <- function(fire_bbox=fire_bbox_polygon(),start_time,end_time)
   #this is useful if a complex fire polygon is the input.
     fire_bbox <- fire_bbox %>%
        sf::st_transform(4283) %>%
-       sf::st_concave_hull(ratio = 0.8) %>%
+       #sf::st_concave_hull(ratio = 0.8) %>%
+      sf::st_convex_hull() %>%
       sf::st_union() %>%
       sf::st_as_sf()
 

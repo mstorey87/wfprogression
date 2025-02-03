@@ -47,7 +47,8 @@ fire_search_progs <- function(fire_bbox=wfprogression::fire_bbox_polygon(),start
 
   fire_bbox <- fire_bbox %>%
     sf::st_transform(4283) %>%
-    sf::st_concave_hull(ratio = 0.8) %>%
+    #sf::st_concave_hull(ratio = 0.8) %>%
+    sf::st_convex_hull() %>%
     sf::st_union() %>%
     sf::st_as_sf()
 
