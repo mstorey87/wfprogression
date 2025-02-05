@@ -48,9 +48,9 @@ fire_search_hotspots <- function(fire_bbox,mapkey,start_date,end_date,dest_folde
     .$pth
 
   #create local paths to save downloaded hotspots
-  out.files <- paste0(dest_folder,"\\hotspots\\hs_",seq(length(path_api)),"_",
+  out.files <- paste0(dest_folder,"\\hs_",seq(length(path_api)),"_",
                       purrr::map_chr(stringr::str_split(path_api,"/"),8),".csv")
-  dir.create(unique(dirname(out.files)), showWarnings = F)
+  #dir.create(unique(dirname(out.files)), showWarnings = F)
 
   #download hotspots. If no hotspots are found, a file with only headers will be downloaded
   for(xi in 1:length(path_api)){
@@ -98,7 +98,7 @@ fire_search_hotspots <- function(fire_bbox,mapkey,start_date,end_date,dest_folde
                    dplyr::mutate(datetimeutc=as.character(datetimeutc),
                                  datetimelocal=as.character(datetimelocal))%>%
                    dplyr::rename_with(~ abbreviate(., minlength = 10)),
-                 paste0(dest_folder,"\\hotspots\\hotspots.shp"))
+                 paste0(dest_folder,"\\hotspots.shp"))
 
 
   }
