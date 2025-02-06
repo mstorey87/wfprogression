@@ -45,7 +45,7 @@ fire_save_GIBS_map <- function(fire_bbox,wms_GIBS_map,dest_folder){
    #save a temporary png to file
    #zoomstring helps to make mapshot capture at the same zoom level as shown in the viewer: https://github.com/r-spatial/mapview/issues/274
    zoomstring <- 'Mozilla/5.0 (compatible; MSIE 10.6; Windows NT 6.1; Trident/5.0; InfoPath.2; SLCC1; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729; .NET CLR 2.0.50727) 3gpp-gba UNTRUSTED/1.0'
-   mapview::mapshot2(wms_GIBS_map, file = png_path,remove_url=T,vheight=v1,vwidth=v2, useragent = zoomstring)
+   mapview::mapshot(wms_GIBS_map, file = png_path,remove_url=T,vheight=v1,vwidth=v2, useragent = zoomstring)
 
 
 
