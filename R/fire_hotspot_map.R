@@ -18,6 +18,8 @@ fire_hotspot_map <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca7c7
   checkmate::assert(stringr::str_detect(class(start_time)[1],"POSIXct"),"Error: times must be posixct")
   checkmate::assert(stringr::str_detect(class(end_time)[1],"POSIXct"),"Error: times must be posixct")
 
+  if (is.null(suppressMessages(webshot:::find_phantom()))) { webshot::install_phantomjs() }
+
   mytz=wfprogression::fire_get_timezone(fire_bbox)
 
   start_time=lubridate::with_tz(start_time,tz=mytz)
