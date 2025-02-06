@@ -23,11 +23,11 @@ fire_search_scans <- function(fire_bbox=fire_bbox_polygon(),start_time,end_time)
 
   # Establish the connection
   DB <- DBI::dbConnect(RPostgres::Postgres(),
-                   dbname = 'postgres',
-                   host = "database-3.cn2u4ig8wad8.ap-southeast-2.rds.amazonaws.com",
-                   port = 5432,
-                   user = "postgres",
-                   password = "wfprogression2025")
+                       dbname = 'postgres',
+                       host = "database-3.cn2u4ig8wad8.ap-southeast-2.rds.amazonaws.com",
+                       port = 5432,
+                       user = "postgres",
+                       password = "wfprogression2025")
 
   # #connect to database
   # DB <- DBI::dbConnect(RPostgres::Postgres(),

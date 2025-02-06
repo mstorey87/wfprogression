@@ -27,6 +27,7 @@ fire_search_progs <- function(fire_bbox=wfprogression::fire_bbox_polygon(),start
 
   #connect to database
   # Establish the connection
+
   DB <- DBI::dbConnect(RPostgres::Postgres(),
                    dbname = 'postgres',
                    host = "database-3.cn2u4ig8wad8.ap-southeast-2.rds.amazonaws.com",
@@ -65,7 +66,8 @@ fire_search_progs <- function(fire_bbox=wfprogression::fire_bbox_polygon(),start
   if(return_geom==TRUE){
     myquery <- paste0("SELECT * FROM fires.prog_polygons WHERE st_intersects(fires.prog_polygons.geom,'",txt_geom,"') AND ", txt_date)
     x <- sf::st_read(dsn=DB,query=myquery) %>%
-      sf::st_as_sf()
+      sf::st_as_sf() %>%
+      dplyr::arrange(dplyr::desc(dt_local))
   }
 
   if(return_geom==FALSE){
@@ -77,7 +79,7 @@ fire_search_progs <- function(fire_bbox=wfprogression::fire_bbox_polygon(),start
 
 
   #disconnect from database
-  DBI::dbDisconnect(DB)
+  DBI::dbDisconnect(conn = DB)
 
   if(nrow(x)==0){
     print("no results")
