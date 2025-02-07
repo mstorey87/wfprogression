@@ -1,3 +1,17 @@
+#'Python based wms to tif
+#'
+#' @param layers gibs layer name
+#' @param time date in YYYY-mm-dd/YYYY-mm-dd
+#' @param bbox bbox coords
+#' @param size output pixel sizes c(length,width)
+#' @param png_file output png path
+#' @param geotiff_file output tif path
+#'
+#' @return write tif
+#' @export
+#'
+#' @examples
+#' #
 fire_wms_to_tif_python <- function(layers,time,bbox,size,png_file,geotiff_file){
   library(reticulate)
   #use_python('C:/Users/mstorey/AppData/Local/anaconda3/envs/spyder-env/python.exe')
