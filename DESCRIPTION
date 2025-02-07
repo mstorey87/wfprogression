@@ -31,6 +31,7 @@ Imports:
     RANN,
     raster,
     readr,
+    reticulate,
     rnaturalearth,
     rnaturalearthhires,
     RPostgres,
