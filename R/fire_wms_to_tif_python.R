@@ -1,5 +1,7 @@
 fire_wms_to_tif_python <- function(layers,time,bbox,size,png_file,geotiff_file){
   library(reticulate)
+  #use_python('C:/Users/mstorey/AppData/Local/anaconda3/envs/spyder-env/python.exe')
+  reticulate::use_virtualenv('python3_env', required = T)
   # Source Python script
   py_run_string("
 from owslib.wms import WebMapService
