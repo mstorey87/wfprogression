@@ -32,9 +32,7 @@ Imports:
     RANN,
     raster,
     readr,
-    reticulate,
     rnaturalearth,
-    rnaturalearthhires,
     RPostgres,
     rstac,
     rvest,
@@ -47,7 +45,6 @@ Imports:
     tibble,
     tidync,
     tidyr,
-    tmap,
     tools,
     webshot,
     yaml

@@ -1,3 +1,5 @@
+^renv$
+^renv\.lock$
 ^wfprogression\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
