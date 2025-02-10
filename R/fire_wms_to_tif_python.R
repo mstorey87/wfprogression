@@ -24,7 +24,7 @@ from rasterio.transform import from_origin
 from PIL import Image
 import numpy as np
 
-def fetch_and_save_geotiff(layers, time, bbox, size, png_file, geotiff_file):
+def fetch_and_save_geotiff(layers, time,  bbox, size, png_file, geotiff_file):
     # Connect to GIBS WMS Service
     wms = WebMapService('https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?', version='1.1.1')
 
