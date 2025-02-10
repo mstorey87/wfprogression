@@ -59,6 +59,7 @@ fire_hotspot_map_v2 <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca
     hotspots=NULL
   }
 
+message("hotspots downloaded")
 
   #define all the WMS layers that will be used. All of these have infrered or thermal bands that highlight active fire.
   #these can be viewed through NASA worldview
@@ -77,8 +78,10 @@ fire_hotspot_map_v2 <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca
   #for each day, create and save the wms map image
   for(i in 1:length(date_seq)){
     date_string <- paste0(date_seq[i],"/",date_seq[i])
+    message(paste("loop ",date_string))
 
     for(wms in wms_layers){
+      message(wms)
       # Define temporary file names for PNG and TIFF outputs
       outpng1 <- tempfile(fileext = ".png")
       outpng2 <- tempfile(fileext = ".png")
@@ -97,6 +100,7 @@ fire_hotspot_map_v2 <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca
       outwidth <- 2500
       outheight <- round(outwidth * ratio)
 
+      message("putting query together")
       wms_url <- 'https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?'
       # Define the parameters for the WMS request (replace with your desired parameters)
       params <- list(
@@ -115,13 +119,14 @@ fire_hotspot_map_v2 <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca
 
       # Send the WMS request and get the image response
       response <- httr::GET(wms_url, query = params)
+      message("got response")
 
       # Check if the request was successful
       if (httr::status_code(response) == 200) {
         # Save the image content to a file
         img_data <- httr::content(response, "raw")
         writeBin(img_data, outpng1)
-        #message("Image saved as wms_image.png")
+        message("Image saved as wms_image.png")
       } else {
         stop("Failed to download image. HTTP status: ", httr::status_code(response))
       }
@@ -137,7 +142,7 @@ fire_hotspot_map_v2 <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca
 
       # Write the RGB raster to a TIFF file
       terra::writeRaster(r1, outtif1, overwrite = TRUE)
-
+      message("first tif")
 
 
       #add hotspots if user wants them and if there are any
@@ -173,6 +178,9 @@ fire_hotspot_map_v2 <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca
           dplyr::filter(sat_name==wms_lyr_name_abbrev) %>%
           dplyr::mutate(label=paste0(sat_name," ",datetimelocal)) %>%
           sf::st_transform(4326)
+
+
+        message("hotspots 2 filtered")
 
 
 
@@ -246,6 +254,8 @@ fire_hotspot_map_v2 <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca
           # Close the output device
           dev.off()
 
+          message("png 2 saved")
+
           # Read and process the image with magick
           r <- magick::image_read(outpng2)
           r <- magick::image_trim(r, 1)
@@ -253,6 +263,7 @@ fire_hotspot_map_v2 <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca
 
           # Save the processed image
           magick::image_write(r, outpng3)
+          message("PNG cropped")
 
           # Convert the trimmed image to a raster
           img <- png::readPNG(outpng3)
@@ -269,6 +280,7 @@ fire_hotspot_map_v2 <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca
           most_common <- format(as.POSIXct(as.character(most_common)),format="%Y%m%d%H%M%S")
           outtif2_v2 <- paste0(dirname(outtif2),"\\",most_common,basename(outtif2))
           terra::writeRaster(x, outtif2_v2, overwrite = TRUE)
+          message("raster written")
 
         }else{
           print("no hotspots 1")
