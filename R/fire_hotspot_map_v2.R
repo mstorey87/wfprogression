@@ -81,7 +81,7 @@ message("hotspots downloaded")
     message(paste("loop ",date_string))
 
     for(wms in wms_layers){
-      message(wms)
+      #message(wms)
       # Define temporary file names for PNG and TIFF outputs
       outpng1 <- tempfile(fileext = ".png")
       outpng2 <- tempfile(fileext = ".png")
@@ -100,7 +100,7 @@ message("hotspots downloaded")
       outwidth <- 1000
       outheight <- round(outwidth * ratio)
 
-      message("putting query together")
+      #message("putting query together")
       wms_url <- 'https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?'
       # Define the parameters for the WMS request (replace with your desired parameters)
       params <- list(
@@ -119,14 +119,14 @@ message("hotspots downloaded")
 
       # Send the WMS request and get the image response
       response <- httr::GET(wms_url, query = params)
-      message("got response")
+      #message("got response")
 
       # Check if the request was successful
       if (httr::status_code(response) == 200) {
         # Save the image content to a file
         img_data <- httr::content(response, "raw")
         writeBin(img_data, outpng1)
-        message("Image saved as wms_image.png")
+        #message("Image saved as wms_image.png")
       } else {
         stop("Failed to download image. HTTP status: ", httr::status_code(response))
       }
@@ -142,7 +142,7 @@ message("hotspots downloaded")
 
       # Write the RGB raster to a TIFF file
       terra::writeRaster(r1, outtif1, overwrite = TRUE)
-      message("first tif")
+      #message("first tif")
 
 
       #add hotspots if user wants them and if there are any
@@ -180,7 +180,7 @@ message("hotspots downloaded")
           sf::st_transform(4326)
 
 
-        message("hotspots 2 filtered")
+        #message("hotspots 2 filtered")
 
 
 
@@ -257,7 +257,7 @@ message("hotspots downloaded")
           # Close the output device
           dev.off()
 
-          message("png 2 saved")
+          #message("png 2 saved")
 
           # Read and process the image with magick
           r <- magick::image_read(outpng2)
@@ -266,7 +266,7 @@ message("hotspots downloaded")
 
           # Save the processed image
           magick::image_write(r, outpng3)
-          message("PNG cropped")
+          #message("PNG cropped")
 
           # Convert the trimmed image to a raster
           img <- png::readPNG(outpng3)
@@ -286,7 +286,7 @@ message("hotspots downloaded")
           message("raster written")
 
         }else{
-          print("no hotspots 1")
+          #print("no hotspots 1")
           # Write the RGB raster to a TIFF file
           terra::writeRaster(r1, outtif2, overwrite = TRUE)
         }
@@ -294,7 +294,7 @@ message("hotspots downloaded")
 
       }else{
 
-        print("no hotspots wanted")
+        #print("no hotspots wanted")
         # Write the RGB raster to a TIFF file
         terra::writeRaster(r1, outtif2, overwrite = TRUE)
       }
