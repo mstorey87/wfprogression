@@ -88,7 +88,7 @@ message("hotspots downloaded")
       outpng2 <- tempfile(fileext = ".png")
       outpng3 <- tempfile(fileext = ".png")
       outtif1 <- tempfile(fileext = ".tif")
-      outtif2 <- tempfile(pattern = paste0("_",date_seq[i],"_",wms,".tif"),fileext = ".tif")
+      outtif2 <- tempfile(pattern = paste0("_",date_seq[i],"_",wms),fileext = ".tif")
 
 
 
