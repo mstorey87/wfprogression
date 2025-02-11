@@ -184,6 +184,9 @@ message("hotspots downloaded")
 
 
 
+        if(nrow(hotspots2)==0 & add_hotspots==T){
+          next
+        }
 
         if(nrow(hotspots2)>0){
 
