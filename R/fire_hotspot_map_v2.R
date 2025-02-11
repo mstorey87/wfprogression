@@ -88,7 +88,7 @@ message("hotspots downloaded")
       outpng2 <- tempfile(fileext = ".png")
       outpng3 <- tempfile(fileext = ".png")
       outtif1 <- tempfile(fileext = ".tif")
-      outtif2 <- tempfile(pattern = paste0("_",date_seq[i],"_",wms),fileext = ".tif")
+      outtif2 <- tempfile(pattern = paste0("_",date_seq[i],"_",wms,"_"),fileext = ".tif")
 
 
 
@@ -283,8 +283,9 @@ message("hotspots downloaded")
           count_table <- table(hotspots2$datetimelocal)
           most_common <- names(count_table)[which.max(count_table)][[1]]
           most_common <- format(as.POSIXct(as.character(most_common)),format="%Y%m%d%H%M%S")
-          outtif2 <- tempfile(pattern = paste0(most_common,"_",date_seq[i],"_",wms),fileext = ".tif")
+          outtif2 <- tempfile(pattern = paste0(most_common,"_",date_seq[i],"_",wms,"_"),fileext = ".tif")
           terra::writeRaster(x, outtif2, overwrite = TRUE)
+          file.copy(outtif2,paste0(dest_folder,"\\",basename(outtif2)),overwrite=T)
           #message("raster written")
           message(list.files())
 
@@ -292,6 +293,7 @@ message("hotspots downloaded")
           #print("no hotspots 1")
           # Write the RGB raster to a TIFF file
           terra::writeRaster(r1, outtif2, overwrite = TRUE)
+          file.copy(outtif2,paste0(dest_folder,"\\",basename(outtif2)),overwrite=T)
         }
 
 
@@ -300,6 +302,7 @@ message("hotspots downloaded")
         #print("no hotspots wanted")
         # Write the RGB raster to a TIFF file
         terra::writeRaster(r1, outtif2, overwrite = TRUE)
+        file.copy(outtif2,paste0(dest_folder,"\\",basename(outtif2)),overwrite=T)
       }
 
 
