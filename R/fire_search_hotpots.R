@@ -98,7 +98,7 @@ fire_search_hotspots <- function(fire_bbox,mapkey,start_date,end_date,dest_folde
                    dplyr::mutate(datetimeutc=as.character(datetimeutc),
                                  datetimelocal=as.character(datetimelocal))%>%
                    dplyr::rename_with(~ abbreviate(., minlength = 10)),
-                 paste0(dest_folder,"\\hotspots.shp"))
+                 paste0(dest_folder,"\\hotspots.gpkg"))
 
 
   }

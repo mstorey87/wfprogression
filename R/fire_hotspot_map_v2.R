@@ -97,7 +97,7 @@ message("hotspots downloaded")
 
       # Calculate the ratio of width to height
       ratio <- height / width
-      outwidth <- 2500
+      outwidth <- 1000
       outheight <- round(outwidth * ratio)
 
       message("putting query together")
