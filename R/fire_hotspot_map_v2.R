@@ -88,7 +88,8 @@ message("hotspots downloaded")
       outpng2 <- tempfile(fileext = ".png")
       outpng3 <- tempfile(fileext = ".png")
       outtif1 <- tempfile(fileext = ".tif")
-      outtif2 <- paste0(dest_folder,"\\_",date_seq[i],"_",wms,".tif")
+      outtif2 <- tempfile(pattern = paste0("_",date_seq[i],"_",wms,".tif"),fileext = ".tif")
+
 
 
       #calculate pixels for output png
@@ -282,10 +283,10 @@ message("hotspots downloaded")
           count_table <- table(hotspots2$datetimelocal)
           most_common <- names(count_table)[which.max(count_table)][[1]]
           most_common <- format(as.POSIXct(as.character(most_common)),format="%Y%m%d%H%M%S")
-          outtif2_v2 <- paste0(dest_folder,"\\x",most_common,"_",date_seq[i],"_",wms,".tif")
-          terra::writeRaster(x, outtif2_v2, overwrite = TRUE)
+          outtif2 <- tempfile(pattern = paste0(most_common,"_",date_seq[i],"_",wms),fileext = ".tif")
+          terra::writeRaster(x, outtif2, overwrite = TRUE)
           #message("raster written")
-          message(outtif2_v2)
+          message(list.files())
 
         }else{
           #print("no hotspots 1")
