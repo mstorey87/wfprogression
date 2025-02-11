@@ -6,7 +6,7 @@
 #' @param mapkey A mapkey reuired to download hotspots, https://firms.modaps.eosdis.nasa.gov/api/map_key/
 #' @param dest_folder Folder to save output tifs other files used in processing, including hotspots
 #' @param add_hotspots T/F to add or exclude hotspots from output images
-#' @param add_hotspots width in pixels of output tif
+#' @param outwidth width in pixels of output tif
 #'
 #' @return Write a geotiff to disk. Also writes hotspots csv
 #' @export
