@@ -21,7 +21,9 @@ fire_hotspot_map_v2(
 
 \item{dest_folder}{Folder to save output tifs other files used in processing, including hotspots}
 
-\item{add_hotspots}{width in pixels of output tif}
+\item{add_hotspots}{T/F to add or exclude hotspots from output images}
+
+\item{outwidth}{width in pixels of output tif}
 
 \item{start_date}{First date from which to search for images}
 
