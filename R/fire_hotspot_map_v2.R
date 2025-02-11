@@ -6,13 +6,14 @@
 #' @param mapkey A mapkey reuired to download hotspots, https://firms.modaps.eosdis.nasa.gov/api/map_key/
 #' @param dest_folder Folder to save output tifs other files used in processing, including hotspots
 #' @param add_hotspots T/F to add or exclude hotspots from output images
+#' @param add_hotspots width in pixels of output tif
 #'
 #' @return Write a geotiff to disk. Also writes hotspots csv
 #' @export
 #'
 #' @examples
 #' #fire_hotspot_map(fire_bbox = dat.bbox,start_date = datestart,end_date = dateend,dest_folder = outdir)
-fire_hotspot_map_v2 <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca7c7a4ee2e1e6da787f57cc",dest_folder,add_hotspots=T){
+fire_hotspot_map_v2 <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca7c7a4ee2e1e6da787f57cc",dest_folder,add_hotspots=T,outwidth=500){
 
 
   checkmate::assert(stringr::str_detect(class(start_time)[1],"POSIXct"),"Error: times must be posixct")
@@ -97,7 +98,7 @@ message("hotspots downloaded")
 
       # Calculate the ratio of width to height
       ratio <- height / width
-      outwidth <- 1000
+      outwidth <- outwidth
       outheight <- round(outwidth * ratio)
 
       #message("putting query together")
@@ -281,7 +282,7 @@ message("hotspots downloaded")
           count_table <- table(hotspots2$datetimelocal)
           most_common <- names(count_table)[which.max(count_table)][[1]]
           most_common <- format(as.POSIXct(as.character(most_common)),format="%Y%m%d%H%M%S")
-          outtif2_v2 <- paste0(dest_folder,"\\",most_common,"_",date_seq[i],"_",wms,".tif")
+          outtif2_v2 <- paste0(dest_folder,"\\ ",most_common,"_",date_seq[i],"_",wms,".tif")
           terra::writeRaster(x, outtif2_v2, overwrite = TRUE)
           #message("raster written")
           message(outtif2_v2)
