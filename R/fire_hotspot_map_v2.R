@@ -282,7 +282,7 @@ message("hotspots downloaded")
           count_table <- table(hotspots2$datetimelocal)
           most_common <- names(count_table)[which.max(count_table)][[1]]
           most_common <- format(as.POSIXct(as.character(most_common)),format="%Y%m%d%H%M%S")
-          outtif2_v2 <- paste0(dest_folder,"\\ ",most_common,"_",date_seq[i],"_",wms,".tif")
+          outtif2_v2 <- paste0(dest_folder,"\\x",most_common,"_",date_seq[i],"_",wms,".tif")
           terra::writeRaster(x, outtif2_v2, overwrite = TRUE)
           #message("raster written")
           message(outtif2_v2)
