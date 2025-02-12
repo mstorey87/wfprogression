@@ -9,7 +9,7 @@
 #'
 #' @examples
 #' #
-fire_gg_map <- function(image=NULL,prog=NULL,label_column=NULL,agg=5){
+fire_gg_map <- function(image=NULL,prog=NULL,agg=5){
 
 
 
