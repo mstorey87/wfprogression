@@ -287,7 +287,7 @@ message("hotspots downloaded")
           terra::writeRaster(x, outtif2, overwrite = TRUE)
           file.copy(outtif2,paste0(dest_folder,"\\",basename(outtif2)),overwrite=T)
           #message("raster written")
-          message(list.files())
+          #message(list.files())
 
         }else{
           #print("no hotspots 1")

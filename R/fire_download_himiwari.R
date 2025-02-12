@@ -83,9 +83,14 @@ fire_download_himiwari <- function(fire_bbox,df_download,bands=c("B07","B04","B0
     terra::crs(r) <- "+proj=geos +lon_0=140.7 +h=35785863 +x_0=0 +y_0=0 +a=6378137 +b=6356752.3 +units=m +no_defs"
 
     #write to disk
+
+    outtiftemp <-paste0(tempdir(),"\\",dat.i$datetimelocal_chr[1],"_",
+                        dat.i$satellite[1],"_",paste0(bands,collapse = ""),".tif")
+    terra::writeRaster(r,outtif)
+
     outtif <- paste0(dest_folder,"\\",dat.i$datetimelocal_chr[1],"_",
                      dat.i$satellite[1],"_",paste0(bands,collapse = ""),".tif")
-    terra::writeRaster(r,outtif)
+    file.copy(outtiftemp,outtif)
 
   }
 
