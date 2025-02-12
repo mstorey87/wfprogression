@@ -17,7 +17,7 @@ fire_download_himiwari <- function(fire_bbox,df_download,bands=c("B07","B04","B0
   #buffer first to capture wider area
   bbox_him <-fire_bbox %>%
     sf::st_transform(3112) %>%
-    sf::st_buffer(60000) %>%
+    sf::st_buffer(100000) %>%
     sf::st_transform("+proj=geos +lon_0=140.7 +h=35785863 +x_0=0 +y_0=0 +a=6378137 +b=6356752.3 +units=m +no_defs") %>%
     sf::st_bbox()
 
