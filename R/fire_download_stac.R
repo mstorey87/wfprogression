@@ -40,9 +40,11 @@ fire_download_stac <- function(fire_bbox,stac_df,dest_folder){
       rgb <- terra::stretch(rgb)
 
       out.file.temp <- tempfile(pattern= paste0(dat$datetimelocal_chr,"_",dat$product,"_",dat$tile_dateutc,"utc_"),fileext = ".tif")
+      print(out.file.temp)
       terra::writeRaster(rgb,out.file.temp,overwrite=T)
 
-      out.file <- paste0(dest_folder,"/",basename(out.file.temp))
+      out.file <- paste0(dest_folder,"\\",basename(out.file.temp))
+      print(out.file)
       if(!out.file.temp==out.file) file.copy(out.file.temp,out.file,overwrite = T)
 
     }
