@@ -86,7 +86,7 @@ fire_download_himiwari <- function(fire_bbox,df_download,bands=c("B07","B04","B0
 
     outtiftemp <-paste0(tempdir(),"\\",dat.i$datetimelocal_chr[1],"_",
                         dat.i$satellite[1],"_",paste0(bands,collapse = ""),".tif")
-    terra::writeRaster(r,outtiftemp)
+    terra::writeRaster(r,outtiftemp,overwrite=T)
 
     outtif <- paste0(dest_folder,"\\",dat.i$datetimelocal_chr[1],"_",
                      dat.i$satellite[1],"_",paste0(bands,collapse = ""),".tif")
