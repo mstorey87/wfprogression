@@ -9,7 +9,7 @@
 #'
 #' @examples
 #' #dat.scans.sf <- fire_search_scans(fire_bbox=dat.bbox,start_time=datestart,end_time=dateend)
-fire_search_scans <- function(fire_bbox=fire_bbox_polygon(),start_time,end_time){
+fire_search_scans <- function(fire_bbox=fire_bbox_polygon(),start_time,end_time,dbpassword){
 
 
   checkmate::assert(stringr::str_detect(class(start_time)[1],"POSIXct"),"Error: times must be posixct")
@@ -22,20 +22,20 @@ fire_search_scans <- function(fire_bbox=fire_bbox_polygon(),start_time,end_time)
 
 
   # Establish the connection
-  DB <- DBI::dbConnect(RPostgres::Postgres(),
-                       dbname = 'postgres',
-                       host = "database-3.cn2u4ig8wad8.ap-southeast-2.rds.amazonaws.com",
-                       port = 5432,
-                       user = "postgres",
-                       password = "wfprogression2025")
+  # DB <- DBI::dbConnect(RPostgres::Postgres(),
+  #                      dbname = 'postgres',
+  #                      host = "database-3.cn2u4ig8wad8.ap-southeast-2.rds.amazonaws.com",
+  #                      port = 5432,
+  #                      user = "postgres",
+  #                      password = dbpassword)
 
   # #connect to database
-  # DB <- DBI::dbConnect(RPostgres::Postgres(),
-  #                      dbname = "cermb_fires",
-  #                      user = "mstorey",
-  #                      password = "bushfires",
-  #                      host = "charus.ad.uow.edu.au",
-  #                      port = 5432)
+  DB <- DBI::dbConnect(RPostgres::Postgres(),
+                       dbname = "cermb_fires",
+                       user = "mstorey",
+                       password = dbpassword,
+                       host = "charus.ad.uow.edu.au",
+                       port = 5432)
 
 
 

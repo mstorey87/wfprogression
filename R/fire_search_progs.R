@@ -10,7 +10,7 @@
 #'
 #' @examples
 #' #dat.progs.sf <- fire_search_progs(fire_bbox=dat.bbox,start_time=datestart,end_time=dateend)
-fire_search_progs <- function(fire_bbox=wfprogression::fire_bbox_polygon(),start_time,end_time,return_geom=TRUE){
+fire_search_progs <- function(fire_bbox=wfprogression::fire_bbox_polygon(),start_time,end_time,return_geom=TRUE,dbpassword){
 
 
 
@@ -28,20 +28,20 @@ fire_search_progs <- function(fire_bbox=wfprogression::fire_bbox_polygon(),start
   #connect to database
   # Establish the connection
 
-  DB <- DBI::dbConnect(RPostgres::Postgres(),
-                   dbname = 'postgres',
-                   host = "database-3.cn2u4ig8wad8.ap-southeast-2.rds.amazonaws.com",
-                   port = 5432,
-                   user = "postgres",
-                   password = "wfprogression2025")
+  # DB <- DBI::dbConnect(RPostgres::Postgres(),
+  #                  dbname = 'postgres',
+  #                  host = "database-3.cn2u4ig8wad8.ap-southeast-2.rds.amazonaws.com",
+  #                  port = 5432,
+  #                  user = "postgres",
+  #                  password = dbpassword)
 
   # #connect to database
-  # DB <- DBI::dbConnect(RPostgres::Postgres(),
-  #                      dbname = "cermb_fires",
-  #                      user = "mstorey",
-  #                      password = "bushfires",
-  #                      host = "charus.ad.uow.edu.au",
-  #                      port = 5432)
+  DB <- DBI::dbConnect(RPostgres::Postgres(),
+                       dbname = "cermb_fires",
+                       user = "mstorey",
+                       password = dbpassword,
+                       host = "charus.ad.uow.edu.au",
+                       port = 5432)
 
   #simplify fire polygon shape for intersect
   #mainly useful when fire polygon is complex
