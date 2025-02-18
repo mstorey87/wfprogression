@@ -142,6 +142,13 @@ fire_hotspot_map_v2 <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca
       terra::crs(r1) <- sf::st_crs(4326)$wkt
       terra::ext(r1) <- terra::ext(fire_bbox)
 
+
+      #check if all values NA, if so give default value
+      if(all(is.na(terra::values(r1)))){
+        terra::values(r1) <- 1
+      }
+
+
       # Write the RGB raster to a TIFF file
       terra::writeRaster(r1, outtif1, overwrite = TRUE)
       #message("first tif")
