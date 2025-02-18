@@ -41,7 +41,7 @@ fire_hotspot_map_v2 <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca
                                                     min(date_seq),
                                                     max(date_seq),
                                                     dest_folder)
-
+    message("hotspots downloaded")
     if(nrow(hotspots)>0){
       hotspots <- hotspots  %>%
         dplyr::filter(datelocal %in% date_seq,
@@ -60,7 +60,7 @@ fire_hotspot_map_v2 <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca
     hotspots=NULL
   }
 
-message("hotspots downloaded")
+
 
   #define all the WMS layers that will be used. All of these have infrered or thermal bands that highlight active fire.
   #these can be viewed through NASA worldview
@@ -150,6 +150,12 @@ message("hotspots downloaded")
       #add hotspots if user wants them and if there are any
       #add hotspots
       if(add_hotspots==T){
+
+        #if no hotspots have been found, just export image
+        if(nrow(hotspots)==0 & add_hotspots==T){
+          file.copy(outtif1,paste0(dest_folder,"\\x",basename(outtif2)),overwrite=T)
+          next
+        }
 
         #create unique values for legend and filter hotspots by time and satellite
         #get abbreviation wms layer name that will match sat_name column in hotspots
