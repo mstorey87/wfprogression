@@ -13,9 +13,13 @@
 #'
 #' @examples
 #' #
-fire_max_spread_line <- function(polygons,time_col,include_spots=F,
+fire_max_spread_line <- function(polygons,
+                                 time_col,
+                                 include_spots=F,
                                  include_backburns=F,
-                                 convex_hull=T,max_only=T,internal_only=F,
+                                 convex_hull=T,
+                                 max_only=T,
+                                 internal_only=F,
                                  max_minutes=360,
                                  densify_m=100){
 

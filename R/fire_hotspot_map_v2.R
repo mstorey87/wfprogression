@@ -227,7 +227,7 @@ message("hotspots downloaded")
           par(mar = c(0, 0, 0, 0), oma = c(0, 0, 0, 0))
 
           # Normalize point size based on output width
-          point_size <- (outwidth / 1200)  # Adjust the scaling factor as needed
+          point_size <- (outwidth / 1100)  # Adjust the scaling factor as needed
 
           # Plot the RGB raster
           terra::plotRGB(r1, axes = FALSE, mar = c(0, 0, 0, 0))
@@ -244,12 +244,13 @@ message("hotspots downloaded")
 
           # Add labels to one point from each color group
           for (color in unique_colors) {
-            # Get the first point from the current color group
-            point <- hotspots2[hotspots2$datetimelocal == color, ][1, ]
+            # Get the  pointf from the current color group
+            point <- hotspots2[hotspots2$datetimelocal == color, ]
 
-            # Extract the coordinates of the point
-            x_coord <- point$geometry[[1]][1]
-            y_coord <- point$geometry[[1]][2]
+            # Extract themean coordinates of the points
+            x_coord <- mean(sf::st_coordinates(point)[,1])
+            y_coord <- mean(sf::st_coordinates(point)[,2])
+
 
             # Add a bold text label with the matching point color
             text(x_coord, y_coord, labels = color,
