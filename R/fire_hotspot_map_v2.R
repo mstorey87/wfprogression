@@ -187,6 +187,7 @@ message("hotspots downloaded")
 
 
         if(nrow(hotspots2)==0 & add_hotspots==T){
+          file.copy(outtif2,paste0(dest_folder,"\\",basename(outtif2)),overwrite=T)
           next
         }
 
