@@ -12,7 +12,8 @@ fire_max_spread_line(
   convex_hull = T,
   max_only = T,
   internal_only = F,
-  max_minutes = 360,
+  min_minutes = 20,
+  max_minutes = 240,
   densify_m = 100
 )
 }
@@ -30,6 +31,12 @@ fire_max_spread_line(
 \item{max_only}{T/F return only the max spread line}
 
 \item{internal_only}{T/F return only lines completely within the fire polygon at time 2}
+
+\item{min_minutes}{minimum time interval between progressions}
+
+\item{max_minutes}{maximum time interval between progression}
+
+\item{densify_m}{metres between vertices on polygon edge from which to measure spread}
 }
 \value{
 sf object

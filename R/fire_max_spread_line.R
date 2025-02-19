@@ -1,12 +1,16 @@
 #' Find maximum fire spread line
 #'
 #' @param time_col Name of date time column (posix)
+#' @param id_col Name of unique id column to add to output lines
 #' @param include_spots T/F to include spot fire in spread line creation. Data must have firetype column populated with "spot", "main" or "backburn"
 #' @param include_backburns T/F to include backburns in spread line creation. Data must have firetype column populated with "spot", "main" or "backburn"
 #' @param polygons Fire polygons sf object
 #' @param convex_hull T/F whether to convert fire polygon to convex hull first
 #' @param max_only T/F return only the max spread line
 #' @param internal_only T/F return only lines completely within the fire polygon at time 2
+#' @param min_minutes minimum time interval between progressions
+#' @param max_minutes maximum time interval between progression
+#' @param densify_m metres between vertices on polygon edge from which to measure spread
 #'
 #' @return sf object
 #' @export
@@ -15,12 +19,14 @@
 #' #
 fire_max_spread_line <- function(polygons,
                                  time_col,
+                                 id_col,
                                  include_spots=F,
                                  include_backburns=F,
                                  convex_hull=T,
                                  max_only=T,
                                  internal_only=F,
-                                 max_minutes=360,
+                                 min_minutes=20,
+                                 max_minutes=240,
                                  densify_m=100){
 
 
@@ -75,14 +81,19 @@ fire_max_spread_line <- function(polygons,
       dplyr::filter(time < dat.i$time,season==dat.i$season)
 
 
-    #filter by max_minutes input
+
+    #filter by max_minutes input and min_minutes
     dat.prior.filtered <- dat.prior.all %>%
-      dplyr::filter(time > dat.i$time - lubridate::minutes(max_minutes))
+      #ensure all prior polygons are at least min_minutes prior. Filter out polygons too close
+      dplyr::mutate(mins_diff=as.numeric(difftime(dat.i$dt_utc,dt_utc,"utc","mins"))) %>%
+      dplyr::filter(mins_diff >= min_minutes & mins_diff <= max_minutes)
 
     #get only prior polygon that intersect current polygon. dat.prior.all can be empty from above time filter
     #intersect by unaltered polygons
     dat.prior.filtered <- dat.prior.filtered %>%
       sf::st_filter(dat.i,.predicate = sf::st_intersects)
+
+
 
 
 
@@ -109,15 +120,26 @@ fire_max_spread_line <- function(polygons,
       #get line distance
       dat.lines$line_metres <- as.numeric(sf::st_length(dat.lines))
 
+      #get line distance inside poly2
+      dat.lines$line_metres_internal <- as.numeric(sf::st_length(sf::st_geometry(dat.lines) %>% sf::st_intersection(sf::st_geometry(dat.i))))
+      dat.lines$percent_internal <- round(dat.lines$line_metres_internal/dat.lines$line_metres*100,1)
+
+      #get id of polygons that is where the line starts
+      polyid <- unlist(unique(st_is_within_distance(dat.lines,dat.prior,10)))
+      start_rowids <- paste0(dat.prior$rowid[polyid],collapse=";")
+
 
       dat.lines <- dat.lines %>%
         #select final attributes
         dplyr::mutate(start_time=unique(dat.prior$time),
                       end_time=unique(dat.i$time),
+                      start_pid=start_rowids,
+                      end_pid=unique(dat.i$rowid),
                       timestep_mins=as.numeric(difftime(end_time,start_time,units="mins")),
                       line_km=(line_metres/1000),
+                      percent_internal,
                       ros_kmh=line_km/(timestep_mins/60)) %>%
-        dplyr::select(start_time,end_time,line_km,timestep_mins,ros_kmh)
+        dplyr::select(start_time,end_time,start_pid,end_pid,line_km,percent_internal,timestep_mins,ros_kmh)
 
       ##add line start and end coordinates and directions
       # Initialize results list
@@ -157,6 +179,8 @@ fire_max_spread_line <- function(polygons,
         dplyr::mutate(len=as.numeric(sf::st_length(.))) %>%
         #check if any lines intersect y more than a cm. 0 should result when intersecting the line end with a boundary point, but sometimes there is a small error
         dplyr::filter(len>0.01)
+
+
 
       res[[i]] <- dat.lines %>% mutate(prior_intersects=nrow(dat.lines.intersect)>0)
     }

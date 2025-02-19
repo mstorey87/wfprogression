@@ -4,7 +4,12 @@
 \alias{fire_search_scans}
 \title{Search database for line scans}
 \usage{
-fire_search_scans(fire_bbox = fire_bbox_polygon(), start_time, end_time)
+fire_search_scans(
+  fire_bbox = fire_bbox_polygon(),
+  start_time,
+  end_time,
+  dbpassword
+)
 }
 \arguments{
 \item{fire_bbox}{A polygon, usually fire bounding box, to search for images}

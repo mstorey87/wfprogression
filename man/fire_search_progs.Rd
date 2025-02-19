@@ -8,7 +8,8 @@ fire_search_progs(
   fire_bbox = wfprogression::fire_bbox_polygon(),
   start_time,
   end_time,
-  return_geom = TRUE
+  return_geom = TRUE,
+  dbpassword
 )
 }
 \arguments{
