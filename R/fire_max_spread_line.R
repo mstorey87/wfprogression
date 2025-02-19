@@ -93,16 +93,16 @@ fire_max_spread_line <- function(polygons,
     dat.prior.filtered <- dat.prior.filtered %>%
       sf::st_filter(dat.i,.predicate = sf::st_intersects)
 
-
-
-
-
     #skip if not prior intersecting polygon
     if(nrow(dat.prior.filtered)>0){
 
       #get only most recent prior polygon
       dat.prior <- dat.prior.filtered %>%
         dplyr::filter(time==max(time))
+
+      #ensure the prior polygon is completely contained by the first
+
+      st_geometry(dat.i) <- sf::st_union(sf::st_geometry(dat.i),sf::st_union(sf::st_geometry(dat.prior)))
 
       #get convex hull of polygon to save processing time
       #run this in the filtered data, as we need to maintain the polygons of dat.prior.all for a later intersect
@@ -120,9 +120,19 @@ fire_max_spread_line <- function(polygons,
       #get line distance
       dat.lines$line_metres <- as.numeric(sf::st_length(dat.lines))
 
-      #get line distance inside poly2
+
+      #if line metres is zero, skip to next
+      if(dat.lines$line_metres==0){
+        #print("skipping")
+        next
+      }
+
+
+              #get line distance inside poly2
       dat.lines$line_metres_internal <- as.numeric(sf::st_length(sf::st_geometry(dat.lines) %>% sf::st_intersection(sf::st_geometry(dat.i))))
       dat.lines$percent_internal <- round(dat.lines$line_metres_internal/dat.lines$line_metres*100,1)
+
+
 
       #get id of polygons that is where the line starts
       polyid <- unlist(unique(st_is_within_distance(dat.lines,dat.prior,10)))
