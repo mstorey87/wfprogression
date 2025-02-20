@@ -83,9 +83,11 @@ fire_max_spread_line <- function(polygons,
 
 
     #filter by max_minutes input and min_minutes
-    dat.prior.filtered <- dat.prior.all %>%
+    dat.prior.all <- dat.prior.all %>%
       #ensure all prior polygons are at least min_minutes prior. Filter out polygons too close
-      dplyr::mutate(mins_diff=as.numeric(difftime(dat.i$dt_utc,dt_utc,"utc","mins"))) %>%
+      dplyr::mutate(mins_diff=as.numeric(difftime(dat.i$dt_utc,dt_utc,"utc","mins")))
+
+    dat.prior.filtered <- dat.prior.all %>%
       dplyr::filter(mins_diff >= min_minutes & mins_diff <= max_minutes)
 
     #get only prior polygon that intersect current polygon. dat.prior.all can be empty from above time filter
@@ -102,7 +104,7 @@ fire_max_spread_line <- function(polygons,
 
       #ensure the prior polygon is completely contained by the first
 
-      st_geometry(dat.i) <- sf::st_union(sf::st_geometry(dat.i),sf::st_union(sf::st_geometry(dat.prior)))
+      sf::st_geometry(dat.i) <- sf::st_union(sf::st_geometry(dat.i),sf::st_union(sf::st_geometry(dat.prior)))
 
       #get convex hull of polygon to save processing time
       #run this in the filtered data, as we need to maintain the polygons of dat.prior.all for a later intersect
@@ -135,7 +137,7 @@ fire_max_spread_line <- function(polygons,
 
 
       #get id of polygons that is where the line starts
-      polyid <- unlist(unique(st_is_within_distance(dat.lines,dat.prior,10)))
+      polyid <- unlist(unique(sf::st_is_within_distance(dat.lines,dat.prior,10)))
       start_rowids <- paste0(dat.prior$rowid[polyid],collapse=";")
 
 
@@ -184,7 +186,9 @@ fire_max_spread_line <- function(polygons,
 
 
       #flag lines from results if it crosses polygons with prior times (can happen when fires merge), ie all prior times from same season (dat.prior.all)
-      dat.lines.intersect <- sf::st_intersection(sf::st_geometry(dat.lines),dat.prior.all %>% dplyr::select(time_poly=time)) %>%
+      #remove those polygons where time diff is shorter than minimum first
+      dat.prior.all.2 <- dat.prior.all %>% dplyr::filter(mins_diff >= min_minutes)
+       dat.lines.intersect <- sf::st_intersection(sf::st_geometry(dat.lines),dat.prior.all.2) %>%
         sf::st_as_sf() %>%
         dplyr::mutate(len=as.numeric(sf::st_length(.))) %>%
         #check if any lines intersect y more than a cm. 0 should result when intersecting the line end with a boundary point, but sometimes there is a small error
