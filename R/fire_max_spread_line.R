@@ -119,6 +119,25 @@ fire_max_spread_line <- function(polygons,
       #combine attributes
       dat.lines <- cbind(dat.lines,sf::st_drop_geometry(dat.i))
 
+
+      #check for cases where the prior polygon is identical to another prior polygon in the section near the spread line end
+      #this can happen when another section of the polygon has changed and been given a new time, so the section near the spread line does,
+      #not change but is still given the new time.
+      dat.lines.start <- sf::st_cast(sf::st_geometry(dat.lines),"POINT")[2,] %>%
+        sf::st_as_sf() %>%
+        #dplyr::mutate(id=dplyr::row_number()) %>%
+        #intersect with all prior polygons and see if time in dat.prior is most recent
+        #if there is an earlier time, the fire must have reached that point earlier than dat.prio
+        sf::st_buffer(5)
+
+      dat.prior.intersect <- dat.prior.all %>%
+        dplyr::select(time) %>%
+        sf::st_filter(dat.lines.start,.predictate=sf::st_intersects) %>%
+        sf::st_drop_geometry()
+
+      min_time_any <- min(dat.prior.intersect$time)
+      min_time_any_diff <- as.numeric(difftime(dat.i$time,min_time_any,tz="utc",units="mins"))
+
       #get line distance
       dat.lines$line_metres <- as.numeric(sf::st_length(dat.lines))
 
@@ -150,8 +169,10 @@ fire_max_spread_line <- function(polygons,
                       timestep_mins=as.numeric(difftime(end_time,start_time,units="mins")),
                       line_km=(line_metres/1000),
                       percent_internal,
-                      ros_kmh=line_km/(timestep_mins/60)) %>%
-        dplyr::select(start_time,end_time,start_pid,end_pid,line_km,percent_internal,timestep_mins,ros_kmh)
+                      ros_kmh=line_km/(timestep_mins/60),
+                      min_time_any=min_time_any,
+                      min_time_any_diff=min_time_any_diff) %>%
+        dplyr::select(start_time,end_time,start_pid,end_pid,line_km,percent_internal,timestep_mins,ros_kmh,min_time_any,min_time_any_diff)
 
       ##add line start and end coordinates and directions
       # Initialize results list

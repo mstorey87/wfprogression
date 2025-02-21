@@ -127,7 +127,7 @@ fire_RANN_nearest_points <- function(poly,poly.prior,densify_m,within_only=F,max
 
 
     # Define k as the number of neighbors you want to get for each point in point1
-    k_neighbors <- 1  # Get the 50 nearest neighbors each time function is called in loop
+    k_neighbors <- 1  # Get the  nearest neighbors each time function is called in loop
 
     #list for sf line results
     lines.out <- list()
@@ -144,7 +144,7 @@ fire_RANN_nearest_points <- function(poly,poly.prior,densify_m,within_only=F,max
 
 
       #set blank data frame as test for the while loop
-      #test if coords1 is still matrix. This will be F when ponly 1 point left
+      #test if coords1 is still matrix. This will be F when poly 1 point left
       lines_sf <- data.frame()
 
       while(nrow(lines_sf)==0 & is.matrix(coords1)){
@@ -152,6 +152,7 @@ fire_RANN_nearest_points <- function(poly,poly.prior,densify_m,within_only=F,max
         # Use RANN::nn2() to find nearest neighbors and distances between vertex from poly and all vertices from prior poly
         nn_result <- RANN::nn2(coords1, coords2.xi , k = k_neighbors)  # k_neighbors specifies the number of neighbors
 
+        #make line from coords and see if it crosses edge of poly. If true, repeat
         lines_sf <- sf::st_linestring(rbind(coords2.xi, coords1[nn_result$nn.idx[[1]], ]))
         lines_sf.crosses <- lengths(sf::st_crosses(lines_sf,poly.diff.buff))>0
 
