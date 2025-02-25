@@ -26,9 +26,23 @@ fire_download_stac <- function(fire_bbox,stac_df,dest_folder){
     #loop through one by one (to save memory) and create cropped rgb and write to disk
     for(i in 1:nrow(stac_df)){
       dat <- stac_df[i,]
-      b1 <- terra::crop(dat$band1_stream[[1]],sf::st_transform(fire_bbox,dat$crs[[1]]))
-      b2 <- terra::crop(dat$band2_stream[[1]],sf::st_transform(fire_bbox,dat$crs[[1]]))
-      b3 <- terra::crop(dat$band3_stream[[1]],sf::st_transform(fire_bbox,dat$crs[[1]]))
+
+
+      #ensure extents of bbox and rast overlap, otherwise crop will throw error and stop
+      b1_bbox <- sf::st_bbox(dat$band1_stream[[1]]) %>% sf::st_as_sfc() %>% sf::st_as_sf()
+      f_bbox <- sf::st_transform(fire_bbox,dat$crs[[1]])
+
+      olap <- sf::st_intersects(b1_bbox,f_bbox)
+      if(lengths(olap)==0){
+        print(paste0("skipping ",dat$datetimelocal_chr,", image outside bbox"))
+        next
+      }
+
+
+
+      b1 <- terra::crop(dat$band1_stream[[1]],f_bbox)
+      b2 <- terra::crop(dat$band2_stream[[1]],f_bbox)
+      b3 <- terra::crop(dat$band3_stream[[1]],f_bbox)
 
       #resample resolutions to match
       b3 <- terra::resample(b3,b1)
