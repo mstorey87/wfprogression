@@ -87,6 +87,23 @@ fire_max_spread_line <- function(polygons,
       #ensure all prior polygons are at least min_minutes prior. Filter out polygons too close
       dplyr::mutate(mins_diff=as.numeric(difftime(dat.i$dt_utc,dt_utc,"utc","mins")))
 
+
+    #ensure each area of dat.prior.all has the time that fire first reach that spot
+    # suppressMessages({
+    #
+    #   #ensure each area of dat.prior.all has the time that fire first reach that spot
+    #   dat.prior.all.diff <- dat.prior.all %>%
+    #     #arrange by time first, so first time is kept
+    #     dplyr::arrange(time) %>%
+    #     # st_cast("POLYGON") %>%
+    #     sf::st_transform(4283) %>%
+    #     sf::st_difference() %>%
+    #     sf::st_transform(sf::st_crs(dat.i))
+    #
+    # })
+    #
+
+
     dat.prior.filtered <- dat.prior.all %>%
       dplyr::filter(mins_diff >= min_minutes & mins_diff <= max_minutes)
 
@@ -128,7 +145,7 @@ fire_max_spread_line <- function(polygons,
         #dplyr::mutate(id=dplyr::row_number()) %>%
         #intersect with all prior polygons and see if time in dat.prior is most recent
         #if there is an earlier time, the fire must have reached that point earlier than dat.prio
-        sf::st_buffer(5)
+        sf::st_buffer(1)
 
       dat.prior.intersect <- dat.prior.all %>%
         dplyr::select(time) %>%
@@ -150,7 +167,12 @@ fire_max_spread_line <- function(polygons,
 
 
               #get line distance inside poly2
-      dat.lines$line_metres_internal <- as.numeric(sf::st_length(sf::st_geometry(dat.lines) %>% sf::st_intersection(sf::st_geometry(dat.i))))
+      dat.l.i.intersect <- sf::st_geometry(dat.lines) %>% sf::st_intersection(sf::st_geometry(dat.i))
+      if(length(dat.l.i.intersect)==0){
+        dat.lines$line_metres_internal <- 0
+      }else{
+             dat.lines$line_metres_internal <- as.numeric(sf::st_length(dat.l.i.intersect))
+      }
       dat.lines$percent_internal <- round(dat.lines$line_metres_internal/dat.lines$line_metres*100,1)
 
 
