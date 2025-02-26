@@ -22,6 +22,7 @@ fire_RANN_nearest_points <- function(poly,poly.prior,densify_m,within_only=F,max
 
       poly_x1 <- poly_x %>%
         sf::st_segmentize(dfMaxLength =  densify_m) %>%
+        sf::st_sf() %>%
         sf::st_coordinates() %>%
         as.data.frame() %>%
         sf::st_as_sf(coords=c("X","Y"),crs=sf::st_crs(poly_x))
@@ -34,7 +35,7 @@ fire_RANN_nearest_points <- function(poly,poly.prior,densify_m,within_only=F,max
 
 
   poly.union <- sf::st_union(sf::st_geometry(poly),sf::st_geometry(poly.prior)) %>%
-    sf::st_union()
+    sf::st_make_valid()
 
 
   points.A <- fn_poly_to_points(poly.prior,densify_m)
