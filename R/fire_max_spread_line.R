@@ -187,15 +187,14 @@ fire_max_spread_line <- function(polygons,
     #not change but is still given the new time.
     dat.lines.start <- sf::st_cast(sf::st_geometry(dat.lines),"POINT")[2,] %>%
       sf::st_as_sf() %>%
+      sf::st_transform(3112) %>%
       #dplyr::mutate(id=dplyr::row_number()) %>%
       #intersect with all prior polygons and see if time in dat.prior is most recent
       #if there is an earlier time, the fire must have reached that point earlier than dat.prio
-      sf::st_buffer(1)
+      sf::st_buffer(1) %>%
+      sf::st_transform(sf::st_crs(dat.lines))
 
-    dat.prior.intersect <- dat.prior.all %>%
-      dplyr::select(time) %>%
-      sf::st_filter(dat.lines.start,.predictate=sf::st_intersects) %>%
-      sf::st_drop_geometry()
+    dat.prior.intersect <- sf::st_intersection(dat.lines.start,dat.prior.all)
 
     min_time_any <- min(dat.prior.intersect$time)
     min_time_any_diff <- as.numeric(difftime(dat.i$time,min_time_any,tz="utc",units="mins"))
@@ -205,14 +204,11 @@ fire_max_spread_line <- function(polygons,
 
 
     #if line metres is zero, skip to next
-    if(dat.lines$line_metres==0){
-      #print("skipping")
-      next
-    }
-
+    if(dat.lines$line_metres==0) next
 
     #get line distance inside poly2
-    dat.l.i.intersect <- sf::st_geometry(dat.lines) %>% sf::st_intersection(sf::st_geometry(dat.i))
+    dat.l.i.intersect <- sf::st_geometry(dat.lines) %>% sf::st_intersection(sf::st_geometry(dat.i.diff))
+
     if(length(dat.l.i.intersect)==0){
       dat.lines$line_metres_internal <- 0
     }else{
@@ -223,7 +219,7 @@ fire_max_spread_line <- function(polygons,
 
 
     #get id of polygons that is where the line starts
-    polyid <- unlist(unique(sf::st_is_within_distance(dat.lines,dat.prior,10)))
+    polyid <- unlist(unique(sf::st_is_within_distance(dat.lines,dat.prior,dist=units::set_units(1,"m"))))
     start_rowids <- paste0(dat.prior$rowid[polyid],collapse=";")
 
 
@@ -283,8 +279,9 @@ fire_max_spread_line <- function(polygons,
       dplyr::filter(len>0.01)
 
 
+    dat.lines <- dat.lines %>% mutate(prior_intersects=nrow(dat.lines.intersect)>0)
 
-    res[[i]] <- dat.lines %>% mutate(prior_intersects=nrow(dat.lines.intersect)>0)
+    res[[i]] <- dat.lines
   }
 
 
