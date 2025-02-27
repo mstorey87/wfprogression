@@ -10,7 +10,7 @@
 #'
 #' @examples
 #' #
-fire_RANN_nearest_points <- function(poly,poly.prior,densify_m,within_only=F,max_only=T,within_buffer_m=10){
+fire_RANN_nearest_points <- function(poly,poly.prior,densify_m,within_only=F,max_only=T,within_buffer_m=10,radius=1){
 
 
   #poly to points function that is faster that st_cast
