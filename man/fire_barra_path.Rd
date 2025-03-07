@@ -2,14 +2,14 @@
 % Please edit documentation in R/fire_barra_path.R
 \name{fire_barra_path}
 \alias{fire_barra_path}
-\title{Construct BARRA https string}
+\title{Construct https string to a BARRA file on NCI}
 \usage{
 fire_barra_path(datetimeutc, barraid, varname)
 }
 \arguments{
-\item{datetimeutc}{posixct datetime in utc rounded to hour}
+\item{datetimeutc}{posixct datetime in utc rounded to nearest hour}
 
-\item{barraid}{R2 (12 km product) or C2 (~4km product)}
+\item{barraid}{R2 (12 km  BARRA product) or C2 (~4km BARRA product)}
 
 \item{varname}{BARRA variable name e.g. sfcWind (surface wind), tas (temperature), hurs (RH), vas and uas (wind components).  http://www.bom.gov.au/research/publications/researchreports/BRR-067.pdf}
 }
@@ -17,7 +17,7 @@ fire_barra_path(datetimeutc, barraid, varname)
 string
 }
 \description{
-Construct BARRA https string
+Construct https string to a BARRA file on NCI
 }
 \examples{
 #fn_barra_path(datetimeutc = as.POSIXct("2019-12-01 10:00:00",tz="utc"),barraid = "R2",varname = "sfcWind")

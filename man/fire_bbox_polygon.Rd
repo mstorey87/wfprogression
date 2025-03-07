@@ -2,23 +2,24 @@
 % Please edit documentation in R/fire_bbox_polygon.R
 \name{fire_bbox_polygon}
 \alias{fire_bbox_polygon}
-\title{Create a bounding box polygon}
+\title{Create a bounding box sf polygon}
 \usage{
-fire_bbox_polygon(search_polygon = NULL, bbox_buffer_km = 0, new_crs = NULL)
+fire_bbox_polygon(sf_polygon = NULL, bbox_buffer_km = 0, crs = 3112)
 }
 \arguments{
+\item{sf_polygon}{An sf object which is the fire boundary polygon (or search area)}
+
 \item{bbox_buffer_km}{How many km to buffer the fire polygon by during the creation of a bounding box.}
 
-\item{new_crs}{New epsg code if transformation is required. Default to 4283 (GDA94)}
-
-\item{fire_polygon}{An sf object which is the fire boundary polygon (or search area)}
+\item{crs}{CRS for buffering (epsg code). Must be projected CRS.}
 }
 \value{
-A list with one fire polygon and one bounding box polygon
+A bounding box sf polygon with the input polygon's CRS
 }
 \description{
-Create a bounding box polygon
+Takes an sf polygon (e.g. fire boundary), optionally buffers the polygon, create an sf bbox and then convert to sf polygon.
+If sf_polygon is empty, a box around Australia is the output
 }
 \examples{
-#x <- fire_bbox_polygon(fire_polygon = dat.fire.polygon,bbox_buffer_km = 20,new_crs = 4283)
+#fire_bbox_polygon(dat.fire,100,3112)
 }

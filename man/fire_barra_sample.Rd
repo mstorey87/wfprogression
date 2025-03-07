@@ -7,7 +7,7 @@
 fire_barra_sample(
   nc_conn,
   datetimeutc,
-  sf_points,
+  sf_data,
   varname,
   allcells = F,
   extract_fun = "mean"
@@ -18,15 +18,19 @@ fire_barra_sample(
 
 \item{datetimeutc}{posixct datetime in utc. Must match https path of nc connection}
 
-\item{sf_points}{sample point (sf object)}
+\item{sf_data}{sf object with one row with locations to sample barra data}
 
-\item{varname}{BARRA variable name. Must match var name used in https path.}
+\item{varname}{BARRA variable name. Must match var name used in https path. e.g. sfcWind (surface wind), tas (temperature), hurs (RH), vas and uas (wind components).}
+
+\item{allcells}{logical. Return all cells in BARRA data that intersect an input polygon? Leave F for point data.}
+
+\item{extract_fun}{If not returning all cells for an input polygon, how should sampled cells be summarised in terra::extract, e.g. mean, max}
 }
 \value{
 sf object with new columns for sampled variable
 }
 \description{
-Function to stream and sample BARRA weather netcdf
+Take an existing nc connection (tidync::tidync()) and sample for the locations in the input sf points
 }
 \examples{
 #

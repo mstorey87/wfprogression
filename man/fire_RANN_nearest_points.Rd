@@ -10,7 +10,8 @@ fire_RANN_nearest_points(
   densify_m,
   within_only = F,
   max_only = T,
-  within_buffer_m = 10
+  within_buffer_m = 10,
+  radius = 1
 )
 }
 \arguments{

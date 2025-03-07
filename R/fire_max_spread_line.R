@@ -32,6 +32,7 @@ fire_max_spread_line <- function(polygons,
 
   #add time column with standard name
   polygons$time <- polygons[[time_col]]
+  polygons$rowid <- polygons[[id_col]]
 
   #ensure time column is posxct
   checkmate::assert(unique(stringr::str_detect(class(polygons$time),"POSIX")),"Error: Time column must be posixct")
@@ -43,7 +44,7 @@ fire_max_spread_line <- function(polygons,
   #add a season variable if needed
   dat.poly <- dat.poly %>%
     dplyr::mutate(semes=lubridate::semester(time),yr=lubridate::year(time),season=ifelse(semes==1,paste0(yr-1,"-",yr),paste0(yr,"-",yr+1))) %>%
-    dplyr::select(dplyr::all_of(c("time",id_col,"firetype","season"))) %>%
+    dplyr::select(dplyr::all_of(c("time","rowid","firetype","season"))) %>%
     #arrange in order of time and give a time id
     dplyr::arrange(time)
 

@@ -1,16 +1,22 @@
 #' Function to stream and sample BARRA weather netcdf
 #'
+#' @description
+#' Take an existing nc connection (tidync::tidync()) and sample for the locations in the input sf points
+#'
+#'
 #' @param nc_conn netcdf connection using tidync::tidync()
 #' @param datetimeutc posixct datetime in utc. Must match https path of nc connection
-#' @param sf_points sample point (sf object)
-#' @param varname BARRA variable name. Must match var name used in https path.
+#' @param sf_data sf object with one row with locations to sample barra data
+#' @param varname BARRA variable name. Must match var name used in https path. e.g. sfcWind (surface wind), tas (temperature), hurs (RH), vas and uas (wind components).
+#' @param allcells logical. Return all cells in BARRA data that intersect an input polygon? Leave F for point data.
+#' @param extract_fun If not returning all cells for an input polygon, how should sampled cells be summarised in terra::extract, e.g. mean, max
 #'
 #' @return sf object with new columns for sampled variable
 #' @export
 #'
 #' @examples
 #' #
-fire_barra_sample<- function(nc_conn,datetimeutc,sf_points,varname,allcells=F,extract_fun="mean"){
+fire_barra_sample<- function(nc_conn,datetimeutc,sf_data,varname,allcells=F,extract_fun="mean"){
   #see end of this document for variable names http://www.bom.gov.au/research/publications/researchreports/BRR-067.pdf
   #example here of R2 variables on thredds https://thredds.nci.org.au/thredds/catalog/ob53/output/reanalysis/AUS-11/BOM/ERA5/historical/hres/BARRA-R2/v1/1hr/catalog.html
   #some variables are sfcWind (surface wind), tas (temperature), hurs (RH), vas and uas (wind components). These are the values on the hour. Some variables
@@ -25,7 +31,7 @@ fire_barra_sample<- function(nc_conn,datetimeutc,sf_points,varname,allcells=F,ex
    #datetimeutc_nc <- as.numeric(datetimeutc-as.POSIXct(ncorigin,tz="utc"))
 
   #get bounding box of all point for filtering data
-  bbox <- sf::st_bbox(sf_points)
+  bbox <- sf::st_bbox(sf_data)
 
 
   #get the time in the format of the nc
@@ -63,25 +69,25 @@ fire_barra_sample<- function(nc_conn,datetimeutc,sf_points,varname,allcells=F,ex
   terra::crs(r) <- "epsg:4283" #not sure if its GDA94 or WGS84
 
   #extract raster values if point type
-  # if(max(str_detect(st_geometry_type(sf_points),"POINT"))==1){
-  #   res <- terra::extract(r,sf_points,ID=F)
+  # if(max(str_detect(st_geometry_type(sf_data),"POINT"))==1){
+  #   res <- terra::extract(r,sf_data,ID=F)
   #}
 
   #extract raster values if polygon type. fun argument ignorned if sampling with points
-  # if(max(str_detect(st_geometry_type(sf_points),"POLY"))==1){
+  # if(max(str_detect(st_geometry_type(sf_data),"POLY"))==1){
   #
   #if not returning all cell, return single row with mean
   if(allcells==F){
-      res <- terra::extract(r,sf_points,fun=extract_fun,ID=F)
-      res <- cbind(sf_points,res)
+      res <- terra::extract(r,sf_data,fun=extract_fun,ID=F)
+      res <- cbind(sf_data,res)
 
   }
 
   #if returning all cells, add nested list
   if(allcells==T){
-    res <- terra::extract(r,sf_points,raw=F,ID=F)
-    sf_points[[varname]] <- list(res)
-    res <- sf_points
+    res <- terra::extract(r,sf_data,raw=F,ID=F)
+    sf_data[[varname]] <- list(res)
+    res <- sf_data
   }
 
   #}

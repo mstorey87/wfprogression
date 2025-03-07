@@ -14,6 +14,30 @@
 fire_download_stac <- function(fire_bbox,stac_df,dest_folder){
 
 
+
+  fn_get_raster <- function(url, max_retries = 5, wait_time = 2) {
+    attempt <- 1
+    while (attempt <= max_retries) {
+      tryCatch({
+        r <- rast(url)
+        # Check if it's a valid raster by confirming it has dimensions
+        if (nrow(r) > 0 && ncol(r) > 0) {
+          return(r)
+        }
+      }, error = function(e) {
+        message("Attempt ", attempt, " failed: ", conditionMessage(e))
+        Sys.sleep(wait_time)
+      })
+      attempt <- attempt + 1
+    }
+    stop("Max retries reached. Could not load raster.")
+  }
+
+
+
+
+
+
   #stream and crop all the bands
   #these functions only deal with 3 selected bands for now.
   stac_df <- stac_df %>%

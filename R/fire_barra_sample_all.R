@@ -9,12 +9,12 @@
 # varnames=c("sfcWind","tas")
 
 
-#' Sample an sf object for BARRA data
+#' Sample an sf object for BARRA data.
 #'
 #' @param dat sf object
-#' @param time_col_utc character string of name of datetime column (posix, utc)
-#' @param barraid R2 (12 km product) or C2 (~4km product)
-#' @param varnames vector of barra variable names. BARRA variable name e.g. sfcWind (surface wind), tas (temperature), hurs (RH), vas and uas (wind components).  http://www.bom.gov.au/research/publications/researchreports/BRR-067.pdf
+#' @param time_col_utc name string of datetime column (posix, utc)
+#' @param barraid R2 (12 km BARRA product) or C2 (~4km BARRA product)
+#' @param varnames Vector of barra variable names. BARRA variable name e.g. sfcWind (surface wind), tas (temperature), hurs (RH), vas and uas (wind components).  http://www.bom.gov.au/research/publications/researchreports/BRR-067.pdf
 #'
 #' @return sample sf object
 #' @export

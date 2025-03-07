@@ -7,13 +7,12 @@
 fire_max_spread_line(
   polygons,
   time_col,
-  include_spots = F,
-  include_backburns = F,
+  id_col,
   convex_hull = T,
   max_only = T,
   internal_only = F,
   min_minutes = 20,
-  max_minutes = 240,
+  max_minutes = 300,
   densify_m = 100
 )
 }
@@ -22,9 +21,7 @@ fire_max_spread_line(
 
 \item{time_col}{Name of date time column (posix)}
 
-\item{include_spots}{T/F to include spot fire in spread line creation. Data must have firetype column populated with "spot", "main" or "backburn"}
-
-\item{include_backburns}{T/F to include backburns in spread line creation. Data must have firetype column populated with "spot", "main" or "backburn"}
+\item{id_col}{Name of unique id column to add to output lines}
 
 \item{convex_hull}{T/F whether to convert fire polygon to convex hull first}
 
