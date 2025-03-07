@@ -1,6 +1,11 @@
 #' Search copernicus stac browser for sentinel 3 (or other) images
 #'
-#' @param fire_bbox Polygon of fire or area to search for images
+#' @description
+#' Search European Space Agency Copernicus data via their stac browser. https://catalogue.dataspace.copernicus.eu/stac.
+#' Return a data frame paths to data that intersect, which can be fed into fire_copernicus_download()
+#'
+#'
+#' @param fire_bbox sf polygon of fire or area to search for images
 #' @param start_date First date from which to search for images
 #' @param end_date Final date to search for image
 #' @param collection_names Defaults to "SENTINEL-3", but can be changed to access other image on copernicus stac. https://documentation.dataspace.copernicus.eu/APIs/STAC.html
@@ -10,7 +15,7 @@
 #'
 #' @examples
 #' #dat.sen3 <- fire_search_copernicus(fire_bbox = dat.bbox,start_date = datestart,end_date = dateend)
-fire_search_copernicus <- function(fire_bbox,
+fire_copernicus_search <- function(fire_bbox,
                                    start_date,
                                    end_date,
                                    collection_names=c("SENTINEL-3")){

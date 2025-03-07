@@ -1,8 +1,14 @@
-#' Search Geoscience Aus. STAC for Landsat and Sentinel 2 data
+#' Search for Landsat and Sentinel 2 data
+#'
+#' @description
+#' Search Geoscience Aus. STAC browser for Landsat and Sentinel 2 images that intersect polygon and match search dates.
+#' This will return a data frame of images path to input to fire_stac_download() function.
+#' A max of 999 records will be returned, so location and or date may need to be limited.
+#' Info on STAC browser is here: https://knowledge.dea.ga.gov.au/guides/setup/gis/stac/
 #'
 #' @param fire_bbox A polygon, usually fire bounding box, to search for images
-#' @param start_time The first date for which to search for images YYYY-mm-dd
-#' @param end_time The last date for which to search for images YYYY-mm-dd
+#' @param start_time The first time for which to search for images (posixct required). This will be converted to utc.
+#' @param end_time The last time for which to search for images (posixct required). This will be converted to utc.
 #' @param collection_names Names of which Landsat and Sentinel 2 products to search for. Defaults to all products from Landsat 5 onwards.
 #'
 #' @return data frame with image paths
@@ -10,7 +16,7 @@
 #'
 #' @examples
 #' #dat.stac <- fire_search_stac(fire_bbox = dat.bbox,start_time = datestart,end_time = dateend)
-fire_search_stac <- function(fire_bbox,
+fire_stac_search <- function(fire_bbox,
                              start_time,
                              end_time,
                              collection_names=c("ga_ls7e_ard_3",

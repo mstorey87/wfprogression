@@ -2,7 +2,7 @@
 % Please edit documentation in R/fire_get_line_info.R
 \name{fire_get_line_info}
 \alias{fire_get_line_info}
-\title{Line coords and direction}
+\title{Get start an end coords and directions of an sf line}
 \usage{
 fire_get_line_info(sf_lines)
 }
@@ -13,7 +13,7 @@ fire_get_line_info(sf_lines)
 data frame
 }
 \description{
-Line coords and direction
+Get start an end coords and directions of an sf line
 }
 \examples{
 #

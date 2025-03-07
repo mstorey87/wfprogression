@@ -2,7 +2,7 @@
 % Please edit documentation in R/fire_gg_map.R
 \name{fire_gg_map}
 \alias{fire_gg_map}
-\title{create gg plot with image and or polygon}
+\title{Create gg plot with and image and/or polygon}
 \usage{
 fire_gg_map(image = NULL, prog = NULL, agg = 5)
 }
@@ -17,7 +17,8 @@ fire_gg_map(image = NULL, prog = NULL, agg = 5)
 gg plot
 }
 \description{
-create gg plot with image and or polygon
+Takes a terra raster and plots it using terrainr package. The terra aggregate function is first used to reduce image size for plotting.
+If a polygon is also an input, it will be plotted over the image.
 }
 \examples{
 #

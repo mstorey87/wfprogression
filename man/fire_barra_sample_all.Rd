@@ -7,7 +7,7 @@
 fire_barra_sample_all(dat, time_col_utc, barraid = "C2", varnames)
 }
 \arguments{
-\item{dat}{sf object}
+\item{dat}{sf object, points lines or polygons}
 
 \item{time_col_utc}{name string of datetime column (posix, utc)}
 

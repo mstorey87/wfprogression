@@ -1,5 +1,4 @@
-# Get start and end coords and directions of a line
-#' Line coords and direction
+#' Get start an end coords and directions of an sf line
 #'
 #' @param sf lines input
 #'

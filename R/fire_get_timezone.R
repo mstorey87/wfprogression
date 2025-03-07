@@ -1,22 +1,13 @@
-#' Internal function to get time zone via sf intersect
+#' Get Australian time zone of fire_bbox centroid
 #'
 #' @param fire_bbox Fire bounding box polygon
 #'
-#' @return String of time zone name
+#' @return String of time zone name e.g. "Australia/Sydney"
 #' @export
 #'
 #' @examples
 #' #fire_get_timezone(dat.bbox)
 fire_get_timezone <- function(fire_bbox){
-
-  #checkmate::assert(curl::has_internet(),"Error: internet connection is required")
-
-
-  #closeAllConnections()
-  #get the time zone based on footprint centroid and add a local time field
-  # dat.aus <- rnaturalearth::ne_states(country="Australia") %>%
-  #   dplyr::select(name) %>%
-  #   sf::st_transform(3112)
 
   dat.aus <- wfprogression::dat.aus
 

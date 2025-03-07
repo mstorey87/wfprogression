@@ -6,6 +6,10 @@
 #' @examples
 #' fire_GIBS_products()
 fire_GIBS_products <- function(){
+   txt <- "MODIS Bands 721 and VIIRS bands M11-I2-I1 are the best for active fire visualisation.
+   True colour can be used for smoke visualisation.
+   Brightness temperature may be useful for night spread.
+   More layers at https://wiki.earthdata.nasa.gov/display/GIBS/GIBS+Available+Imagery+Products#"
 
    product_names <- c(
    'MODIS_Aqua_CorrectedReflectance_Bands721',
@@ -21,12 +25,10 @@ fire_GIBS_products <- function(){
    'VIIRS_NOAA21_CorrectedReflectance_TrueColor',
    'VIIRS_SNPP_CorrectedReflectance_TrueColor',
    'MODIS_Aqua_CorrectedReflectance_TrueColor',
-   'MODIS_Terra_CorrectedReflectance_TrueColor')
+   'MODIS_Terra_CorrectedReflectance_TrueColor',
+   txt)
 
-   txt <- "MODIS Bands 721 and VIIRS bands M11-I2-I1 are the best for active fire visualisation.
-   True colour can be used for smoke visualisation.
-   Brightness temperature may be useful for night spread.
-   More layers at https://wiki.earthdata.nasa.gov/display/GIBS/GIBS+Available+Imagery+Products#"
+
 
    return(product_names)
 }

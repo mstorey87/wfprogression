@@ -1,7 +1,11 @@
 #' Download copernicus data
 #'
-#' @param fire_bbox Polygon for cropping images. Same as used for fire_search_copernicus()
-#' @param download_df Data frame that is the result of fire_search_copernicus()
+#' @description
+#' Download data from Copernicus.
+#' Take the ouput of fire_copernicus_search(). Requires username and password to download the data  https://dataspace.copernicus.eu/
+#'
+#' @param fire_bbox Polygon for cropping images. Same as used for fire_copernicus_search()
+#' @param download_df Data frame that is the result of fire_copernicus_search()
 #' @param dest_folder Path where the geotifs will be written
 #' @param user_copernicus copernicus username
 #' @param password_copernicus copernicus password
@@ -11,11 +15,11 @@
 #'
 #' @examples
 #' #fire_download_copernicus(fire_bbox = dat.bbox,download_df = dat.sen3.filt,dest_folder = outdir)
-fire_download_copernicus <-  function(fire_bbox,
+fire_copernicus_download <-  function(fire_bbox,
                                       download_df,
                                       dest_folder,
-                                      user_copernicus="mstorey@uow.edu.au",
-                                      password_copernicus="rR$VRQFfFfg2D5"){
+                                      user_copernicus,
+                                      password_copernicus){
 
 
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/fire_get_timezone.R
 \name{fire_get_timezone}
 \alias{fire_get_timezone}
-\title{Internal function to get time zone via sf intersect}
+\title{Get Australian time zone of fire_bbox centroid}
 \usage{
 fire_get_timezone(fire_bbox)
 }
@@ -10,10 +10,10 @@ fire_get_timezone(fire_bbox)
 \item{fire_bbox}{Fire bounding box polygon}
 }
 \value{
-String of time zone name
+String of time zone name e.g. "Australia/Sydney"
 }
 \description{
-Internal function to get time zone via sf intersect
+Get Australian time zone of fire_bbox centroid
 }
 \examples{
 #fire_get_timezone(dat.bbox)

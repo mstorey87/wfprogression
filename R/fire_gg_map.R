@@ -1,4 +1,10 @@
-#' create gg plot with image and or polygon
+#' Create gg plot with and image and/or polygon
+#'
+#' @description
+#' Takes a terra raster and plots it using terrainr package. The terra aggregate function is first used to reduce image size for plotting.
+#' If a polygon is also an input, it will be plotted over the image.
+#'
+#'
 #'
 #' @param image terra::rast() object
 #' @param prog sf polygons

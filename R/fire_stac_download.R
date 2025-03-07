@@ -1,6 +1,11 @@
-#' Download and save false colour Landsat and Sentinel 2 images.
+#' Download Landsat and Sentinel 2 images.
 #'
-#' @param fire_bbox Polygon of search area, same polygon used as input to fire_search_stac()
+#' @description
+#' Download landsat and sentinel 2  false colour images. Images are clipped to fire_bbox.
+#' Requires that data frame output from fire_stac_search()
+#'
+#'
+#' @param fire_bbox sf polygon of search area, same polygon used as input to fire_stac_search()
 #' @param stac_df Data frame that is the output of fire_search_stac
 #' @param dest_folder the output folder for geotifs.
 #'
@@ -11,7 +16,7 @@
 #' #outdir <- "C:\\temp\\landsat_and_sentinel"
 #' #dir.create(outdir)
 #' #fire_download_stac(dat.bbox,dat.stac,outdir)
-fire_download_stac <- function(fire_bbox,stac_df,dest_folder){
+fire_stac_download <- function(fire_bbox,stac_df,dest_folder){
 
 
 
@@ -64,6 +69,7 @@ fire_download_stac <- function(fire_bbox,stac_df,dest_folder){
 
 
 
+      #crop images before downloading
       b1 <- terra::crop(dat$band1_stream[[1]],f_bbox)
       b2 <- terra::crop(dat$band2_stream[[1]],f_bbox)
       b3 <- terra::crop(dat$band3_stream[[1]],f_bbox)
@@ -75,8 +81,11 @@ fire_download_stac <- function(fire_bbox,stac_df,dest_folder){
       #create rgb and write to file
       rgb <- c(b1,b2,b3)
 
+      #stretch to 255 max
       rgb <- terra::stretch(rgb)
 
+      #write a temp file and then copy to output directory.
+      #This help it work on shinyapp.io, but is not required if run locally.
       out.file.temp <- tempfile(pattern= paste0(dat$datetimelocal_chr,"_",dat$product,"_",dat$tile_dateutc,"utc_"),fileext = ".tif")
       print(out.file.temp)
       terra::writeRaster(rgb,out.file.temp,overwrite=T)

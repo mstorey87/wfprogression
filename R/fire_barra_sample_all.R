@@ -1,17 +1,6 @@
-# dat <- readRDS("D:\\temp\\lines.rds") %>%
-#   head(50) %>%
-#   sf::st_transform(3112) %>%
-#   sf::st_segmentize(dfMaxLength = 100) %>%
-#   dplyr::mutate(line_id=dplyr::row_number()) %>%
-#   sf::st_cast("POINT")
-# time_col_utc <- "start_time"
-# barraid="C2"
-# varnames=c("sfcWind","tas")
-
-
 #' Sample an sf object for BARRA data.
 #'
-#' @param dat sf object
+#' @param dat sf object, points lines or polygons
 #' @param time_col_utc name string of datetime column (posix, utc)
 #' @param barraid R2 (12 km BARRA product) or C2 (~4km BARRA product)
 #' @param varnames Vector of barra variable names. BARRA variable name e.g. sfcWind (surface wind), tas (temperature), hurs (RH), vas and uas (wind components).  http://www.bom.gov.au/research/publications/researchreports/BRR-067.pdf

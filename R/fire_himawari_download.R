@@ -1,8 +1,16 @@
 #' Download Himawari images from BOM thredds server
 #'
+#' @description
+#' Accepts the output of fire_himiwari_search() to clip and download data from BOMS' NCI thredds server
+#' Because Himawari data is course resolution, the fire_bbox is buffered by 100 km before clipping.
+#' Different bands combination can be selected. 7-4-1 is good for seeing active fire.
+#' Output tif will be an RGB for day time images, but single band (first band in the 'bands' parameter) for night time images.
+#'
+#'
+#'
 #' @param fire_bbox Fire bounding box polygon
-#' @param df_download Data frame of himawari paths from fire_search_himiwari() function
-#' @param bands Himawari bands to download. Default is 7, 4 and 1
+#' @param df_download Data frame of himawari paths from fire_himiwari_search() function
+#' @param bands Himawari bands to download. Default is 7, 4 and 1. First band used for night images. Can be a single band.
 #' @param dest_folder File local destination
 #'
 #' @return Writes geotifs to disk
@@ -10,7 +18,7 @@
 #'
 #' @examples
 #' # fire_download_himiwari(fire_bbox = dat.bbox,df_download = dat.himiwari,dest_folder = outdir)
-fire_download_himiwari <- function(fire_bbox,df_download,bands=c("B07","B04","B01"),dest_folder){
+fire_himiwari_download <- function(fire_bbox,df_download,bands=c("B07","B04","B01"),dest_folder){
 
 
   #transform bbox to himiwari crs
