@@ -292,6 +292,7 @@ fire_hotspot_map <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca7c7
 
           terra::crs(x) <- sf::st_crs(4326)$wkt
           terra::ext(x) <- terra::ext(r1)
+          x <- terra::stretch(x)
 
           # Write the RGB raster to a TIFF file
           #get most common time in hotspots
@@ -309,6 +310,7 @@ fire_hotspot_map <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca7c7
         }else{
           #print("no hotspots 1")
           # Write the RGB raster to a TIFF file
+          r1 <- terra::stretch(r1)
           terra::writeRaster(r1, outtif2, overwrite = TRUE)
           file.copy(outtif2,paste0(dest_folder,"\\",basename(outtif2)),overwrite=T)
 
@@ -321,6 +323,7 @@ fire_hotspot_map <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca7c7
 
         #print("no hotspots wanted")
         # Write the RGB raster to a TIFF file
+        r1 <- terra::stretch(r1)
         terra::writeRaster(r1, outtif2, overwrite = TRUE)
         file.copy(outtif2,paste0(dest_folder,"\\",basename(outtif2)),overwrite=T)
 
