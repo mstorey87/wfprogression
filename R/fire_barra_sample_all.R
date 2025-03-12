@@ -25,11 +25,11 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames){
                   id=dplyr::row_number()) %>%
     sf::st_transform(4326)
 
-  print("Data not yet available after March 2024, removing records after this date")
-  dat <- dat %>%
-    #currently data is only available until march 2024, but this will be updated.
-    #so filter out any dates after march
-    dplyr::filter(time_round < as.POSIXct("2024-04-01 00:00:00",tz="UTC"))
+  # print("Data not yet available after March 2024, removing records after this date")
+  # dat <- dat %>%
+  #   #currently data is only available until march 2024, but this will be updated.
+  #   #so filter out any dates after march
+  #   dplyr::filter(time_round < as.POSIXct("2024-04-01 00:00:00",tz="UTC"))
 
 
   #add columns of barra paths for each variable
