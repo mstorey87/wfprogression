@@ -135,7 +135,6 @@ fire_hotspot_map <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca7c7
 
       # Convert PNG to geotiff
       img <- png::readPNG(outpng1)
-      #grid::grid.raster(img)
       r1 <- terra::rast(img)
       r1 <- c(r1[[1]], r1[[2]], r1[[3]])
       r1 <- terra::stretch(r1)
@@ -310,7 +309,7 @@ fire_hotspot_map <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca7c7
         }else{
           #print("no hotspots 1")
           # Write the RGB raster to a TIFF file
-          r1 <- terra::stretch(r1)
+
           terra::writeRaster(r1, outtif2, overwrite = TRUE)
           file.copy(outtif2,paste0(dest_folder,"\\",basename(outtif2)),overwrite=T)
 
@@ -323,7 +322,7 @@ fire_hotspot_map <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca7c7
 
         #print("no hotspots wanted")
         # Write the RGB raster to a TIFF file
-        r1 <- terra::stretch(r1)
+
         terra::writeRaster(r1, outtif2, overwrite = TRUE)
         file.copy(outtif2,paste0(dest_folder,"\\",basename(outtif2)),overwrite=T)
 
