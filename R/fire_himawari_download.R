@@ -18,7 +18,7 @@
 #'
 #' @examples
 #' # fire_download_himiwari(fire_bbox = dat.bbox,df_download = dat.himiwari,dest_folder = outdir)
-fire_himiwari_download <- function(fire_bbox,df_download,bands=c("B07","B04","B01"),dest_folder){
+fire_himawari_download <- function(fire_bbox,df_download,bands=c("B07","B04","B01"),dest_folder){
 
 
   #transform bbox to himiwari crs

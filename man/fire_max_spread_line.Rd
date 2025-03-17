@@ -2,7 +2,7 @@
 % Please edit documentation in R/fire_max_spread_line.R
 \name{fire_max_spread_line}
 \alias{fire_max_spread_line}
-\title{Find maximum fire spread line}
+\title{Find line of maximum fire spread}
 \usage{
 fire_max_spread_line(
   polygons,
@@ -39,7 +39,14 @@ fire_max_spread_line(
 sf object
 }
 \description{
-Find maximum fire spread line
+Takes a set of sf polygons with, each with a posixct datetime field, and find the line of maximum difference or spread from one polygon to the next.
+The second polygon should completely contain the first, but this may work if that is not the case.
+There are some option for calculating this by converting the polygons to convex hulls, which makes the process fast but is less accurate.
+All spread lines can be returned, not just the single maximum spread line.
+There is an option to ensure that the spread line is completely contained within the second fire progression polygon, but this works very slowly and can not always find an appropriate solution
+min_minutes and max_minutes are used to set that max and min timestep between polygons. When there are two polygons with a difference in time outside the range, the process is not run.
+The vertices on the boundary of the polygons are converted to points to find the max spread line. densify_m how often extra vertices should be added to the polygon boundary, especially on staight boundary sections, before the polygon is converted to points.
+Have a smaller value (metres) will produce more accurate results, but will take more time to run.
 }
 \examples{
 #
