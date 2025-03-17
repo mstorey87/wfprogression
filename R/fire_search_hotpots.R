@@ -29,7 +29,7 @@ fire_search_hotspots <- function(fire_bbox,mapkey,start_date,end_date,dest_folde
   box_coords <- paste0(sf::st_bbox(fire_bbox),collapse=",")
 
   #list of all hotspots products available. Filter them if user inputs a filter string
-  products <- c("VIIRS_SNPP_NRT","VIIRS_SNPP_SP","VIIRS_NOAA20_NRT",
+  products <- c("VIIRS_SNPP_NRT","VIIRS_SNPP_SP","VIIRS_NOAA20_NRT","VIIRS_NOAA20_SP",
                 "VIIRS_NOAA21_NRT","MODIS_SP","MODIS_NRT")
   if(!is.null(product_filter)){
     products <- products[stringr::str_detect(products,product_filter)]

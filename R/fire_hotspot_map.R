@@ -19,6 +19,7 @@ fire_hotspot_map <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca7c7
   checkmate::assert(stringr::str_detect(class(start_time)[1],"POSIXct"),"Error: times must be posixct")
   checkmate::assert(stringr::str_detect(class(end_time)[1],"POSIXct"),"Error: times must be posixct")
 
+  fire_bbox <- fire_bbox %>% sf::st_transform(4326)
 
   mytz=wfprogression::fire_get_timezone(fire_bbox)
 
