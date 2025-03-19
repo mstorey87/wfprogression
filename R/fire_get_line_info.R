@@ -18,8 +18,8 @@ fire_get_line_info <- function(sf_lines) {
     coords <- sf::st_coordinates(line)
 
     # Get start and end points
-    start_point <- coords[1, ]
-    end_point <- coords[nrow(coords), ]
+    end_point <- coords[1, ]
+    start_point <- coords[nrow(coords), ]
 
     # Calculate direction (bearing in degrees)
     direction <- atan2(end_point[2] - start_point[2], end_point[1] - start_point[1]) * (180 / pi)
