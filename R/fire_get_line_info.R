@@ -25,6 +25,7 @@ fire_get_line_info <- function(sf_lines) {
     if(stringr::str_starts(crs1$wkt,"GEOGCRS")){
 
       direction <- geosphere::bearing(start_point,end_point)
+      if (direction < 0) direction <- direction + 360  # Normalize to [0,360]
 
 
     }
@@ -40,10 +41,11 @@ fire_get_line_info <- function(sf_lines) {
       theta <- atan2(dy, dx)  # atan2(y, x) -> standard math convention
 
       # Convert to degrees
-      bearing <- theta * (180 / pi)
+      direction <- theta * (180 / pi)
 
       # Adjust to compass bearing (relative to north)
-      direction <- (90 - bearing) %% 360  # Rotate so that 0° is north
+      direction <- (90 - direction) %% 360  # Rotate so that 0° is north
+      if (direction < 0) direction <- direction + 360  # Normalize to [0,360]
     }
 
 
