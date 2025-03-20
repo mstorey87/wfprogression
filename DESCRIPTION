@@ -19,6 +19,7 @@ Imports:
     DBI,
     dplyr,
     gdalcubes,
+    geosphere,
     ggplot2,
     ggspatial,
     httr,
