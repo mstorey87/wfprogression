@@ -64,7 +64,7 @@ fire_get_line_info <- function(sf_lines) {
 
   # Convert results to a data frame
   results_df <- do.call(rbind, results) %>% as.data.frame()
-  names(results_df) <- paste0(c("start_x","start_y","end_x","end_y","bearing","line_km"),"_epsg",sf::st_crs(lines)$epsg)
+  names(results_df) <- paste0(c("start_x","start_y","end_x","end_y","bearing","line_km"),"_epsg",sf::st_crs(sf_lines)$epsg)
 
   return(results_df)
 }
