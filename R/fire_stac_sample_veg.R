@@ -67,6 +67,10 @@ fire_stac_sample_veg <- function(sf_object,
   #extract items properties including path and url
   dat.x <- purrr::map(executed_stac_query$features,~tibble::tibble(pv_pc_90_href=.x$assets$pv_pc_90$href,
                                                                    pv_pc_50_href=.x$assets$pv_pc_50$href,
+                                                                   npv_pc_90_href=.x$assets$pv_pc_90$href,
+                                                                   npv_pc_50_href=.x$assets$pv_pc_50$href,
+                                                                   bs_pc_90_href=.x$assets$pv_pc_90$href,
+                                                                   bs_pc_50_href=.x$assets$pv_pc_50$href,
                                                                        product=.x$collection,
                                                                    datetime=.x$properties$datetime)) %>%
     dplyr::bind_rows()
