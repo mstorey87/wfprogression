@@ -18,8 +18,8 @@
 #' #dat.stac <- fire_search_stac(fire_bbox = dat.bbox,start_time = datestart,end_time = dateend)
 fire_stac_sample_veg <- function(sf_object,
                                  year,
-                                 collection_names=c("fc_percentile_albers_annual",
-                                                    "fc_percentile_albers_seasonal",
+                                 collection_names=c(#"fc_percentile_albers_annual",
+                                                    #"fc_percentile_albers_seasonal",
                                                     "ga_ls_fc_pc_cyear_3")){
 
   #product list here
@@ -67,10 +67,10 @@ fire_stac_sample_veg <- function(sf_object,
   #extract items properties including path and url
   dat.x <- purrr::map(executed_stac_query$features,~tibble::tibble(pv_pc_90_href=.x$assets$pv_pc_90$href,
                                                                    pv_pc_50_href=.x$assets$pv_pc_50$href,
-                                                                   npv_pc_90_href=.x$assets$pv_pc_90$href,
-                                                                   npv_pc_50_href=.x$assets$pv_pc_50$href,
-                                                                   bs_pc_90_href=.x$assets$pv_pc_90$href,
-                                                                   bs_pc_50_href=.x$assets$pv_pc_50$href,
+                                                                   npv_pc_90_href=.x$assets$npv_pc_90$href,
+                                                                   npv_pc_50_href=.x$assets$npv_pc_50$href,
+                                                                   bs_pc_90_href=.x$assets$bs_pc_90$href,
+                                                                   bs_pc_50_href=.x$assets$bs_pc_50$href,
                                                                        product=.x$collection,
                                                                    datetime=.x$properties$datetime)) %>%
     dplyr::bind_rows()
@@ -90,25 +90,26 @@ fire_stac_sample_veg <- function(sf_object,
 
     #combine data and calculate https path and date times strings for file names
     dat.aws <- dat.x %>%
-      dplyr::mutate(dplyr::across(dplyr::starts_with("pv_"),
-                                  ~stringr::str_replace(.x,"s3://dea-public-data","https://dea-public-data.s3.ap-southeast-2.amazonaws.com")) )
-
-
-
-    #calculate the time and image tile id fields
-    dat.aws <- dat.x %>%
       dplyr::mutate(date=as.Date(datetime,format="%Y-%m-%d"),
                     #tile and date string to use in output file name
                     tile=paste0(purrr::map_chr(stringr::str_split(basename(pv_pc_90_href),"_"),7)))%>%
       tidyr::pivot_longer(matches("href")) %>%
       mutate(value=stringr::str_replace(value,"s3://dea-public-data","https://dea-public-data.s3.ap-southeast-2.amazonaws.com")) %>%
       dplyr::mutate(r=purrr::map(value,~terra::rast(.x,vsi=T))) %>%
-      dplyr::mutate(res=purrr::map(r,~terra::extract(.x,sf::st_transform(sf_object,sf::st_crs(.x)),ID=T)))
+      dplyr::mutate(res=purrr::map(r,~terra::extract(.x,sf::st_transform(sf_object,sf::st_crs(.x)),ID=T,xy=T,cell=T)))
 
     #combine and remove duplicated ID columns
-    res <- do.call(cbind,dat.aws$res)
-    res <-subset(res, select=which(!duplicated(names(res)))) %>%
-      dplyr::rename(sf_ID=ID)
+    res <- dat.aws %>%
+      select(name,date,res) %>%
+      dplyr::mutate(res=purrr::map(res,~setNames(.x,c("sf_id","value","cell_no","cell_x","cell_y")))) %>%
+      tidyr::unnest(cols=res) %>%
+      dplyr::arrange(date,name,sf_id,cell_no) %>%
+      #because the data comes in tiles, it will return NA values where sampling off tile
+      dplyr::filter(!is.na(value)) %>%
+      dplyr::mutate(name=stringr::str_replace(name,"_href",""))
+
+    res2 <- tidyr::pivot_wider(res,id_cols = c("cell_no","cell_x","cell_y","sf_id","date"))
+
 
     rm(dat.aws)
 
@@ -123,7 +124,7 @@ fire_stac_sample_veg <- function(sf_object,
 
 
 
-    return(res)
+    return(res2)
 
   }else{
 
