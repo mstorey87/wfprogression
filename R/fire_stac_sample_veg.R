@@ -10,6 +10,7 @@
 #' @param start_time The first time for which to search for images (posixct required). This will be converted to utc.
 #' @param end_time The last time for which to search for images (posixct required). This will be converted to utc.
 #' @param collection_names Names of which Landsat and Sentinel 2 products to search for. Defaults to all products from Landsat 5 onwards.
+#' @param year_prior Should the FPC be from the year prior to the start date?
 #'
 #' @return data frame with image paths
 #' @export
@@ -41,8 +42,8 @@ fire_stac_sample_veg <- function(sf_object,
     sf::st_buffer(1000) %>%
     sf::st_transform(4326)
 
-  start_time=as.POSIXct("2019-02-01 12:00:00")
-  end_time=as.POSIXct("2019-03-01 12:00:00")
+  #start_time=as.POSIXct("2019-02-01 12:00:00")
+  #end_time=as.POSIXct("2019-03-01 12:00:00")
 
   checkmate::assert(stringr::str_detect(class(start_time)[1],"POSIXct"),"Error: times must be posixct")
   checkmate::assert(stringr::str_detect(class(end_time)[1],"POSIXct"),"Error: times must be posixct")
@@ -50,6 +51,9 @@ fire_stac_sample_veg <- function(sf_object,
 
   start_time <- lubridate::with_tz(start_time,tz="UTC")
   end_time <- lubridate::with_tz(end_time,tz="UTC")
+
+
+
 
   start_time <- format(start_time, "%Y-%m-%dT%H:%M:%SZ")
   end_time <- format(end_time, "%Y-%m-%dT%H:%M:%SZ")
@@ -97,6 +101,12 @@ fire_stac_sample_veg <- function(sf_object,
     }
 
     if(cname=="ga_ls_fc_3"){
+
+      #if using daily fpc, sample for at least 1 month prior
+      start_time <- as.POSIXct(start_time,format="%Y-%m-%dT%H:%M:%SZ",tz="utc")
+      start_time <- start_time-lubridate::weeks(4)
+      start_time <- format(start_time, "%Y-%m-%dT%H:%M:%SZ")
+
       datetime_chr=paste0(start_time,"/",end_time)
     }
 
@@ -257,6 +267,8 @@ fire_stac_sample_veg <- function(sf_object,
 
       print("no stac data found")
     }
+
   }
+  return(all.res)
 }
 

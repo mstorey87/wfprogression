@@ -20,6 +20,8 @@ fire_stac_sample_veg(
 
 \item{collection_names}{Names of which Landsat and Sentinel 2 products to search for. Defaults to all products from Landsat 5 onwards.}
 
+\item{year_prior}{Should the FPC be from the year prior to the start date?}
+
 \item{fire_bbox}{A polygon, usually fire bounding box, to search for images}
 }
 \value{
