@@ -102,10 +102,10 @@ fire_stac_sample_veg <- function(sf_object,
 
     if(cname=="ga_ls_fc_3"){
 
-      #if using daily fpc, sample for at least 1 month prior
-      start_time <- as.POSIXct(start_time,format="%Y-%m-%dT%H:%M:%SZ",tz="utc")
-      start_time <- start_time-lubridate::weeks(4)
-      start_time <- format(start_time, "%Y-%m-%dT%H:%M:%SZ")
+      # #if using daily fpc, sample for at least 1 month prior
+      # start_time <- as.POSIXct(start_time,format="%Y-%m-%dT%H:%M:%SZ",tz="utc")
+      # start_time <- start_time-lubridate::weeks(4)
+      # start_time <- format(start_time, "%Y-%m-%dT%H:%M:%SZ")
 
       datetime_chr=paste0(start_time,"/",end_time)
     }
