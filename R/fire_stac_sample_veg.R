@@ -235,11 +235,11 @@ fire_stac_sample_veg <- function(sf_object,
         #because the data comes in tiles, it will return NA values where sampling off tile
         dplyr::filter(!is.na(value)) %>%
         dplyr::mutate(sample_name=stringr::str_replace(sample_name,"_href","")
-                      # ,
-                      # #seems to be slight offset in cell x and y from dems
-                      # #calculate rounded x and ys
-                      # cell_x=round(cell_x,5),
-                      # cell_y=round(cell_y,5)
+                      ,
+                      #seems to be slight offset in cell x and y from dems
+                      #calculate rounded x and ys
+                      cell_x=round(cell_x,5),
+                      cell_y=round(cell_y,5)
                       )
 
 
