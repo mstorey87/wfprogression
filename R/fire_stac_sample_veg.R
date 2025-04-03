@@ -245,7 +245,7 @@ fire_stac_sample_veg <- function(sf_object,
 
 
 
-      #res2 <- tidyr::pivot_wider(res,values_from = value,names_from = sample_name)
+      res <- tidyr::pivot_wider(res,values_from = value,names_from = sample_name)
 
 
       rm(dat.aws)
