@@ -18,15 +18,14 @@
 #' @examples
 #' #dat.stac <- fire_search_stac(fire_bbox = dat.bbox,start_time = datestart,end_time = dateend)
 fire_stac_sample_veg <- function(sf_object,
-                                 start_time,
-                                 end_time,
+                                 start_time=NULL,
+                                 end_time=NULL,
                                  collection_names=c(#"fc_percentile_albers_annual",
                                    #"fc_percentile_albers_seasonal",
                                    "ga_ls_fc_pc_cyear_3",
                                    "ga_ls_landcover_class_cyear_3",
                                    "ga_srtm_dem1sv1_0",
-                                   "ga_ls_fc_3"),
-                                 year_prior=T){
+                                   "ga_ls_fc_3")){
 
   #product list here
   #https://knowledge.dea.ga.gov.au/notebooks/Beginners_guide/03_Products_and_measurements/
@@ -93,7 +92,6 @@ fire_stac_sample_veg <- function(sf_object,
     if(cname %in% c("ga_ls_landcover_class_cyear_3","ga_ls_fc_pc_cyear_3")){
       year <- lubridate::year(start_time)
       #if sampling yearly data, we probably need the year before the fire
-      if(year_prior==T) year= year-1
       my_time1 <- paste0(year,"-01-01T00:00:00Z")
       datetime_chr=paste0(my_time1,"/",my_time1)
 
