@@ -44,18 +44,30 @@ fire_stac_sample_veg <- function(sf_object,
   #start_time=as.POSIXct("2019-02-01 12:00:00")
   #end_time=as.POSIXct("2019-03-01 12:00:00")
 
-  checkmate::assert(stringr::str_detect(class(start_time)[1],"POSIXct"),"Error: times must be posixct")
-  checkmate::assert(stringr::str_detect(class(end_time)[1],"POSIXct"),"Error: times must be posixct")
+  if(!is.null(start_time)){
+    checkmate::assert(stringr::str_detect(class(start_time)[1],"POSIXct"),"Error: times must be posixct")
+    start_time <- lubridate::with_tz(start_time,tz="UTC")
+    start_time <- format(start_time, "%Y-%m-%dT%H:%M:%SZ")
 
 
-  start_time <- lubridate::with_tz(start_time,tz="UTC")
-  end_time <- lubridate::with_tz(end_time,tz="UTC")
+  }
+  if(!is.null(end_time)){
+
+    checkmate::assert(stringr::str_detect(class(end_time)[1],"POSIXct"),"Error: times must be posixct")
+    end_time <- lubridate::with_tz(end_time,tz="UTC")
+
+    end_time <- format(end_time, "%Y-%m-%dT%H:%M:%SZ")
+
+  }
 
 
 
 
-  start_time <- format(start_time, "%Y-%m-%dT%H:%M:%SZ")
-  end_time <- format(end_time, "%Y-%m-%dT%H:%M:%SZ")
+
+
+
+
+
 
 
 
@@ -238,7 +250,7 @@ fire_stac_sample_veg <- function(sf_object,
                       #calculate rounded x and ys
                       cell_x=round(cell_x,5),
                       cell_y=round(cell_y,5)
-                      )
+        )
 
 
 
