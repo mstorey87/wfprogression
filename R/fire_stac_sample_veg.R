@@ -86,9 +86,9 @@ fire_stac_sample_veg <- function(sf_object,
     "https://explorer.dea.ga.gov.au/stac"
   )
 
-  #colls <- stac_source %>% rstac::collections() %>% rstac::get_request()
+  # colls <- stac_source %>% rstac::collections() %>% rstac::get_request()
 
-  #x <-  purrr::map(colls$collections,~data.frame(.x$title,.x$description) ) %>% dplyr::bind_rows()
+  # x <-  purrr::map(colls$collections,~data.frame(.x$title,.x$description) ) %>% dplyr::bind_rows()
 
   #query based on location, date and collection name
 
@@ -258,7 +258,7 @@ fire_stac_sample_veg <- function(sf_object,
       res <- tidyr::pivot_wider(res,values_from = value,names_from = sample_name)
 
 
-      rm(dat.aws)
+      #rm(dat.aws)
 
 
 
