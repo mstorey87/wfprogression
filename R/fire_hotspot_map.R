@@ -124,14 +124,17 @@ fire_hotspot_map <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca7c7
       response <- httr::GET(wms_url, query = params)
       #message("got response")
 
-      # Check if the request was successful
-      if (httr::status_code(response) == 200) {
+      # Check if the request was successful and returns a png (a non-png response will be returned when image is unavailable, or connection bad)
+     # if (httr::status_code(response) == 200) {
+      if(grepl("image/png", httr::headers(response)[["content-type"]])){
         # Save the image content to a file
         img_data <- httr::content(response, "raw")
         writeBin(img_data, outpng1)
         #message("Image saved as wms_image.png")
       } else {
-        stop("Failed to download image. HTTP status: ", httr::status_code(response))
+        warning(paste0("Failed to download image ",wms," ",date_string))
+        next
+
       }
 
       # Convert PNG to geotiff
