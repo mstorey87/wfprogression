@@ -31,6 +31,9 @@ fire_barra_sample<- function(nc_conn,datetimeutc,sf_data,varname,allcells=F,extr
    #datetimeutc_nc <- as.numeric(datetimeutc-as.POSIXct(ncorigin,tz="utc"))
 
   #get bounding box of all point for filtering data
+  #transform to lat lon first
+  sf_data <- sf_data %>% sf::st_transform(4326)
+
   bbox <- sf::st_bbox(sf_data)
 
 
@@ -66,7 +69,7 @@ fire_barra_sample<- function(nc_conn,datetimeutc,sf_data,varname,allcells=F,extr
 
   #create raster
   r <- terra::rast(b.local)
-  terra::crs(r) <- "epsg:4283" #not sure if its GDA94 or WGS84
+  terra::crs(r) <- "epsg:4326" #use 4326 as suggested here https://opus.nci.org.au/spaces/NDP/pages/264241306/FAQs+-+BOM+BARRA2+ob53#FAQsBOMBARRA2(ob53)-Whatistheprojectiondatumofthedata?
 
   #extract raster values if point type
   # if(max(str_detect(st_geometry_type(sf_data),"POINT"))==1){
