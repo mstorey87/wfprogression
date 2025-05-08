@@ -39,7 +39,7 @@ fire_barra_sample<- function(nc_conn,datetimeutc,sf_data,varname,allcells=F,extr
 
   #get the time in the format of the nc
   datetimeutc_nc <- nc_conn$transforms$time %>%
-    dplyr::filter(timestamp==format(datetimeutc,format="%Y-%m-%d %H:%M:%S")) %>% .$time
+    dplyr::filter(timestamp==format(datetimeutc,format="%Y-%m-%d %H:%M:%S")|timestamp==format(datetimeutc,format="%Y-%m-%dT%H:%M:%S")) %>% .$time
 
 
 
