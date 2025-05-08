@@ -16,7 +16,7 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames){
 
   #ensure time column is posxct
   checkmate::assert(unique(stringr::str_detect(class(dat$time),"POSIX")),"Error: Time column must be posixct, timezone UTC")
-  checkmate::assert(lubridate::tz(dat$time)=="UTC","Error: Time column must be posixct, timezone UTC")
+  checkmate::assert(lubridate::tz(dat$time)=="UTC","Error: Time column must be posixct, timezone UTC (all caps)")
 
 
   dat <- dat %>%
