@@ -57,7 +57,7 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames){
     res.list <- list()
 
     for (i in 1:length(dat.split)) {
-      print(paste0(v," ",names(dat.split)[i]))
+      print(paste0("sampling ",v," ",names(dat.split)[i]))
       #data for current iteration (all associated with same nc)
       dat.i <- dat.split[[i]] %>%
         dplyr::mutate(ncpath=wfprogression::fire_barra_path(datetimeutc=time_round,barraid=barraid,varname=v)) %>%
