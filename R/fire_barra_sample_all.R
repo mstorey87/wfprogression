@@ -43,7 +43,9 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames){
 
 
   #check currently available barra data
-  catalog_path <-stringr::str_replace(paste0(dirname(dat[[v]][1]),"/catalog.html"),"dodsC","catalog")
+  #catalog_path <-stringr::str_replace(paste0(dirname(dat[[v]][1]),"/catalog.html"),"dodsC","catalog")
+  #check one random path. All should be the same
+  catalog_path <- "https://thredds.nci.org.au/thredds/catalog/ob53/output/reanalysis/AUST-04/BOM/ERA5/historical/hres/BARRA-C2/v1/1hr/sfcWind/latest/catalog.html"
 
   response <- httr::GET(catalog_path)
   content_xml <- httr::content(response, as = "text")
