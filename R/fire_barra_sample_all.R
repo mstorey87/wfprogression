@@ -36,9 +36,50 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames){
   dat <- dat %>%
     dplyr::mutate(yrmnth=format(time_round,format = "%Y%m"))
 
-  for(v in varnames){
-    dat[[v]] <- wfprogression::fire_barra_path(datetimeutc=dat$time_round,barraid=barraid,varname=v)
-  }
+  # for(v in varnames){
+  #   dat[[v]] <- wfprogression::fire_barra_path(datetimeutc=dat$time_round,barraid=barraid,varname=v)
+  # }
+
+
+
+  #check currently available barra data
+  catalog_path <-stringr::str_replace(paste0(dirname(dat[[v]][1]),"/catalog.html"),"dodsC","catalog")
+
+  response <- httr::GET(catalog_path)
+  content_xml <- httr::content(response, as = "text")
+
+  # Collapse to one string (if it's a vector of lines)
+  html_text <- paste(content_xml, collapse = "\n")
+
+  # Use regular expression to find .nc filenames
+  nc_files <- regmatches(html_text, gregexpr("[^\">/]+\\.nc", html_text))[[1]]
+  nc_files <- nc_files[stringr::str_detect(nc_files,"BARRA")]
+
+  #get year Month of each file
+  nc_yearmonth <- as.numeric(substr(nc_files,nchar(nc_files)-8,nchar(nc_files)-3))
+
+  min.nc <- as.character(min(nc_yearmonth))
+  max.nc <- as.character(max(nc_yearmonth))
+
+  mes.1 <- paste0("BARRA currently available ",month.name[as.numeric(substr(min.nc,5,6))]," ",substr(min.nc,1,4)," to ",month.name[as.numeric(substr(max.nc,5,6))]," ",substr(max.nc,1,4))
+
+  print(mes.1)
+  print("Outside dates will return NA")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -57,11 +98,21 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames){
     res.list <- list()
 
     for (i in 1:length(dat.split)) {
-      print(paste0("sampling ",v," ",names(dat.split)[i]))
+      yr.mnth.dat <- unique(names(dat.split)[i])
+      mes.2 <- paste0(month.name[as.numeric(substr(yr.mnth.dat,5,6))]," ",substr(yr.mnth.dat,1,4))
+      print(paste0("sampling ",v," ",mes.2))
       #data for current iteration (all associated with same nc)
       dat.i <- dat.split[[i]] %>%
         dplyr::mutate(ncpath=wfprogression::fire_barra_path(datetimeutc=time_round,barraid=barraid,varname=v)) %>%
         dplyr::select(id,time_round,ncpath)
+
+      #check is sample data is within available barra range
+
+      if(as.numeric(yr.mnth.dat) >= as.numeric(min.nc) & as.numeric(yr.mnth.dat) <= as.numeric(max.nc)){
+
+
+
+
 
       #connect to nc
       nc_conn <- tidync::tidync(unique(dat.i$ncpath))
@@ -75,6 +126,10 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames){
       res.list[[i]] <-  do.call(rbind,res) %>%
         sf::st_drop_geometry() %>%
         dplyr::select(-ncpath)
+    }else{
+      print(paste0("BARRA currently unavailable for ",mes.2))
+      res.list[[i]] <- NA
+      }
     }
 
 
