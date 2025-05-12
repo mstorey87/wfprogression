@@ -9,6 +9,15 @@
 #' @examples
 #' #
 uv2ds <- function(u, v) {
+
+  rad2deg <- function(rad) {
+    (rad * 180) / (pi)
+  }
+  deg2rad <- function(deg) {
+    (deg * pi) / (180)
+  }
+
+
   ###### DIRECTION
   direction <- atan2(u, v)
   direction <- rad2deg(direction)
