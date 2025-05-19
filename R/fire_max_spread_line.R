@@ -200,7 +200,7 @@ fire_max_spread_line <- function(polygons,
       dplyr::filter(len>0.01)
 
 
-    dat.lines <- dat.lines %>% mutate(prior_intersects=nrow(dat.lines.intersect)>0)
+    dat.lines <- dat.lines %>% dplyr::mutate(prior_intersects=nrow(dat.lines.intersect)>0)
 
     res[[i]] <- dat.lines
   }

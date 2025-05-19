@@ -119,7 +119,7 @@ fire_RANN_nearest_points <- function(poly,poly.prior,densify_m,within_only=F,max
       as.data.frame(nrow=2)
     points.B.x$dist=nn_result.top$nn.dists
     points.B.x <- points.B.x %>%
-      dplyr::arrange(desc(dist))
+      dplyr::arrange(dplyr::desc(dist))
 
 
     #extract coords for filter poly vertices

@@ -13,11 +13,11 @@
 #' @examples
 #' #
 fire_wms_to_tif_python <- function(layers,time,bbox,size,png_file,geotiff_file){
-  library(reticulate)
+
   #use_python('C:/Users/mstorey/AppData/Local/anaconda3/envs/spyder-env/python.exe')
   reticulate::use_virtualenv('python3_env', required = T)
   # Source Python script
-  py_run_string("
+  reticulate::py_run_string("
 from owslib.wms import WebMapService
 import rasterio
 from rasterio.transform import from_origin
@@ -66,7 +66,7 @@ def fetch_and_save_geotiff(layers, time,  bbox, size, png_file, geotiff_file):
 
 
   # Call the Python function via reticulate
-  py$fetch_and_save_geotiff(layers, time, bbox, size, png_file, geotiff_file)
+  reticulate::py$fetch_and_save_geotiff(layers, time, bbox, size, png_file, geotiff_file)
 
 
 

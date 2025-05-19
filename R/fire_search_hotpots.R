@@ -54,7 +54,7 @@ fire_search_hotspots <- function(fire_bbox,mapkey,start_date,end_date,dest_folde
 
   #download hotspots. If no hotspots are found, a file with only headers will be downloaded
   for(xi in 1:length(path_api)){
-      download.file(path_api[xi],out.files[xi],mode="wb")
+      utils::download.file(path_api[xi],out.files[xi],mode="wb")
   }
 
 

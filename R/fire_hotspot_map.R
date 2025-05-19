@@ -234,14 +234,14 @@ fire_hotspot_map <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca7c7
           hotspots2$color <- color_palette[as.integer(hotspots2$datetimelocal)]
 
           # Set up the PNG output with transparent background
-          png(outpng2,
+          grDevices::png(outpng2,
               width = outwidth + (0.1 * outwidth),
               height = outheight + (0.1 * outheight),
               bg = "transparent",
               units = "px")
 
           # Remove unnecessary space around the plot
-          par(mar = c(0, 0, 0, 0), oma = c(0, 0, 0, 0))
+          graphics::par(mar = c(0, 0, 0, 0), oma = c(0, 0, 0, 0))
 
           # Normalize point size based on output width
           point_size <- (outwidth / 1000)  # Adjust the scaling factor as needed
@@ -270,12 +270,12 @@ fire_hotspot_map <- function(fire_bbox,start_time,end_time,mapkey="a5452249ca7c7
 
 
             # Add a bold text label with the matching point color
-            text(x_coord, y_coord, labels = color,
+            graphics::text(x_coord, y_coord, labels = color,
                  col = point$color[1], cex = label_size, pos = 4, font = 2)
           }
 
           # Close the output device
-          dev.off()
+          grDevices::dev.off()
 
           #message("png 2 saved")
 

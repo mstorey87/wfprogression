@@ -176,7 +176,7 @@ fire_stac_sample_veg <- function(sf_object,
     #only the properties that exist will be returned
     #this makes it flexible when selecting different products
     items_df2 <- purrr::map_df(items_list, function(item) {
-      tibble(
+      dplyr::tibble(
         title = item$properties$title,
         product = item$properties$`odc:product`,
         datetime = item$properties$datetime,
@@ -232,13 +232,13 @@ fire_stac_sample_veg <- function(sf_object,
       #combine data and calculate https path and date times strings for file names
       dat.aws <- dat.x %>%
         #tidyr::pivot_longer(matches("href")) %>%
-        mutate(href=stringr::str_replace(href,"s3://dea-public-data","https://dea-public-data.s3.ap-southeast-2.amazonaws.com")) %>%
+        dplyr::mutate(href=stringr::str_replace(href,"s3://dea-public-data","https://dea-public-data.s3.ap-southeast-2.amazonaws.com")) %>%
         dplyr::mutate(r=purrr::map(href,~terra::rast(.x,vsi=T))) %>%
         dplyr::mutate(res=purrr::map(r,~terra::extract(.x,sf::st_transform(sf_object,sf::st_crs(.x)),ID=T,xy=T,cell=T)))
 
       #combine and remove duplicated ID columns
       res <- dat.aws %>%
-        select(sample_name,instrument,dplyr::matches("datetime"),res) %>%
+        dplyr::select(sample_name,instrument,dplyr::matches("datetime"),res) %>%
         dplyr::mutate(res=purrr::map(res,~setNames(.x,c("sf_id","value","cell_no","cell_x","cell_y")))) %>%
         tidyr::unnest(cols=res) %>%
         dplyr::arrange(sample_name,sf_id,cell_no) %>%

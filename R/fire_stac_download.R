@@ -24,7 +24,7 @@ fire_stac_download <- function(fire_bbox,stac_df,dest_folder){
     attempt <- 1
     while (attempt <= max_retries) {
       tryCatch({
-        r <- rast(url)
+        r <- terra::rast(url)
         # Check if it's a valid raster by confirming it has dimensions
         if (nrow(r) > 0 && ncol(r) > 0) {
           return(r)

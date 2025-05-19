@@ -62,13 +62,13 @@ for(i in 1:nrow(download_df)){
                                user_copernicus,'" -d "password=',password_copernicus,'" -d "grant_type=password" -d "client_id=cdse-public"'), intern = T)
 
       #Refresh token
-      myrefreshtoken <- substr(purrr::map_chr(str_split(mytoken,"refresh_token"),2),4,754)
+      myrefreshtoken <- substr(purrr::map_chr(stringr::str_split(mytoken,"refresh_token"),2),4,754)
 
       token_reset <- system(paste0('curl -s -X POST https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/token -H "Content-Type: application/x-www-form-urlencoded" -d "grant_type=refresh_token" -d "refresh_token=',
                                    myrefreshtoken,'" -d "client_id=cdse-public"'), intern = T)
 
-      token <- purrr::map_chr(str_split(token_reset,":"),2)
-      token <- purrr::map_chr(str_split(token,","),1)
+      token <- purrr::map_chr(stringr::str_split(token_reset,":"),2)
+      token <- purrr::map_chr(stringr::str_split(token,","),1)
       token <- substr(token,2,nchar(token)-1)
 
 

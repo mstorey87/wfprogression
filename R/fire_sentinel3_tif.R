@@ -61,7 +61,7 @@ fire_sentinel3_tif <- function(fire_bbox,sen3_folder){
 
 
 
-      z <- tryCatch(unzip(sen.zip,files=myfiles,exdir = temp.fold))
+      z <- tryCatch(utils::unzip(sen.zip,files=myfiles,exdir = temp.fold))
 
       if(is.null(z)){
         file.remove(sen.zip)
@@ -101,12 +101,12 @@ fire_sentinel3_tif <- function(fire_bbox,sen3_folder){
           S3_warp = stars::st_warp(S3, crs = "EPSG:4326",threshold=0.1)#, cellsize = 0.01, threshold = 0.02)
           s3_rgb <- c(S6_warp,S5_warp,S3_warp)
           s3_rgb <- c(S6_warp,S5_warp,S3_warp)
-          s3_rgb <- as(s3_rgb,"SpatRaster")
+          s3_rgb <- stars::as(s3_rgb,"SpatRaster")
           s3_rgb <- terra::crop(s3_rgb,fire_bbox)
           out_ras <- s3_rgb
         }else{
 
-          S6_warp <- as(S6_warp,"SpatRaster")
+          S6_warp <- stars::as(S6_warp,"SpatRaster")
           S6_warp <- terra::crop(S6_warp,fire_bbox)
           out_ras <- S6_warp
 
