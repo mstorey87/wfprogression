@@ -129,7 +129,7 @@ fire_himawari_search <- function(fire_bbox,
                     file_name,path_download,band,satellite) %>%
 
       #ensure only dates input by user are included in output
-      dplyr::filter(as.Date(date_local) >= as.Date(start_time) & as.Date(date_local) <= as.Date(end_time))
+      dplyr::filter(datetime_utc >= start_time & datetime_utc <= end_time)
 
 
 

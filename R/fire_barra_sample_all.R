@@ -14,15 +14,16 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames){
   #add time column with standard name
   dat$time <- dat[[time_col_utc]]
 
+
   #ensure time column is posxct
   checkmate::assert(unique(stringr::str_detect(class(dat$time),"POSIX")),"Error: Time column must be posixct, timezone UTC")
   checkmate::assert(lubridate::tz(dat$time)=="UTC","Error: Time column must be posixct, timezone UTC (all caps)")
+  checkmate::assert(length(unique(dat$id))==nrow(dat),"Error: Unique 'id' column required in input data frame")
 
 
   dat <- dat %>%
     #add local time posix, convert to utc, round utc time (to match barra times)
-    dplyr::mutate(time_round=lubridate::round_date(time,"hour"),
-                  id=dplyr::row_number()) %>%
+    dplyr::mutate(time_round=lubridate::round_date(time,"hour")) %>%
     sf::st_transform(4326)
 
   # print("Data not yet available after March 2024, removing records after this date")
