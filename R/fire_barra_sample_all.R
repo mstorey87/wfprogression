@@ -18,7 +18,8 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames){
   #ensure time column is posxct
   checkmate::assert(unique(stringr::str_detect(class(dat$time),"POSIX")),"Error: Time column must be posixct, timezone UTC")
   checkmate::assert(lubridate::tz(dat$time)=="UTC","Error: Time column must be posixct, timezone UTC (all caps)")
-  checkmate::assert(length(unique(dat$id))==nrow(dat),"Error: Unique 'id' column required in input data frame")
+
+  dat$input_rowid <- seq_len(nrow(dat))
 
 
   dat <- dat %>%
@@ -107,7 +108,7 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames){
       #data for current iteration (all associated with same nc)
       dat.i <- dat.split[[i]] %>%
         dplyr::mutate(ncpath=wfprogression::fire_barra_path(datetimeutc=time_round,barraid=barraid,varname=v)) %>%
-        dplyr::select(id,time_round,ncpath)
+        dplyr::select(input_rowid,time_round,ncpath)
 
       #check is sample data is within available barra range
 
@@ -147,10 +148,10 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames){
 
 
 
-  res.all <- purrr::reduce(res.all.vars, dplyr::left_join, by = c('id','time_round')) %>%
-    dplyr::left_join(dat %>% dplyr::select(id),by="id") %>%
+  res.all <- purrr::reduce(res.all.vars, dplyr::left_join, by = c('input_rowid','time_round')) %>%
+    dplyr::left_join(dat %>% dplyr::select(input_rowid),by="input_rowid") %>%
     sf::st_as_sf() %>%
-    dplyr::arrange(id)
+    dplyr::arrange(input_rowid)
 
 
   return(res.all)
