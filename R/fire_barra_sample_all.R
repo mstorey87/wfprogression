@@ -4,13 +4,14 @@
 #' @param time_col_utc name string of datetime column (posix, utc)
 #' @param barraid R2 (12 km BARRA product) or C2 (~4km BARRA product)
 #' @param varnames Vector of barra variable names. BARRA variable name e.g. sfcWind (surface wind), tas (temperature), hurs (RH), vas and uas (wind components).  http://www.bom.gov.au/research/publications/researchreports/BRR-067.pdf
+#' @param extract_fun Function to summarise sampled variable when it has been sampled with a line or polygon. "mean","sum","min" or "max" accepted
 #'
 #' @return sample sf object
 #' @export
 #'
 #' @examples
 #' #
-fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames){
+fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames,extract_fun="mean"){
   #add time column with standard name
   dat$time <- dat[[time_col_utc]]
 
@@ -125,7 +126,7 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames){
       dat.split.time <- split(dat.i,dat.i$time_round)
 
       #for each sf object of the same datetime, run the barra nc sampling function
-      res <- purrr::map(dat.split.time,~wfprogression::fire_barra_sample(nc_conn,unique(.x$time_round),.x,v))
+      res <- purrr::map(dat.split.time,~wfprogression::fire_barra_sample(nc_conn,unique(.x$time_round),.x,v,extract_fun=extract_fun))
 
       res.list[[i]] <-  do.call(rbind,res) %>%
         sf::st_drop_geometry() %>%
