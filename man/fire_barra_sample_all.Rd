@@ -4,7 +4,13 @@
 \alias{fire_barra_sample_all}
 \title{Sample an sf object for BARRA data.}
 \usage{
-fire_barra_sample_all(dat, time_col_utc, barraid = "C2", varnames)
+fire_barra_sample_all(
+  dat,
+  time_col_utc,
+  barraid = "C2",
+  varnames,
+  extract_fun = "mean"
+)
 }
 \arguments{
 \item{dat}{sf object, points lines or polygons}
@@ -14,6 +20,8 @@ fire_barra_sample_all(dat, time_col_utc, barraid = "C2", varnames)
 \item{barraid}{R2 (12 km BARRA product) or C2 (~4km BARRA product)}
 
 \item{varnames}{Vector of barra variable names. BARRA variable name e.g. sfcWind (surface wind), tas (temperature), hurs (RH), vas and uas (wind components).  http://www.bom.gov.au/research/publications/researchreports/BRR-067.pdf}
+
+\item{extract_fun}{Function to summarise sampled variable when it has been sampled with a line or polygon. "mean","sum","min" or "max" accepted}
 }
 \value{
 sample sf object
