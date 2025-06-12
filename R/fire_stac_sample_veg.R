@@ -143,7 +143,7 @@ fire_stac_sample_veg <- function(sf_object,
 
 
   #test if any images were found. If not stop
-  if(nrow(dat.x)>0){
+  if(!nrow(dat.x)>0){
     message("no stac data found for ", collection_name," ",datetime_chr)
     return(NULL)
   }
