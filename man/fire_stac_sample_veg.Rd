@@ -12,15 +12,13 @@ fire_stac_sample_veg(
 )
 }
 \arguments{
+\item{sf_object}{An sf object}
+
 \item{start_time}{The first time for which to search for images (posixct required). This will be converted to utc.}
 
 \item{end_time}{The last time for which to search for images (posixct required). This will be converted to utc.}
 
 \item{collection_name}{Names of which Landsat and Sentinel 2 products to search for. Allowed names are: "ga_ls_fc_pc_cyear_3","ga_ls_landcover_class_cyear_3","ga_srtm_dem1sv1_0","ga_ls_fc_3". https://knowledge.dea.ga.gov.au/notebooks/Beginners_guide/03_Products_and_measurements/}
-
-\item{fire_bbox}{A polygon, usually fire bounding box, to search for images}
-
-\item{year_prior}{Should the FPC be from the year prior to the start date?}
 }
 \value{
 data frame with image paths
