@@ -9,7 +9,7 @@
 #' @param fire_bbox A polygon, usually fire bounding box, to search for images
 #' @param start_time The first time for which to search for images (posixct required). This will be converted to utc.
 #' @param end_time The last time for which to search for images (posixct required). This will be converted to utc.
-#' @param collection_names Names of which Landsat and Sentinel 2 products to search for. Defaults to all products from Landsat 5 onwards.
+#' @param collection_name Names of which Landsat and Sentinel 2 products to search for. Allowed names are: "ga_ls_fc_pc_cyear_3","ga_ls_landcover_class_cyear_3","ga_srtm_dem1sv1_0","ga_ls_fc_3". https://knowledge.dea.ga.gov.au/notebooks/Beginners_guide/03_Products_and_measurements/
 #' @param year_prior Should the FPC be from the year prior to the start date?
 #'
 #' @return data frame with image paths
@@ -20,20 +20,14 @@
 fire_stac_sample_veg <- function(sf_object,
                                  start_time=NULL,
                                  end_time=NULL,
-                                 collection_names=c(#"fc_percentile_albers_annual",
-                                   #"fc_percentile_albers_seasonal",
-                                   "ga_ls_fc_pc_cyear_3",
-                                   "ga_ls_landcover_class_cyear_3",
-                                   "ga_srtm_dem1sv1_0",
-                                   "ga_ls_fc_3")){
+                                 collection_name){
 
   #product list here
   #https://knowledge.dea.ga.gov.au/notebooks/Beginners_guide/03_Products_and_measurements/
 
-
+  checkmate::assert(inherits(sf_object, "sf"),"Error: sf input object needed")
 
   #combine sf object and buffer
-
   sf_bbox <- sf_object %>%
     sf::st_union() %>%
     sf::st_as_sf() %>%
@@ -41,8 +35,9 @@ fire_stac_sample_veg <- function(sf_object,
     sf::st_buffer(1000) %>%
     sf::st_transform(4326)
 
-  #start_time=as.POSIXct("2019-02-01 12:00:00")
-  #end_time=as.POSIXct("2019-03-01 12:00:00")
+  #get time difference between start and end to use for checking later
+  timediff <- as.numeric(difftime(end_time,start_time,units = "days"))
+
 
   if(!is.null(start_time)){
     checkmate::assert(stringr::str_detect(class(start_time)[1],"POSIXct"),"Error: times must be posixct")
@@ -64,20 +59,7 @@ fire_stac_sample_veg <- function(sf_object,
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  ##############################################################query based on location, date and collection name
 
 
   #connect to stac source - digital earth australia
@@ -86,199 +68,114 @@ fire_stac_sample_veg <- function(sf_object,
     "https://explorer.dea.ga.gov.au/stac"
   )
 
-  # colls <- stac_source %>% rstac::collections() %>% rstac::get_request()
-
-  # x <-  purrr::map(colls$collections,~data.frame(.x$title,.x$description) ) %>% dplyr::bind_rows()
-
-  #query based on location, date and collection name
-
-  all.res <- list()
-  for(xi in 1:length(collection_names)){
-
-    cname <- collection_names[xi]
-
-    #if dem is to be extracted, no datetime is needed
-    if(cname=="ga_srtm_dem1sv1_0")  datetime_chr=NULL
-
-    #if yearly data is to be extracted, the 1st of jan is needed
-    if(cname %in% c("ga_ls_landcover_class_cyear_3","ga_ls_fc_pc_cyear_3")){
-      year <- lubridate::year(start_time)
-      #if sampling yearly data, we probably need the year before the fire
-      my_time1 <- paste0(year,"-01-01T00:00:00Z")
-      datetime_chr=paste0(my_time1,"/",my_time1)
-
-
-    }
-
-    if(cname=="ga_ls_fc_3"){
-
-      # #if using daily fpc, sample for at least 1 month prior
-      # start_time <- as.POSIXct(start_time,format="%Y-%m-%dT%H:%M:%SZ",tz="utc")
-      # start_time <- start_time-lubridate::weeks(4)
-      # start_time <- format(start_time, "%Y-%m-%dT%H:%M:%SZ")
-
-      datetime_chr=paste0(start_time,"/",end_time)
-    }
-
-
-
-
-
-
-
-
-
-
-
-    stac_query <- rstac::stac_search(
-      q = stac_source,
-      bbox = sf::st_bbox(sf::st_transform(sf_bbox,4326)),#which crs??
-      collections = cname,
-      datetime = datetime_chr,
-      limit = 999
-    )
-    executed_stac_query <- rstac::get_request(stac_query)
-
-
-
-    #extract details of each band available from the query results
-    #extract items properties including path and url
-    # dat.x <- purrr::map(executed_stac_query$features,~tibble::tibble(pv_pc_90_href=.x$assets$pv_pc_90$href,
-    #                                                                  pv_pc_50_href=.x$assets$pv_pc_50$href,
-    #                                                                  npv_pc_90_href=.x$assets$npv_pc_90$href,
-    #                                                                  npv_pc_50_href=.x$assets$npv_pc_50$href,
-    #                                                                  bs_pc_90_href=.x$assets$bs_pc_90$href,
-    #                                                                  bs_pc_50_href=.x$assets$bs_pc_50$href,
-    #                                                                      product=.x$collection,
-    #                                                                  datetime=.x$properties$datetime)) %>%
-    #   dplyr::bind_rows()
-    #
-    #
-    # dat.x <- rstac::assets_url(executed_stac_query) %>%
-    #   data.frame(href=.,product=tools::file_path_sans_ext(basename(.))) %>%
-    #   dplyr::filter(stringr::str_ends(href,".tif"))
-
-
-    # items_list <- executed_stac_query$features
-    # items_df <- purrr::map_df(items_list, function(item) {
-    #   tibble(
-    #     title = item$properties$title,
-    #     product = item$properties$`odc:product`,
-    #     datetime = item$properties$datetime,
-    #     end_datetime=item$properties$end_datetime,
-    #     start_datetime=item$properties$start_datetime,
-    #     epsg=item$properties$`proj:epsg`
-    #
-    #   )
-    # })
-
-    items_list <- executed_stac_query$features
-    #only the properties that exist will be returned
-    #this makes it flexible when selecting different products
-    items_df2 <- purrr::map_df(items_list, function(item) {
-      dplyr::tibble(
-        title = item$properties$title,
-        product = item$properties$`odc:product`,
-        datetime = item$properties$datetime,
-        end_datetime=item$properties$end_datetime,
-        start_datetime=item$properties$start_datetime,
-        epsg=item$properties$`proj:epsg`,
-        instrument=paste0(item$properties$instruments,collapse = ";"),
-
-        assets = item$assets #%>%
-        # tibble::enframe() %>%
-        # dplyr::mutate(href=purrr::map(value,~.x$href),
-        #               title=purrr::map(value,~.x$title)) %>%
-        # tidyr::unnest(href) %>%
-        # dplyr::filter(stringr::str_ends(href,".tif")) %>%
-        # dplyr::select(-value)
-
-      )
-    })
-
-
-
-    dat.x <- items_df2 %>%
-      dplyr::mutate(href=purrr::map(assets,~.x$href),
-                    asset_title=purrr::map(assets,~.x$title)) %>%
-      tidyr::unnest(c(href,asset_title)) %>%
-      dplyr::filter(stringr::str_ends(href,".tif"),asset_title != "qa") %>%
-      dplyr::select(-assets)
-
-    #add a name for the sampled variable based on which names are in the df.
-    #"product won't be in the df for dem
-    if("product" %in% names(dat.x)){
-
-      dat.x <-dat.x %>%  dplyr::mutate(sample_name=paste0(product,"__",asset_title))
-    }else{
-      dat.x <- dat.x %>% dplyr::mutate(sample_name=paste0(asset_title))
-
-    }
-
-
-
-    #test if any images were found
-    if(nrow(dat.x)>0){
-
-
-
-
-
-
-
-
-
-
-      #combine data and calculate https path and date times strings for file names
-      dat.aws <- dat.x %>%
-        #tidyr::pivot_longer(matches("href")) %>%
-        dplyr::mutate(href=stringr::str_replace(href,"s3://dea-public-data","https://dea-public-data.s3.ap-southeast-2.amazonaws.com")) %>%
-        dplyr::mutate(r=purrr::map(href,~terra::rast(.x,vsi=T))) %>%
-        dplyr::mutate(res=purrr::map(r,~terra::extract(.x,sf::st_transform(sf_object,sf::st_crs(.x)),ID=T,xy=T,cell=T)))
-
-      #combine and remove duplicated ID columns
-      res <- dat.aws %>%
-        dplyr::select(sample_name,instrument,dplyr::matches("datetime"),res) %>%
-        dplyr::mutate(res=purrr::map(res,~setNames(.x,c("sf_id","value","cell_no","cell_x","cell_y")))) %>%
-        tidyr::unnest(cols=res) %>%
-        dplyr::arrange(sample_name,sf_id,cell_no) %>%
-        #because the data comes in tiles, it will return NA values where sampling off tile
-        dplyr::filter(!is.na(value)) %>%
-        dplyr::mutate(sample_name=stringr::str_replace(sample_name,"_href","")
-                      ,
-                      #seems to be slight offset in cell x and y from dems
-                      #calculate rounded x and ys
-                      cell_x=round(cell_x,5),
-                      cell_y=round(cell_y,5)
-        )
-
-
-
-
-      res <- tidyr::pivot_wider(res,values_from = value,names_from = sample_name)
-
-
-      #rm(dat.aws)
-
-
-
-
-
-
-
-
-
-
-      all.res[[cname]] <- res
-
-      #return(res2)
-
-    }else{
-
-      print("no stac data found")
-    }
-
+  #create a datetime variable that will work in the stac query.
+  #format depends on the collection name (collection_name)
+  #if dem is to be extracted, no datetime is needed
+  if(collection_name=="ga_srtm_dem1sv1_0"){
+    datetime_chr=NULL
+    message("sampling ", collection_name)
   }
-  return(all.res)
+
+  #if yearly data is to be extracted, the 1st of jan is needed
+  if(collection_name %in% c("ga_ls_landcover_class_cyear_3","ga_ls_fc_pc_cyear_3")){
+    year <- lubridate::year(start_time)
+    #if sampling yearly data, we probably need the year before the fire?
+    my_time1 <- paste0(year,"-01-01T00:00:00Z")
+    datetime_chr=paste0(my_time1,"/",my_time1)
+    message(paste0("sampling ",collection_name," for ", datetime_chr))
+  }
+
+  if(collection_name=="ga_ls_fc_3"){
+    #if using daily fpc, sample for a large range of days. Landsat doesn't capture all days, so a short period will results in null values
+    checkmate::assert(timediff > 14,"Error: When sampling daily data, longer between start and end is needed because Landsat data is not available for all days")
+    datetime_chr=paste0(start_time,"/",end_time)
+    message(paste0("sampling ",collection_name," for ", datetime_chr))
+  }
+
+  stac_query <- rstac::stac_search(
+    q = stac_source,
+    bbox = sf::st_bbox(sf::st_transform(sf_bbox,4326)),#which crs??
+    collections = collection_name,
+    datetime = datetime_chr,
+    limit = 999
+  )
+  executed_stac_query <- rstac::get_request(stac_query)
+  items_list <- executed_stac_query$features
+
+
+
+  #only the properties that exist will be returned
+  #this makes it flexible when selecting different products
+  items_df2 <- purrr::map_df(items_list, function(item) {
+    dplyr::tibble(
+      title = item$properties$title,
+      product = item$properties$`odc:product`,
+      datetime = item$properties$datetime,
+      end_datetime=item$properties$end_datetime,
+      start_datetime=item$properties$start_datetime,
+      epsg=item$properties$`proj:epsg`,
+      instrument=paste0(item$properties$instruments,collapse = ";"),
+      assets = item$assets
+
+    )
+  })
+
+
+  #extract required paths to data
+  dat.x <- items_df2 %>%
+    dplyr::mutate(href=purrr::map(assets,~.x$href),
+                  asset_title=purrr::map(assets,~.x$title)) %>%
+    tidyr::unnest(c(href,asset_title)) %>%
+    dplyr::filter(stringr::str_ends(href,".tif"),asset_title != "qa") %>%
+    dplyr::select(-assets)
+
+  #add a name for the sampled variable based on which names are in the df.
+  #product won't be in the df for dem
+  if("product" %in% names(dat.x)){
+    dat.x <-dat.x %>%  dplyr::mutate(sample_name=paste0(product,"__",asset_title))
+  }else{
+    dat.x <- dat.x %>% dplyr::mutate(sample_name=paste0(asset_title))
+  }
+
+
+
+
+
+
+
+  #test if any images were found. If not stop
+  if(nrow(dat.x)>0){
+    message("no stac data found for ", collection_name," ",datetime_chr)
+    return(NULL)
+  }
+
+
+  #if data was found.....
+  #combine data and calculate https path and date times strings for file names
+  dat.aws <- dat.x %>%
+    dplyr::mutate(href=stringr::str_replace(href,"s3://dea-public-data","https://dea-public-data.s3.ap-southeast-2.amazonaws.com")) %>%
+    dplyr::mutate(r=purrr::map(href,~terra::rast(.x,vsi=T))) %>%
+    dplyr::mutate(res=purrr::map(r,~terra::extract(.x,sf::st_transform(sf_object,sf::st_crs(.x)),ID=T,xy=T,cell=T)))
+
+  #combine and remove duplicated ID columns
+  res <- dat.aws %>%
+    dplyr::select(sample_name,instrument,dplyr::matches("datetime"),res) %>%
+    dplyr::mutate(res=purrr::map(res,~setNames(.x,c("sf_id","value","cell_no","cell_x","cell_y")))) %>%
+    tidyr::unnest(cols=res) %>%
+    dplyr::arrange(sample_name,sf_id,cell_no) %>%
+    #because the data comes in tiles, it will return NA values where sampling off tile
+    dplyr::filter(!is.na(value)) %>%
+    dplyr::mutate(sample_name=stringr::str_replace(sample_name,"_href","")
+                  ,
+                  #seems to be slight offset in cell x and y from dems
+                  #calculate rounded x and ys
+                  cell_x=round(cell_x,5),
+                  cell_y=round(cell_y,5)
+    )
+
+  #restructure
+  res <- tidyr::pivot_wider(res,values_from = value,names_from = sample_name)
+
+  return(res)
 }
 
