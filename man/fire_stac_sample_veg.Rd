@@ -2,7 +2,7 @@
 % Please edit documentation in R/fire_stac_sample_veg.R
 \name{fire_stac_sample_veg}
 \alias{fire_stac_sample_veg}
-\title{Search for Landsat and Sentinel 2 data}
+\title{Search for Geoscience Australia STAC browser for vegetation data}
 \usage{
 fire_stac_sample_veg(
   sf_object,
@@ -24,8 +24,7 @@ fire_stac_sample_veg(
 data frame with image paths
 }
 \description{
-Search Geoscience Aus. STAC browser for Landsat and Sentinel 2 images that intersect polygon and match search dates.
-This will return a data frame of images path to input to fire_stac_download() function.
+Search Geoscience Aus. STAC browser for vegetation data that intersect polygon and match search dates.
 A max of 999 records will be returned, so location and or date may need to be limited.
 Info on STAC browser is here: https://knowledge.dea.ga.gov.au/guides/setup/gis/stac/
 }

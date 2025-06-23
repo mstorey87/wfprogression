@@ -9,6 +9,7 @@ fire_barra_sample_all(
   time_col_utc,
   barraid = "C2",
   varnames,
+  timestep = "hourly",
   extract_fun = "mean"
 )
 }
@@ -20,6 +21,8 @@ fire_barra_sample_all(
 \item{barraid}{R2 (12 km BARRA product) or C2 (~4km BARRA product)}
 
 \item{varnames}{Vector of barra variable names. BARRA variable name e.g. sfcWind (surface wind), tas (temperature), hurs (RH), vas and uas (wind components).  http://www.bom.gov.au/research/publications/researchreports/BRR-067.pdf}
+
+\item{timestep}{Timestep of data to search for in BARRA. Will accept "hourly" or "daily"}
 
 \item{extract_fun}{Function to summarise sampled variable when it has been sampled with a line or polygon. "mean","sum","min" or "max" accepted}
 }

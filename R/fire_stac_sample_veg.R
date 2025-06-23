@@ -1,8 +1,7 @@
-#' Search for Landsat and Sentinel 2 data
+#' Search for Geoscience Australia STAC browser for vegetation data
 #'
 #' @description
-#' Search Geoscience Aus. STAC browser for Landsat and Sentinel 2 images that intersect polygon and match search dates.
-#' This will return a data frame of images path to input to fire_stac_download() function.
+#' Search Geoscience Aus. STAC browser for vegetation data that intersect polygon and match search dates.
 #' A max of 999 records will be returned, so location and or date may need to be limited.
 #' Info on STAC browser is here: https://knowledge.dea.ga.gov.au/guides/setup/gis/stac/
 #'

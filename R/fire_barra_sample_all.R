@@ -4,6 +4,7 @@
 #' @param time_col_utc name string of datetime column (posix, utc)
 #' @param barraid R2 (12 km BARRA product) or C2 (~4km BARRA product)
 #' @param varnames Vector of barra variable names. BARRA variable name e.g. sfcWind (surface wind), tas (temperature), hurs (RH), vas and uas (wind components).  http://www.bom.gov.au/research/publications/researchreports/BRR-067.pdf
+#' @param timestep Timestep of data to search for in BARRA. Will accept "hourly" or "daily"
 #' @param extract_fun Function to summarise sampled variable when it has been sampled with a line or polygon. "mean","sum","min" or "max" accepted
 #'
 #' @return sample sf object
@@ -11,7 +12,7 @@
 #'
 #' @examples
 #' #
-fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames,extract_fun="mean"){
+fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames,timestep="hourly",extract_fun="mean"){
   #add time column with standard name
   dat$time <- dat[[time_col_utc]]
 
@@ -48,7 +49,11 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames,extract
   #check currently available barra data
   #catalog_path <-stringr::str_replace(paste0(dirname(dat[[v]][1]),"/catalog.html"),"dodsC","catalog")
   #check one random path. All should be the same
-  catalog_path <- "https://thredds.nci.org.au/thredds/catalog/ob53/output/reanalysis/AUST-04/BOM/ERA5/historical/hres/BARRA-C2/v1/1hr/sfcWind/latest/catalog.html"
+  if(timestep == "daily"){
+    catalog_path <- "https://thredds.nci.org.au/thredds/catalog/ob53/output/reanalysis/AUST-04/BOM/ERA5/historical/hres/BARRA-C2/v1/day/sfcWind/latest/catalog.html"
+  }else{
+    catalog_path <- "https://thredds.nci.org.au/thredds/catalog/ob53/output/reanalysis/AUST-04/BOM/ERA5/historical/hres/BARRA-C2/v1/1hr/sfcWind/latest/catalog.html"
+  }
 
   response <- httr::GET(catalog_path)
   content_xml <- httr::content(response, as = "text")
