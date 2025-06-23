@@ -4,12 +4,14 @@
 \alias{fire_barra_path}
 \title{Construct https string to a BARRA file on NCI}
 \usage{
-fire_barra_path(datetimeutc, barraid, varname)
+fire_barra_path(datetimeutc, barraid, timestep, varname)
 }
 \arguments{
 \item{datetimeutc}{posixct datetime in utc rounded to nearest hour}
 
 \item{barraid}{R2 (12 km  BARRA product) or C2 (~4km BARRA product)}
+
+\item{timestep}{Timestep of data to search for in BARRA. Will accept "hourly" or "daily"}
 
 \item{varname}{BARRA variable name e.g. sfcWind (surface wind), tas (temperature), hurs (RH), vas and uas (wind components).  http://www.bom.gov.au/research/publications/researchreports/BRR-067.pdf}
 }
