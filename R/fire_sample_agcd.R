@@ -27,17 +27,18 @@ fire_sample_agcd <- function(dat,time_utc_col,buffer_m){
   thredds_path.i.check <- "x"
   for(i in 1:nrow(dat.x)){
 
+    dat.i <- dat.x[i,]
 
-    bbox <- sf::st_bbox(dat.x[i,])
+    bbox <- sf::st_bbox(dat.i)
 
-    thredds_path.i <- dat.x$thredds_path[i]
+    thredds_path.i <- dat.i$thredds_path
 
     #load nc. check that if its already been loaded. if not use last loaded nc
     if(thredds_path.i != thredds_path.i.check)  nc_conn <- tidync::tidync(thredds_path.i)
 
     #get the time in the format of the nc
     datetimeutc_nc <- nc_conn$transforms$time %>%
-      dplyr::filter(index==dat.x$mnth)
+      dplyr::filter(index==dat.i$mnth)
 
 
     nc_filt <- nc_conn %>%
@@ -61,7 +62,7 @@ fire_sample_agcd <- function(dat,time_utc_col,buffer_m){
     #ideally would turn this into a raster. But it terra::rast get uneven grid error. So will use sf sampling method instead
     #find all grid centres within buffer_m of line
     x <- sf::st_as_sf(nc_filt,coords=c("lon","lat"),crs=4326)
-    x.within <- sf::st_is_within_distance(x %>% sf::st_transform(3112),dat.x %>% sf::st_transform(3112),dist = buffer_m)
+    x.within <- sf::st_is_within_distance(x %>% sf::st_transform(3112),dat.i %>% sf::st_transform(3112),dist = buffer_m)
     x <- x %>%
       dplyr::filter(lengths(x.within)!=0)
 
