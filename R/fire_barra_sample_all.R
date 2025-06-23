@@ -113,7 +113,7 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames,timeste
       print(paste0("sampling ",v," ",mes.2))
       #data for current iteration (all associated with same nc)
       dat.i <- dat.split[[i]] %>%
-        dplyr::mutate(ncpath=wfprogression::fire_barra_path(datetimeutc=time_round,barraid=barraid,varname=v)) %>%
+        dplyr::mutate(ncpath=wfprogression::fire_barra_path(datetimeutc=time_round,barraid=barraid,timestep = timestep,varname=v)) %>%
         dplyr::select(input_rowid,time_round,ncpath)
 
       #check is sample data is within available barra range
