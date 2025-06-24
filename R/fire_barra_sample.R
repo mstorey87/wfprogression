@@ -85,6 +85,7 @@ fire_barra_sample<- function(nc_conn,datetimeutc,sf_data,varname,allcells=F,extr
   #if not returning all cell, return single row with mean
   if(allcells==F){
       res <- terra::extract(r,sf_data,fun=extract_fun,ID=F)
+      names(res) <- paste0(names(res),"_",extract_fun)
       res <- cbind(sf_data,res)
 
   }
