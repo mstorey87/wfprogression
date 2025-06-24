@@ -40,7 +40,7 @@ fire_barra_path <- function(datetimeutc,barraid,timestep,varname){
 
 
   if(timestep=="daily"){
-    file_thredds <- paste0(varname,"_",barraid1,"_ERA5_historical_hres_BOM_BARRA-",barraid,"_v1_day_",yrmnth,"-",yrmnth,".nc")
+    file_thredds <- paste0(varname,"_",barraid1,"_ERA5_historical_hres_BOM_BARRA-",barraid,"_v1_mon_",yrmnth,"-",yrmnth,".nc")
     nci_path <-  paste0("https://thredds.nci.org.au/thredds/dodsC/ob53/output/reanalysis/",barraid1,"/BOM/ERA5/historical/hres/BARRA-",barraid,"/v1/day/",varname,"/latest")
     pth=paste0(nci_path,"/",file_thredds)
 
