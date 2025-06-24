@@ -34,6 +34,9 @@ sf object with new columns for sampled variable
 }
 \description{
 Take an existing nc connection (tidync::tidync()) and sample for the locations in the input sf points
+see end of this document for variable names http://www.bom.gov.au/research/publications/researchreports/BRR-067.pdf
+example here of R2 variables on thredds https://thredds.nci.org.au/thredds/catalog/ob53/output/reanalysis/AUS-11/BOM/ERA5/historical/hres/BARRA-R2/v1/1hr/catalog.html
+some variables are sfcWind (surface wind), tas (temperature), hurs (RH), vas and uas (wind components). These are the values on the hour. Some variables
 }
 \examples{
 #

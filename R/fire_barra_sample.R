@@ -2,8 +2,9 @@
 #'
 #' @description
 #' Take an existing nc connection (tidync::tidync()) and sample for the locations in the input sf points
-#'
-#'
+#' see end of this document for variable names http://www.bom.gov.au/research/publications/researchreports/BRR-067.pdf
+#' example here of R2 variables on thredds https://thredds.nci.org.au/thredds/catalog/ob53/output/reanalysis/AUS-11/BOM/ERA5/historical/hres/BARRA-R2/v1/1hr/catalog.html
+#' some variables are sfcWind (surface wind), tas (temperature), hurs (RH), vas and uas (wind components). These are the values on the hour. Some variables
 #' @param nc_conn netcdf connection using tidync::tidync()
 #' @param datetimeutc posixct datetime in utc. Must match https path of nc connection
 #' @param sf_data sf object with one row with locations to sample barra data
@@ -23,13 +24,6 @@ fire_barra_sample<- function(nc_conn,datetimeutc,sf_data,varname,allcells=F,time
   #some variables are sfcWind (surface wind), tas (temperature), hurs (RH), vas and uas (wind components). These are the values on the hour. Some variables
   #have variations e.g. tasmean is mean hourly temperature
 
-
-  # #get the origin time from the nc file
-  # ncorigin <- ncmeta::nc_atts(nc_conn$source$source,variable = "time")$value$units
-   #ncorigin <- stringr::str_replace(ncorigin,"days since ","")
-  #
-  # #convert our time to nc format
-   #datetimeutc_nc <- as.numeric(datetimeutc-as.POSIXct(ncorigin,tz="utc"))
 
   #get bounding box of all point for filtering data
   #transform to lat lon first
@@ -95,14 +89,8 @@ fire_barra_sample<- function(nc_conn,datetimeutc,sf_data,varname,allcells=F,time
   r <- terra::rast(b.local)
   terra::crs(r) <- "epsg:4326" #use 4326 as suggested here https://opus.nci.org.au/spaces/NDP/pages/264241306/FAQs+-+BOM+BARRA2+ob53#FAQsBOMBARRA2(ob53)-Whatistheprojectiondatumofthedata?
 
-  #extract raster values if point type
-  # if(max(str_detect(st_geometry_type(sf_data),"POINT"))==1){
-  #   res <- terra::extract(r,sf_data,ID=F)
-  #}
 
-  #extract raster values if polygon type. fun argument ignorned if sampling with points
-  # if(max(str_detect(st_geometry_type(sf_data),"POLY"))==1){
-  #
+
   #if not returning all cell, return single row with mean
   if(allcells==F){
       res <- terra::extract(r,sf_data,fun=extract_fun,ID=F)
@@ -118,7 +106,7 @@ fire_barra_sample<- function(nc_conn,datetimeutc,sf_data,varname,allcells=F,time
     res <- sf_data
   }
 
-  #}
+
 
 
 

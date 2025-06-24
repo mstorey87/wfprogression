@@ -30,7 +30,8 @@ fire_barra_sample_all(
 sample sf object
 }
 \description{
-Sample an sf object for BARRA data.
+This function takes an input sf object with multiple rows and samples multiple barra variables. It loops over time and barra variables to run fire_sample_barra.
+Large lists of variables may take a long time to run. It may be worth running smaller groups of variables to avoid network connection errors.
 }
 \examples{
 #

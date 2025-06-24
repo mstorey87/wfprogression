@@ -1,5 +1,9 @@
 #' Sample an sf object for BARRA data.
 #'
+#' @description
+#' This function takes an input sf object with multiple rows and samples multiple barra variables. It loops over time and barra variables to run fire_sample_barra.
+#' Large lists of variables may take a long time to run. It may be worth running smaller groups of variables to avoid network connection errors.
+#'
 #' @param dat sf object, points lines or polygons
 #' @param time_col_utc name string of datetime column (posix, utc)
 #' @param barraid R2 (12 km BARRA product) or C2 (~4km BARRA product)
@@ -21,45 +25,41 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames,timeste
   checkmate::assert(unique(stringr::str_detect(class(dat$time),"POSIX")),"Error: Time column must be posixct, timezone UTC")
   checkmate::assert(lubridate::tz(dat$time)=="UTC","Error: Time column must be posixct, timezone UTC (all caps)")
 
+
+# format data -------------------------------------------------------------
+
+
+
+  #give unique rowid
   dat$input_rowid <- seq_len(nrow(dat))
 
-
+  #add local time posix, convert to utc, round utc time (to match barra times)
+  #year and month needed to create barra paths
+  #transform to 4326 to match BARRA crs
   dat <- dat %>%
-    #add local time posix, convert to utc, round utc time (to match barra times)
-    dplyr::mutate(time_round=lubridate::round_date(time,"hour")) %>%
+    dplyr::mutate(time_round=lubridate::round_date(time,"hour"),
+                  yrmnth=format(time_round,format = "%Y%m")) %>%
     sf::st_transform(4326)
 
-  # print("Data not yet available after March 2024, removing records after this date")
-  # dat <- dat %>%
-  #   #currently data is only available until march 2024, but this will be updated.
-  #   #so filter out any dates after march
-  #   dplyr::filter(time_round < as.POSIXct("2024-04-01 00:00:00",tz="UTC"))
-
-
-  #add columns of barra paths for each variable
-  dat <- dat %>%
-    dplyr::mutate(yrmnth=format(time_round,format = "%Y%m"))
-
-  # for(v in varnames){
-  #   dat[[v]] <- wfprogression::fire_barra_path(datetimeutc=dat$time_round,barraid=barraid,varname=v)
-  # }
 
 
 
-  #check currently available barra data
-  #check one random path. All should be the same.
-  #make path match input timestep, but variable to check can default to sfcWind
+# Check latest dates currently available in BARRA -------------------------
+
+
+
+
+
+  #check currently available barra data by finding latest available data for sfcWind
+  #make path to check matches input timestep - e.g. daily or hourly or monthly
   checkmate::assert(timestep %in% c("hourly","daily","monthly"),"Error: timestep must be hourly, daily or monthly")
-  if(timestep == "daily"){
-    catalog_path <- "https://thredds.nci.org.au/thredds/catalog/ob53/output/reanalysis/AUST-04/BOM/ERA5/historical/hres/BARRA-C2/v1/day/sfcWind/latest/catalog.html"
-  }
-  if(timestep=="hourly"){
-    catalog_path <- "https://thredds.nci.org.au/thredds/catalog/ob53/output/reanalysis/AUST-04/BOM/ERA5/historical/hres/BARRA-C2/v1/1hr/sfcWind/latest/catalog.html"
-  }
-  if(timestep=="monthly"){
-    catalog_path <- "https://thredds.nci.org.au/thredds/catalog/ob53/output/reanalysis/AUST-04/BOM/ERA5/historical/hres/BARRA-C2/v1/mon/sfcWind/latest/catalog.html"
-  }
+  base_urls <- list(
+    daily = "https://thredds.nci.org.au/thredds/catalog/ob53/output/reanalysis/AUST-04/BOM/ERA5/historical/hres/BARRA-C2/v1/day/sfcWind/latest/catalog.html",
+    hourly = "https://thredds.nci.org.au/thredds/catalog/ob53/output/reanalysis/AUST-04/BOM/ERA5/historical/hres/BARRA-C2/v1/1hr/sfcWind/latest/catalog.html",
+    monthly = "https://thredds.nci.org.au/thredds/catalog/ob53/output/reanalysis/AUST-04/BOM/ERA5/historical/hres/BARRA-C2/v1/mon/sfcWind/latest/catalog.html"
+  )
 
+  catalog_path <- base_urls[[timstep]]
   response <- httr::GET(catalog_path)
   content_xml <- httr::content(response, as = "text")
 
@@ -72,68 +72,76 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames,timeste
 
   #get year Month of each file
   nc_yearmonth <- as.numeric(substr(nc_files,nchar(nc_files)-8,nchar(nc_files)-3))
-
   min.nc <- as.character(min(nc_yearmonth))
   max.nc <- as.character(max(nc_yearmonth))
 
+  #return message for max available year and month currently
   mes.1 <- paste0("BARRA currently available ",month.name[as.numeric(substr(min.nc,5,6))]," ",substr(min.nc,1,4)," to ",month.name[as.numeric(substr(max.nc,5,6))]," ",substr(max.nc,1,4))
-
-  print(mes.1)
-  print("Outside dates will return NA")
-
+  message(mes.1)
+  message("Outside dates will return NA")
 
 
 
 
+# Split input data by year month ------------------------------------------
 
 
 
-  #create a list of sf objects, split by year and month, because nc files are monthly
+
+
+  #create a list of sf objects, split by year and month, because nc files are monthly. This is so each monthly file will only be loaded once.
   dat.split <- split(dat,dat$yrmnth)
 
 
 
-  #this functions loops the main barra sampling function.
-  # you can run this function with a different barra variable each time
-  #data need a time_round column
+
+
+
+# Loop through year-month and BARRA variable combinations -----------------
+
+
+
   res.all.vars <- list()
   for(v in varnames){
-   # print(v)
+
 
     res.list <- list()
 
     for (i in 1:length(dat.split)) {
+
+      #current iteration year and month
       yr.mnth.dat <- unique(names(dat.split)[i])
+
+      #give message about year-month and BARRA var
       mes.2 <- paste0(month.name[as.numeric(substr(yr.mnth.dat,5,6))]," ",substr(yr.mnth.dat,1,4))
-      print(paste0("sampling ",v," ",mes.2))
+      message(paste0("sampling ",v," ",mes.2))
+
+
       #data for current iteration (all associated with same nc)
+      #calculate nc path
       dat.i <- dat.split[[i]] %>%
         dplyr::mutate(ncpath=wfprogression::fire_barra_path(datetimeutc=time_round,barraid=barraid,timestep = timestep,varname=v)) %>%
         dplyr::select(input_rowid,time_round,ncpath)
 
       #check is sample data is within available barra range
-
       if(as.numeric(yr.mnth.dat) >= as.numeric(min.nc) & as.numeric(yr.mnth.dat) <= as.numeric(max.nc)){
 
+        #connect to nc
+        #retry if something goes wrong
+        nc_conn <- wfprogression::fire_tidync_safe(unique(dat.i$ncpath),max_tries = 10,wait_seconds = 120)
 
+        #create a list of sf object associated with current nc, each with unique times
+        dat.split.time <- split(dat.i,dat.i$time_round)
 
+        #for each sf object of the same datetime, run the barra nc sampling function for current BARRA var (v)
+        res <- purrr::map(dat.split.time,~wfprogression::fire_barra_sample(nc_conn,unique(.x$time_round),.x,v,timestep = timestep,extract_fun=extract_fun))
 
-
-      #connect to nc
-      nc_conn <- tidync::tidync(unique(dat.i$ncpath))
-
-      #create a list of sf object associated with current nc, each with unique times
-      dat.split.time <- split(dat.i,dat.i$time_round)
-
-      #for each sf object of the same datetime, run the barra nc sampling function
-      res <- purrr::map(dat.split.time,~wfprogression::fire_barra_sample(nc_conn,unique(.x$time_round),.x,v,timestep = timestep,extract_fun=extract_fun))
-
-      res.list[[i]] <-  do.call(rbind,res) %>%
-        sf::st_drop_geometry() %>%
-        dplyr::select(-ncpath)
-    }else{
-      print(paste0("BARRA currently unavailable for ",mes.2))
-      res.list[[i]] <- NA
+        res.list[[i]] <-  do.call(rbind,res) %>%
+          sf::st_drop_geometry() %>%
+          dplyr::select(-ncpath)
+      }else{
+        print(paste0("BARRA currently unavailable for ",mes.2))
+        res.list[[i]] <- NA
       }
     }
 
@@ -141,12 +149,6 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames,timeste
     res.all.vars[[v]] <- do.call(rbind,res.list)
 
   }
-
-
-
-  #run loop sampling function for each variable
-  #res.all <- do.call(rbind,res.all.vars)
-
 
 
   res.all <- purrr::reduce(res.all.vars, dplyr::left_join, by = c('input_rowid','time_round')) %>%
