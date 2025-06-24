@@ -10,6 +10,7 @@ fire_barra_sample(
   sf_data,
   varname,
   allcells = F,
+  timestep,
   extract_fun = "mean"
 )
 }
@@ -23,6 +24,8 @@ fire_barra_sample(
 \item{varname}{BARRA variable name. Must match var name used in https path. e.g. sfcWind (surface wind), tas (temperature), hurs (RH), vas and uas (wind components).}
 
 \item{allcells}{logical. Return all cells in BARRA data that intersect an input polygon? Leave F for point data.}
+
+\item{timestep}{Timestep of data to search for in BARRA. Will accept "hourly", "daily" or "monthly"}
 
 \item{extract_fun}{If not returning all cells for an input polygon, how should sampled cells be summarised in terra::extract, e.g. mean, max}
 }

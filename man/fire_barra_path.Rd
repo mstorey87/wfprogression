@@ -11,7 +11,7 @@ fire_barra_path(datetimeutc, barraid, timestep, varname)
 
 \item{barraid}{R2 (12 km  BARRA product) or C2 (~4km BARRA product)}
 
-\item{timestep}{Timestep of data to search for in BARRA. Will accept "hourly" or "daily"}
+\item{timestep}{Timestep of data to search for in BARRA. Will accept "hourly","daily" or "monthly"}
 
 \item{varname}{BARRA variable name e.g. sfcWind (surface wind), tas (temperature), hurs (RH), vas and uas (wind components).  http://www.bom.gov.au/research/publications/researchreports/BRR-067.pdf}
 }

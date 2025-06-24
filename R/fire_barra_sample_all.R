@@ -126,7 +126,7 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames,timeste
       dat.split.time <- split(dat.i,dat.i$time_round)
 
       #for each sf object of the same datetime, run the barra nc sampling function
-      res <- purrr::map(dat.split.time,~wfprogression::fire_barra_sample(nc_conn,unique(.x$time_round),.x,v,extract_fun=extract_fun))
+      res <- purrr::map(dat.split.time,~wfprogression::fire_barra_sample(nc_conn,unique(.x$time_round),.x,v,timestep = timestep,extract_fun=extract_fun))
 
       res.list[[i]] <-  do.call(rbind,res) %>%
         sf::st_drop_geometry() %>%
