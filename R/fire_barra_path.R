@@ -2,7 +2,7 @@
 #'
 #' @param datetimeutc posixct datetime in utc rounded to nearest hour
 #' @param barraid R2 (12 km  BARRA product) or C2 (~4km BARRA product)
-#' @param timestep Timestep of data to search for in BARRA. Will accept "hourly" or "daily"
+#' @param timestep Timestep of data to search for in BARRA. Will accept "hourly","daily" or "monthly"
 #' @param varname BARRA variable name e.g. sfcWind (surface wind), tas (temperature), hurs (RH), vas and uas (wind components).  http://www.bom.gov.au/research/publications/researchreports/BRR-067.pdf
 #'
 #' @return string
@@ -19,6 +19,8 @@ fire_barra_path <- function(datetimeutc,barraid,timestep,varname){
   #year and month for path
   yrmnth <- format(datetimeutc,format = "%Y%m")
 
+  checkmate::assert(timestep %in% c("hourly","daily","monthly"),"Error: timestep must be hourly, daily or monthly")
+
   #construct the path
   if(timestep=="hourly"){
     file_thredds <- paste0(varname,"_",barraid1,"_ERA5_historical_hres_BOM_BARRA-",barraid,"_v1_1hr_",yrmnth,"-",yrmnth,".nc")
@@ -27,6 +29,15 @@ fire_barra_path <- function(datetimeutc,barraid,timestep,varname){
 
 
   }
+
+  if(timestep=="monthly"){
+    file_thredds <- paste0(varname,"_",barraid1,"_ERA5_historical_hres_BOM_BARRA-",barraid,"_v1_day_",yrmnth,"-",yrmnth,".nc")
+    nci_path <-  paste0("https://thredds.nci.org.au/thredds/dodsC/ob53/output/reanalysis/",barraid1,"/BOM/ERA5/historical/hres/BARRA-",barraid,"/v1/mon/",varname,"/latest")
+    pth=paste0(nci_path,"/",file_thredds)
+
+
+  }
+
 
   if(timestep=="daily"){
     file_thredds <- paste0(varname,"_",barraid1,"_ERA5_historical_hres_BOM_BARRA-",barraid,"_v1_day_",yrmnth,"-",yrmnth,".nc")
