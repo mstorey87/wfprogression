@@ -10,22 +10,46 @@
 #'
 #' @examples
 #' #
+# fire_tidync_safe <- function(url, max_tries = 5, wait_seconds = 10) {
+#   for (i in 1:max_tries) {
+#     result <- try(tidync::tidync(url), silent = TRUE)
+#
+#     if (!inherits(result, "try-error")) {
+#       message("Success on attempt ", i)
+#       return(result)
+#     } else {
+#       message("Attempt ", i, " failed: ", conditionMessage(attr(result, "condition")))
+#       if (i < max_tries) {
+#         message("Retrying in ", wait_seconds, " seconds...")
+#         Sys.sleep(wait_seconds)
+#       } else {
+#         message("Failed after ", max_tries, " attempts.")
+#         return(NULL)
+#       }
+#     }
+#   }
+# }
 fire_tidync_safe <- function(url, max_tries = 5, wait_seconds = 10) {
-  for (i in 1:max_tries) {
-    result <- try(tidync::tidync(url), silent = TRUE)
-
-    if (!inherits(result, "try-error")) {
-      message("Success on attempt ", i)
-      return(result)
-    } else {
-      message("Attempt ", i, " failed: ", conditionMessage(attr(result, "condition")))
-      if (i < max_tries) {
-        message("Retrying in ", wait_seconds, " seconds...")
-        Sys.sleep(wait_seconds)
-      } else {
-        message("Failed after ", max_tries, " attempts.")
+  for (i in seq_len(max_tries)) {
+    result <- tryCatch(
+      {
+        tidync::tidync(url)
+      },
+      error = function(e) {
+        message(sprintf("Attempt %d failed: %s", i, e$message))
         return(NULL)
       }
+    )
+
+    if (!is.null(result)) {
+      message("Success on attempt ", i)
+      return(result)
+    } else if (i < max_tries) {
+      message("Retrying in ", wait_seconds, " seconds...")
+      Sys.sleep(wait_seconds)
+    } else {
+      message("Failed after ", max_tries, " attempts. Returning NULL.")
+      return(NULL)
     }
   }
 }

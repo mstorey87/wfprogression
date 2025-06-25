@@ -68,7 +68,8 @@ fire_barra_sample<- function(nc_conn,datetimeutc,sf_data,varname,allcells=F,time
     #filter roughly by lat long and to exact time
     tidync::hyper_filter(time= time==datetimeutc_nc,
                          lat = lat >= bbox[2]-1 & lat <= bbox[4]+1,
-                         lon = lon >= bbox[1]-1 & lon <= bbox[3]+1) %>%
+                         lon = lon >= bbox[1]-1 & lon <= bbox[3]+1
+                         ) %>%
 
 
 
