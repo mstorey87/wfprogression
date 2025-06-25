@@ -26,7 +26,7 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames,timeste
   checkmate::assert(lubridate::tz(dat$time)=="UTC","Error: Time column must be posixct, timezone UTC (all caps)")
 
 
-# format data -------------------------------------------------------------
+  # format data -------------------------------------------------------------
 
 
 
@@ -44,7 +44,7 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames,timeste
 
 
 
-# Check latest dates currently available in BARRA -------------------------
+  # Check latest dates currently available in BARRA -------------------------
 
 
 
@@ -83,7 +83,7 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames,timeste
 
 
 
-# Split input data by year month ------------------------------------------
+  # Split input data by year month ------------------------------------------
 
 
 
@@ -97,7 +97,7 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames,timeste
 
 
 
-# Loop through year-month and BARRA variable combinations -----------------
+  # Loop through year-month and BARRA variable combinations -----------------
 
 
 
@@ -108,12 +108,8 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames,timeste
 
     res.list <- list()
 
-    #define variable to skip inner loop if nc doesn't load. If there is an nc error, this will skip entire variable
-    skip_var <- FALSE
-
     for (i in 1:length(dat.split)) {
 
-      if(skip_var) break
 
       #current iteration year and month
       yr.mnth.dat <- unique(names(dat.split)[i])
@@ -134,14 +130,15 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames,timeste
 
         #connect to nc
         #retry if something goes wrong
-        nc_conn <- wfprogression::fire_tidync_safe(unique(dat.i$ncpath),max_tries = 10,wait_seconds = 120)
+        nc_conn <- wfprogression::fire_tidync_safe(unique(dat.i$ncpath),max_tries = 20,wait_seconds = 30)
 
         #if nothing returned, skip all rest of datetimes for this variable and go to next variable
         #return NA for variable
-        if(is.na(nc_conn)){
-          skip_var <- TRUE
-          res.list <- NA
+        if(is.null(nc_conn)){
+          #return NULL for variable
+          res.list <- NULL
           message.vars[[v]] <- v
+          break
         }
 
         #create a list of sf object associated with current nc, each with unique times
@@ -160,11 +157,21 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames,timeste
     }
 
 
-    res.all.vars[[v]] <- do.call(rbind,res.list)
+
+
+    #add NA to list if there was an nc connection error. else return sample results.
+    if (is.null(res.list)) {
+      res.all.vars[[v]] <- NULL
+    } else {
+      res.all.vars[[v]] <- do.call(rbind, res.list)
+    }
 
   }
 
+  #remove any NULL caused by NC connection errors
+  res.all.vars <- res.all.vars[!sapply(res.all.vars, is.null)]
 
+  #join all remaining
   res.all <- purrr::reduce(res.all.vars, dplyr::left_join, by = c('input_rowid','time_round')) %>%
     dplyr::left_join(dat %>% dplyr::select(input_rowid),by="input_rowid") %>%
     sf::st_as_sf() %>%
@@ -172,15 +179,15 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames,timeste
 
 
   if(length(message.vars)==0){
-    mes.1 <- paste0("BARRA currently available ",month.name[as.numeric(substr(min.nc,5,6))]," ",substr(min.nc,1,4)," to ",month.name[as.numeric(substr(max.nc,5,6))]," ",substr(max.nc,1,4))
-    message(mes.1)
-    message("Outside dates will return NA")
     message("All variables successfully sampled")
-  }else{
-    mes.1 <- paste0("BARRA currently available ",month.name[as.numeric(substr(min.nc,5,6))]," ",substr(min.nc,1,4)," to ",month.name[as.numeric(substr(max.nc,5,6))]," ",substr(max.nc,1,4))
+    mes.1 <- paste0("NA returned for any times after ",month.name[as.numeric(substr(max.nc,5,6))]," ",substr(max.nc,1,4)," because BARRA not available yet")
     message(mes.1)
-    message("Outside dates will return NA")
+
+  }else{
     message(paste0("Sampling of ", paste0(message.vars,collapse = " "), "failed. Others variables sampled successfully."))
+    mes.1 <- paste0("NA returned for any times after ",month.name[as.numeric(substr(max.nc,5,6))]," ",substr(max.nc,1,4)," because BARRA not available yet")
+    message(mes.1)
+
 
   }
 

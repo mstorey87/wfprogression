@@ -24,7 +24,7 @@ fire_tidync_safe <- function(url, max_tries = 5, wait_seconds = 10) {
         Sys.sleep(wait_seconds)
       } else {
         message("Failed after ", max_tries, " attempts.")
-        return(NA)
+        return(NULL)
       }
     }
   }
