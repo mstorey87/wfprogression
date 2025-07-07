@@ -2,7 +2,7 @@
 % Please edit documentation in R/fire_barra_sample_all.R
 \name{fire_barra_sample_all}
 \alias{fire_barra_sample_all}
-\title{Sample an sf object for BARRA data.}
+\title{Sample multiple BARRA variables for an sf object across times}
 \usage{
 fire_barra_sample_all(
   dat,
@@ -14,25 +14,56 @@ fire_barra_sample_all(
 )
 }
 \arguments{
-\item{dat}{sf object, points lines or polygons}
+\item{dat}{An sf object containing spatial features (points, lines, or polygons) with a datetime column.}
 
-\item{time_col_utc}{name string of datetime column (posix, utc)}
+\item{time_col_utc}{Name of the datetime column in \code{dat} (must be POSIXct in UTC).}
 
-\item{barraid}{R2 (12 km BARRA product) or C2 (~4km BARRA product)}
+\item{barraid}{Character string specifying BARRA product: "R2" (12 km resolution) or "C2" (~4 km resolution).}
 
-\item{varnames}{Vector of barra variable names. BARRA variable name e.g. sfcWind (surface wind), tas (temperature), hurs (RH), vas and uas (wind components).  http://www.bom.gov.au/research/publications/researchreports/BRR-067.pdf}
+\item{varnames}{Character vector of BARRA variable names to sample. Examples include "sfcWind" (surface wind), "tas" (temperature),
+"hurs" (relative humidity), "vas" and "uas" (wind components). See
+http://www.bom.gov.au/research/publications/researchreports/BRR-067.pdf for full variable list.}
 
-\item{timestep}{Timestep of data to search for in BARRA. Will accept "hourly", "daily" or "monthly"}
+\item{timestep}{Time resolution to sample: "hourly", "daily", or "monthly".}
 
-\item{extract_fun}{Function to summarise sampled variable when it has been sampled with a line or polygon. "mean","sum","min" or "max" accepted}
+\item{extract_fun}{Summary function to apply when sampling polygon/line features (e.g., "mean", "sum", "min", "max").}
 }
 \value{
-sample sf object
+An sf object with the original data and additional columns for each sampled variable at each datetime.
 }
 \description{
-This function takes an input sf object with multiple rows and samples multiple barra variables. It loops over time and barra variables to run fire_sample_barra.
-Large lists of variables may take a long time to run. It may be worth running smaller groups of variables to avoid network connection errors.
+This function takes an sf object with multiple rows (points, lines, or polygons) and samples multiple BARRA variables.
+It loops over unique nc files and variables to minimize data downloads by only opening each NetCDF once (all netcdfs are stored in monthly files).
+Large lists of variables or long time series may take a long time and can encounter network issues;
+consider splitting your queries into smaller batches.
 }
 \examples{
-#
+\dontrun{
+library(sf)
+library(lubridate)
+
+# Example: create sample points near Canberra in 2019
+pts <- st_sfc(
+  st_point(c(149.1, -35.3)),
+  st_point(c(149.2, -35.25)),
+  crs = 4326
+)
+
+# Create sf object with datetimes
+sf_pts <- st_sf(
+  id = 1:2,
+  datetime_utc = as.POSIXct(c("2019-01-01 12:00:00", "2019-01-02 12:00:00"), tz = "UTC"),
+  geometry = pts
+)
+
+# Sample sfcWind and tas hourly from BARRA C2 product
+result <- fire_barra_sample_all(
+  dat = sf_pts,
+  time_col_utc = "datetime_utc",
+  barraid = "C2",
+  varnames = c("sfcWind", "tas"),
+  timestep = "hourly",
+  extract_fun = "mean"
+)
+}
 }

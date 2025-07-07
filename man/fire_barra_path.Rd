@@ -2,25 +2,35 @@
 % Please edit documentation in R/fire_barra_path.R
 \name{fire_barra_path}
 \alias{fire_barra_path}
-\title{Construct https string to a BARRA file on NCI}
+\title{Construct HTTPS URL to a BARRA data file on NCI THREDDS server}
 \usage{
 fire_barra_path(datetimeutc, barraid, timestep, varname)
 }
 \arguments{
-\item{datetimeutc}{posixct datetime in utc rounded to nearest hour}
+\item{datetimeutc}{POSIXct datetime in UTC timezone, ideally rounded to the nearest hour.}
 
-\item{barraid}{R2 (12 km  BARRA product) or C2 (~4km BARRA product)}
+\item{barraid}{Character; either \code{"R2"} (12 km BARRA product) or \code{"C2"} (~4 km BARRA product).}
 
-\item{timestep}{Timestep of data to search for in BARRA. Will accept "hourly","daily" or "monthly"}
+\item{timestep}{Character; time resolution of data, one of \code{"hourly"}, \code{"daily"}, or \code{"monthly"}.}
 
-\item{varname}{BARRA variable name e.g. sfcWind (surface wind), tas (temperature), hurs (RH), vas and uas (wind components).  http://www.bom.gov.au/research/publications/researchreports/BRR-067.pdf}
+\item{varname}{Character; BARRA variable name (e.g., \code{"sfcWind"} for surface wind, \code{"tas"} for temperature,
+\code{"hurs"} for relative humidity, \code{"uas"} and \code{"vas"} for wind components).
+See \href{http://www.bom.gov.au/research/publications/researchreports/BRR-067.pdf}{BOM report} for details.}
 }
 \value{
-string
+Character string giving the full HTTPS URL to the requested BARRA NetCDF file.
 }
 \description{
-Construct https string to a BARRA file on NCI
+Generates the full URL string pointing to a specific BARRA NetCDF file
+on the NCI THREDDS server based on datetime, resolution, timestep, and variable.
 }
 \examples{
-#fn_barra_path(datetimeutc = as.POSIXct("2019-12-01 10:00:00",tz="utc"),barraid = "R2",varname = "sfcWind")
+\dontrun{
+fire_barra_path(
+  datetimeutc = as.POSIXct("2019-12-01 10:00:00", tz = "UTC"),
+  barraid = "R2",
+  timestep = "hourly",
+  varname = "sfcWind"
+)
+}
 }

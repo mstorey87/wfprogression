@@ -2,19 +2,43 @@
 % Please edit documentation in R/fire_get_line_info.R
 \name{fire_get_line_info}
 \alias{fire_get_line_info}
-\title{Get start an end coords and directions of an sf line}
+\title{Get start and end coordinates, bearing, and length of an sf line}
 \usage{
-fire_get_line_info(sf_lines)
+fire_get_line_info(sf_lines, reverse = F)
 }
 \arguments{
-\item{sf}{lines input}
+\item{sf_lines}{An \code{sf} object containing line geometries with geographic CRS.}
 }
 \value{
-data frame
+A data frame with columns for start/end coordinates, bearing (degrees), and line length in km.
+Column names are suffixed with the EPSG code of the CRS.
 }
 \description{
-Get start an end coords and directions of an sf line
+This function takes an \code{sf} object containing LINESTRING or MULTILINESTRING geometries
+with a geographic coordinate reference system (CRS). It extracts for each line:
+\itemize{
+\item The start coordinates (x, y)
+\item The end coordinates (x, y)
+\item The bearing (direction) in degrees from start to end (0-360°)
+\item The line length in kilometers
+}
+
+Note: The function requires the input \code{sf} object to have a geographic CRS (e.g., EPSG:4326).
+It will throw an error if the CRS is projected.
 }
 \examples{
-#
+library(sf)
+library(geosphere)
+
+# Define a start point (longitude, latitude)
+start <- c(150.0, -33.0)
+# Calculate end point 10 km away at bearing 45 degrees (NE)
+end <- geosphere::destPoint(start, 45, 10000)
+# Create a LINESTRING from start to end
+line <- st_linestring(rbind(start, end))
+# Create sf object with geographic CRS EPSG:4326
+sf_line <- st_sf(geometry = st_sfc(line, crs = 4326))
+
+# Get line info: start/end coords, bearing, and length (km)
+fire_get_line_info(sf_line,reverse=FALSE)
 }

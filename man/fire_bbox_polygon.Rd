@@ -7,19 +7,26 @@
 fire_bbox_polygon(sf_polygon = NULL, bbox_buffer_km = 0, crs = 3112)
 }
 \arguments{
-\item{sf_polygon}{An sf object which is the fire boundary polygon (or search area)}
+\item{sf_polygon}{An sf object representing the fire boundary polygon (or area of interest).}
 
-\item{bbox_buffer_km}{How many km to buffer the fire polygon by during the creation of a bounding box.}
+\item{bbox_buffer_km}{Distance in kilometres to buffer the polygon before creating the bounding box.}
 
-\item{crs}{CRS for buffering (epsg code). Must be projected CRS.}
+\item{crs}{EPSG code for buffering step. Should be a projected CRS (e.g. 3112 for GDA94 / Geoscience Australia Lambert).}
 }
 \value{
-A bounding box sf polygon with the input polygon's CRS
+An sf polygon of the bounding box, with the original CRS.
 }
 \description{
-Takes an sf polygon (e.g. fire boundary), optionally buffers the polygon, create an sf bbox and then convert to sf polygon.
-If sf_polygon is empty, a box around Australia is the output
+Takes an input sf polygon (e.g. fire boundary) and returns its bounding box as an sf polygon.
+Optionally buffers the polygon before calculating the bounding box.
+If \code{sf_polygon} is NULL, a default box around mainland Australia is returned.
 }
 \examples{
-#fire_bbox_polygon(dat.fire,100,3112)
+# Example: Create a bbox around a simple square polygon
+library(sf)
+p <- st_as_sf(st_sfc(st_polygon(list(rbind(c(0,0), c(1,0), c(1,1), c(0,1), c(0,0)))), crs = 4326))
+fire_bbox_polygon(p, bbox_buffer_km = 10, crs = 3112)
+
+# Example: Create default Australia bbox
+fire_bbox_polygon(NULL, bbox_buffer_km = 0, crs = 3112)
 }
