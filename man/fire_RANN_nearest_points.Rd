@@ -2,33 +2,69 @@
 % Please edit documentation in R/fire_RANN_nearest_points.R
 \name{fire_RANN_nearest_points}
 \alias{fire_RANN_nearest_points}
-\title{Fire nearest neighbour lines using RANN packages}
+\title{Find maximum fire spread line using nearest-neighbor search (RANN)}
 \usage{
 fire_RANN_nearest_points(
   poly,
   poly.prior,
   densify_m,
-  within_only = F,
-  max_only = T,
+  within_only = FALSE,
+  max_only = TRUE,
   within_buffer_m = 10,
   radius = 1
 )
 }
 \arguments{
-\item{poly}{sf polygon of fire progression}
+\item{poly}{An \code{sf} polygon of the later fire progression.}
 
-\item{poly.prior}{sf polygon of fire progression, the one captured before poly}
+\item{poly.prior}{An \code{sf} polygon of the earlier fire progression.}
 
-\item{densify_m}{minimum distance between vertices on the polygon for which to search for maximum spread line}
+\item{densify_m}{Numeric. Minimum distance in meters between vertices when densifying the polygons' boundaries.}
 
-\item{max_only}{T/F return only single maximum spread line}
+\item{within_only}{Logical. If \code{TRUE}, return only spread lines that are fully contained within \code{poly} (slower).}
+
+\item{max_only}{Logical. If \code{TRUE} (default), return only the single maximum spread line.}
+
+\item{within_buffer_m}{Numeric. Buffer distance (meters) to exclude vertices near \code{poly.prior} when \code{within_only = TRUE}.}
+
+\item{radius}{Numeric. Search radius in meters for nearest-neighbor matching (default \code{1}).}
 }
 \value{
-sf lines
+An \code{sf} object of LINESTRING geometries representing maximum fire spread lines.
 }
 \description{
-Fire nearest neighbour lines using RANN packages
+This function finds lines of maximum spread between two consecutive fire progression polygons
+using a fast nearest-neighbor search powered by the \strong{RANN} package.
+
+The function works by converting polygon boundaries to dense point sets and then connecting
+the farthest pairs of points between the earlier (\code{poly.prior}) and later (\code{poly}) polygons.
+Optionally, you can restrict lines to only those fully contained within the later polygon,
+which is slower but sometimes useful for strict containment.
 }
 \examples{
-#
+\dontrun{
+library(sf)
+# Create two simple overlapping squares
+poly1 <- st_polygon(list(rbind(
+  c(0,0), c(1,0), c(1,1), c(0,1), c(0,0)
+)))
+poly2 <- st_polygon(list(rbind(
+  c(0.5,0.5), c(1.5,0.5), c(1.5,1.5), c(0.5,1.5), c(0.5,0.5)
+)))
+
+poly_sf1 <- st_sf(geometry = st_sfc(poly1),crs=4326)
+poly_sf2 <- st_sf(geometry = st_sfc(poly2),crs=4326)
+
+# Find maximum spread line
+line_sf <- fire_RANN_nearest_points(
+  poly = poly_sf2,
+  poly.prior = poly_sf1,
+  densify_m = 0,
+  max_only = TRUE
+)
+
+plot(st_geometry(poly_sf1), col = NA, border = "blue")
+plot(st_geometry(poly_sf2), add = TRUE, col = NA, border = "red")
+plot(st_geometry(line_sf), add = TRUE, col = "black", lwd = 2)
+}
 }

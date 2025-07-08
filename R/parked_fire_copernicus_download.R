@@ -4,6 +4,7 @@
 #' Download data from Copernicus.
 #' Take the ouput of fire_copernicus_search(). Requires username and password to download the data  https://dataspace.copernicus.eu/
 #'
+#' @noRd
 #' @param fire_bbox Polygon for cropping images. Same as used for fire_copernicus_search()
 #' @param download_df Data frame that is the result of fire_copernicus_search()
 #' @param dest_folder Path where the geotifs will be written
@@ -11,7 +12,7 @@
 #' @param password_copernicus copernicus password
 #'
 #' @return Writes geotifs to disk
-#' @export
+#' #@export
 #'
 #' @examples
 #' #fire_download_copernicus(fire_bbox = dat.bbox,download_df = dat.sen3.filt,dest_folder = outdir)

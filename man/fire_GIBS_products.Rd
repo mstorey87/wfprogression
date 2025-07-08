@@ -7,11 +7,20 @@
 fire_GIBS_products()
 }
 \value{
-Print a list
+A character vector of GIBS product names and a helpful note.
 }
 \description{
-Print a list of useful NASA GIBS WMS products
+This helper function returns a character vector of recommended NASA GIBS (Global Imagery Browse Services)
+product layer names for fire and smoke monitoring. These include MODIS and VIIRS bands for active fire detection,
+true colour imagery for smoke, and brightness temperature layers for night-time spread monitoring.
+
+A short description with a link to more products is included at the end.
 }
 \examples{
+# Get recommended GIBS product names
 fire_GIBS_products()
+
+# Use with a mapping tool or WMS request
+products <- fire_GIBS_products()
+print(products)
 }

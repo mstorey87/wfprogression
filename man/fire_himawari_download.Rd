@@ -2,7 +2,7 @@
 % Please edit documentation in R/fire_himawari_download.R
 \name{fire_himawari_download}
 \alias{fire_himawari_download}
-\title{Download Himawari images from BOM thredds server}
+\title{Download Himawari images from BOM THREDDS server}
 \usage{
 fire_himawari_download(
   fire_bbox,
@@ -12,23 +12,52 @@ fire_himawari_download(
 )
 }
 \arguments{
-\item{fire_bbox}{Fire bounding box polygon}
+\item{fire_bbox}{An \code{sf} polygon defining the fire bounding box.}
 
-\item{df_download}{Data frame of himawari paths from fire_himiwari_search() function}
+\item{df_download}{Data frame of Himawari paths returned from \code{\link{fire_himawari_search}()}.}
 
-\item{bands}{Himawari bands to download. Default is 7, 4 and 1. First band used for night images. Can be a single band.}
+\item{bands}{Character vector of Himawari bands to download. Default is \code{c("B07","B04","B01")}.
+The first band is used for night images if RGB is not possible. Can be a single band.}
 
-\item{dest_folder}{File local destination}
+\item{dest_folder}{Local folder path to save downloaded GeoTIFF files.}
 }
 \value{
-Writes geotifs to disk
+Writes GeoTIFF files to \code{dest_folder}.
 }
 \description{
-Accepts the output of fire_himiwari_search() to clip and download data from BOMS' NCI thredds server
-Because Himawari data is course resolution, the fire_bbox is buffered by 100 km before clipping.
-Different bands combination can be selected. 7-4-1 is good for seeing active fire.
-Output tif will be an RGB for day time images, but single band (first band in the 'bands' parameter) for night time images.
+Accepts the output of \code{\link{fire_himawari_search}()} to clip and download data from BOM's NCI THREDDS server.
+Because Himawari data is coarse resolution, the \code{fire_bbox} polygon is buffered by 100 km before clipping.
+Different band combinations can be selected; the default (bands 7, 4, 1) is good for visualizing active fires.
+Output GeoTIFF files will be RGB composites for daytime images, but single-band (first band in \code{bands})
+for nighttime images.
 }
 \examples{
-# fire_download_himiwari(fire_bbox = dat.bbox,df_download = dat.himiwari,dest_folder = outdir)
+\dontrun{
+library(sf)
+
+# Define a bounding box polygon (replace with your actual bbox)
+dat.bbox <- st_as_sfc("POLYGON((150 -34, 150 -33.5, 150.5 -33.5, 150.5 -34, 150 -34))", crs = 4326)
+
+# Define start and end times for search (POSIXct)
+datestart <- as.POSIXct("2023-01-01 00:00:00", tz = "Australia/Sydney")
+dateend <- as.POSIXct("2023-01-02 00:00:00", tz = "Australia/Sydney")
+
+# Search for Himawari images (e.g., every 60 minutes)
+dat.himawari <- fire_himawari_search(
+  fire_bbox = dat.bbox,
+  start_time = datestart,
+  end_time = dateend,
+  timestep_minutes = 60
+)
+
+# Specify destination folder
+outdir <- tempdir()
+
+# Download Himawari images to folder
+fire_himawari_download(
+  fire_bbox = dat.bbox,
+  df_download = head(dat.himawari,14),
+  dest_folder = outdir
+)
+}
 }

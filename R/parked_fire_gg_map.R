@@ -5,13 +5,13 @@
 #' If a polygon is also an input, it will be plotted over the image.
 #'
 #'
-#'
+#' @noRd
 #' @param image terra::rast() object
 #' @param prog sf polygons
 #' @param agg value for terra::aggregate()
 #'
 #' @return gg plot
-#' @export
+#' #@export
 #'
 #' @examples
 #' #

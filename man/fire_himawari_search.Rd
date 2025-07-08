@@ -2,28 +2,51 @@
 % Please edit documentation in R/fire_himawari_search.R
 \name{fire_himawari_search}
 \alias{fire_himawari_search}
-\title{Search for Himiwari data}
+\title{Search for Himawari-8/9 satellite data on NCI THREDDS}
 \usage{
 fire_himawari_search(fire_bbox, start_time, end_time, timestep_minutes = 10)
 }
 \arguments{
-\item{fire_bbox}{An sf polygon to search for images}
+\item{fire_bbox}{An \code{sf} polygon that defines the spatial search area (e.g., your fire boundary or bounding box).}
 
-\item{start_time}{The first time (posixct) for which to search for images. This will be converted to utc within the function.}
+\item{start_time}{A \code{POSIXct} date-time (local time) marking the beginning of the search window. Converted to UTC internally.}
 
-\item{end_time}{The last time (posixct) for which to search for images in local time. This will be converted to utc within the function.}
+\item{end_time}{A \code{POSIXct} date-time (local time) marking the end of the search window. Converted to UTC internally.}
 
-\item{timestep_minutes}{minutes timestep in multiples of 10. e.g. search for images every 10 minutes or 60 minutes.}
+\item{timestep_minutes}{Timestep in minutes for selecting imagery (must be a multiple of 10). E.g., \code{10} for every image or \code{60} for hourly checks.}
 }
 \value{
-Data frame with thredds path to Himawari data
+A data frame with available file names, UTC and local times, download URLs, bands, and satellite names.
+If no data is found, a message is printed and \code{NULL} is returned.
 }
 \description{
-Search the BOM repository of Himawari 8 and 9 images that are held on NCI THREDDS: https://geonetwork.nci.org.au/geonetwork/srv/eng/catalog.search#/metadata/f8433_0020_1861_5916.
-There is a lag of around 2 months for data to appear on this server, so NRT data is also searched for more recent records.
-The server will be searched and a data frame of paths will be returned. Each row is path to one different band x time combination.
-Images are available every 10 minutes, but put in a bigger timestep to limit the amount of records returned.
+This function searches the Bureau of Meteorology (BOM) Himawari 8 and 9 satellite image archives
+hosted on the NCI THREDDS server: \url{https://geonetwork.nci.org.au/geonetwork/srv/eng/catalog.search#/metadata/f8433_0020_1861_5916}.
+
+It finds file paths for imagery covering the specified fire bounding box and time range.
+Himawari images are available every 10 minutes; use a larger timestep to reduce the volume of results.
+For recent fires (within ~3 weeks), near real-time (NRT) data will also be searched automatically.
+
+The output is a data frame listing the file paths for all available band × time combinations.
 }
 \examples{
-#dat.himiwari <- fire_search_himawari(fire_bbox = dat.bbox,start_time = datestart, end_time = dateend,timestep_minutes = 120)
+\dontrun{
+library(sf)
+# Example: define a small bounding box somewhere in Australia
+my_bbox <- sf::st_as_sfc(sf::st_bbox(c(xmin = 150, ymin = -35, xmax = 151, ymax = -34), crs = 4326)) |> sf::st_sf()
+
+# Define time window for search (last month, hourly)
+my_start <- as.POSIXct("2023-11-01 00:00:00", tz = "Australia/Sydney")
+my_end <- as.POSIXct("2023-11-01 12:00:00", tz = "Australia/Sydney")
+
+# Run search
+dat_himawari <- fire_himawari_search(
+  fire_bbox = my_bbox,
+  start_time = my_start,
+  end_time = my_end,
+  timestep_minutes = 60
+)
+
+head(dat_himawari)
+}
 }

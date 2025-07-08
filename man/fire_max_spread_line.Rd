@@ -2,52 +2,116 @@
 % Please edit documentation in R/fire_max_spread_line.R
 \name{fire_max_spread_line}
 \alias{fire_max_spread_line}
-\title{Find line of maximum fire spread}
+\title{Find lines of maximum fire spread between consecutive fire polygons}
 \usage{
 fire_max_spread_line(
   polygons,
   time_col,
   id_col,
-  convex_hull = T,
-  max_only = T,
-  internal_only = F,
+  convex_hull = TRUE,
+  max_only = TRUE,
   min_minutes = 20,
   max_minutes = 300,
   densify_m = 100
 )
 }
 \arguments{
-\item{polygons}{Fire polygons sf object}
+\item{polygons}{An sf object of fire polygons with geometry and attribute data.}
 
-\item{time_col}{Name of date time column (posix)}
+\item{time_col}{Character; name of the POSIXct datetime column indicating the progression time.}
 
-\item{id_col}{Name of unique id column to add to output lines}
+\item{id_col}{Character; name of a unique identifier column for the polygons, which will be retained in the output.}
 
-\item{convex_hull}{T/F whether to convert fire polygon to convex hull first}
+\item{convex_hull}{Logical; if TRUE, polygons are converted to convex hulls before processing (faster, less precise).}
 
-\item{max_only}{T/F return only the max spread line}
+\item{max_only}{Logical; if TRUE, returns only the single maximum spread line per polygon pair.}
 
-\item{internal_only}{T/F return only lines completely within the fire polygon at time 2}
+\item{min_minutes}{Numeric; minimum allowable time difference (minutes) between polygon pairs for analysis.}
 
-\item{min_minutes}{minimum time interval between progressions}
+\item{max_minutes}{Numeric; maximum allowable time difference (minutes) between polygon pairs for analysis.}
 
-\item{max_minutes}{maximum time interval between progression}
-
-\item{densify_m}{metres between vertices on polygon edge from which to measure spread}
+\item{densify_m}{Numeric; distance in meters at which to add extra vertices along polygon edges to increase spatial resolution.}
 }
 \value{
-sf object
+An sf object of line geometries representing fire spread lines, with attributes including start/end times, spread distance, rate of spread (km/h), and line bearing.
 }
 \description{
-Takes a set of sf polygons with, each with a posixct datetime field, and find the line of maximum difference or spread from one polygon to the next.
-The second polygon should completely contain the first, but this may work if that is not the case.
-There are some option for calculating this by converting the polygons to convex hulls, which makes the process fast but is less accurate.
-All spread lines can be returned, not just the single maximum spread line.
-There is an option to ensure that the spread line is completely contained within the second fire progression polygon, but this works very slowly and can not always find an appropriate solution
-min_minutes and max_minutes are used to set that max and min timestep between polygons. When there are two polygons with a difference in time outside the range, the process is not run.
-The vertices on the boundary of the polygons are converted to points to find the max spread line. densify_m how often extra vertices should be added to the polygon boundary, especially on staight boundary sections, before the polygon is converted to points.
-Have a smaller value (metres) will produce more accurate results, but will take more time to run.
+This function analyzes a series of fire progression polygons (sf objects) each timestamped with a POSIXct datetime field.
+It identifies lines representing the maximum spatial spread of the fire between consecutive polygons in time.
+The second polygon should ideally fully contain the first, but the function may still work if this is not exactly true.
+
+Key features:
+\itemize{
+\item Optionally converts polygons to their convex hulls to speed up calculations (less accurate).
+\item Can return all spread lines or only the maximum spread line between polygon pairs.
+\item Optionally filters to only lines fully contained within the later polygon (slower and may not always find a solution - NOTE this option needs correcting, so is not included yet).
+\item Uses minimum and maximum time interval constraints (in minutes) between polygon pairs to control comparisons.
+\item Polygon boundaries are densified by adding extra vertices (every \code{densify_m} meters) to improve spatial accuracy of spread line detection.
+}
 }
 \examples{
-#
+\dontrun{
+library(sf)
+library(lubridate)
+
+# CRS: GDA94 / MGA zone 56 (projected meters)
+crs_proj <- 3112
+
+# Center point roughly near Canberra (in MGA Zone 56)
+center <- c(149.1, -35.8)  # lon, lat
+
+# Function to create a simple ellipse polygon with fewer points (20)
+create_simple_ellipse <- function(center_xy, a, b, n = 20, angle = 0) {
+  t <- seq(0, 2*pi, length.out = n)
+  x <- a * cos(t)
+  y <- b * sin(t)
+
+  # rotation matrix
+  theta <- angle * pi / 180
+  rot_mat <- matrix(c(cos(theta), -sin(theta), sin(theta), cos(theta)), ncol = 2)
+  coords <- cbind(x, y) \%*\% rot_mat
+
+  # translate to center
+  coords[,1] <- coords[,1] + center_xy[1]
+  coords[,2] <- coords[,2] + center_xy[2]
+
+  # close polygon by repeating first point
+  coords <- rbind(coords, coords[1,])
+  st_polygon(list(coords))
+}
+
+# Project center to projected CRS coords
+center_proj <- sf::st_transform(sf::st_sfc(sf::st_point(center), crs = 4326), crs_proj)
+center_proj_xy <- sf::st_coordinates(center_proj)
+
+# Larger ellipse ~4000m x 2000m but with 20 points
+poly2 <- create_simple_ellipse(center_proj_xy, a = 2000, b = 1000, angle = 30)
+
+# Smaller ellipse inside ~1000m x 600m with 20 points
+poly1 <- create_simple_ellipse(center_proj_xy-900, a = 500, b = 300, angle = 30)
+
+# Create sf object with two polygons
+fire_polygons <- sf::st_sf(
+  fire_id = c("fire_1", "fire_1"),
+  date = as.POSIXct(c("2023-01-01 12:00:00", "2023-01-01 14:00:00"), tz = "Australia/Sydney"),
+  geometry = sf::st_sfc(poly1, poly2, crs = crs_proj)
+)
+
+
+spread_lines <- fire_max_spread_line(
+  polygons = fire_polygons,
+  time_col = "date",
+  id_col = "fire_id",
+  convex_hull = TRUE,
+  max_only = TRUE,
+  internal_only = FALSE,
+  min_minutes = 30,
+  max_minutes = 360,
+  densify_m = 50
+)
+
+# Print and plot
+print(fire_polygons)
+mapview::mapview(fire_polygons)+spread_lines
+}
 }

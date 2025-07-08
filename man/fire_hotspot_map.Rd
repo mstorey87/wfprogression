@@ -2,7 +2,7 @@
 % Please edit documentation in R/fire_hotspot_map.R
 \name{fire_hotspot_map}
 \alias{fire_hotspot_map}
-\title{Create geoferenced hotspot and WMS image}
+\title{Create geo-referenced hotspot and WMS images for a fire area}
 \usage{
 fire_hotspot_map(
   fire_bbox,
@@ -10,31 +10,65 @@ fire_hotspot_map(
   end_time,
   mapkey = "a5452249ca7c7a4ee2e1e6da787f57cc",
   dest_folder,
-  add_hotspots = T,
+  add_hotspots = TRUE,
   outwidth = 500
 )
 }
 \arguments{
-\item{fire_bbox}{Polygon of fire or area to search for images}
+\item{fire_bbox}{Polygon sf object representing the fire area or region to search for images (expected in any CRS, reprojected internally to EPSG:4326)}
 
-\item{mapkey}{A mapkey reuired to download hotspots, https://firms.modaps.eosdis.nasa.gov/api/map_key/}
+\item{start_time}{POSIXct start datetime of image search interval}
 
-\item{dest_folder}{Folder to save output tifs other files used in processing, including hotspots}
+\item{end_time}{POSIXct end datetime of image search interval}
 
-\item{add_hotspots}{T/F to add or exclude hotspots from output images}
+\item{mapkey}{NASA FIRMS API mapkey needed to download hotspot data. Get yours at https://firms.modaps.eosdis.nasa.gov/api/map_key/}
 
-\item{outwidth}{width in pixels of output tif}
+\item{dest_folder}{Local folder path to save output GeoTIFF images and hotspot geopackage}
 
-\item{start_date}{First date from which to search for images}
+\item{add_hotspots}{Logical (TRUE/FALSE) whether to download and overlay hotspots on the images}
 
-\item{end_date}{Final date to search for image}
+\item{outwidth}{Numeric width in pixels for output TIFF images; height is scaled to maintain aspect ratio}
 }
 \value{
-Write a geotiff to disk. Also writes hotspots csv
+Writes georeferenced GeoTIFF files to disk in the destination folder. Also writes hotspot CSVs.
 }
 \description{
-Create geoferenced hotspot and WMS image
+Downloads NASA GIBS WMS imagery layers and optionally overlays NASA FIRMS hotspots.
+The function produces geotiffs clipped to the fire bounding box extent and saves
+them to the specified folder. Hotspots geopackage also saved if requested.
+Images cover the specified date range with daily granularity.
 }
 \examples{
-#fire_hotspot_map(fire_bbox = dat.bbox,start_date = datestart,end_date = dateend,dest_folder = outdir)
+\dontrun{
+library(sf)
+# Define a small polygon for the fire area (example coordinates, use your actual fire bbox)
+blue_mountains_box <- st_polygon(list(rbind(
+  c(149.32276, -32.60165),  # top-left (xmin, ymax)
+  c(151.61254, -32.60165),  # top-right (xmax, ymax)
+  c(151.61254, -34.63015),  # bottom-right (xmax, ymin)
+  c(149.32276, -34.63015),  # bottom-left (xmin, ymin)
+  c(149.32276, -32.60165)   # close polygon
+))) \%>\%
+  st_sfc(crs = 4326)
+# Define time range for images
+start_time <- as.POSIXct("2019-11-21 00:00:00", tz = "Australia/Sydney")
+end_time <- as.POSIXct("2019-11-23 00:00:00", tz = "Australia/Sydney")
+
+# Your NASA FIRMS mapkey (replace with your actual key)
+my_mapkey <- "your_mapkey_here"
+
+# Folder to save outputs
+output_dir <- tempdir()
+
+# Run function to download images with hotspots
+fire_hotspot_map(
+  fire_bbox = blue_mountains_box,
+  start_time = start_time,
+  end_time = end_time,
+  mapkey = my_mapkey,
+  dest_folder = output_dir,
+  add_hotspots = TRUE,
+  outwidth = 600
+)
+}
 }

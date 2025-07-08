@@ -2,19 +2,25 @@
 % Please edit documentation in R/fire_get_timezone.R
 \name{fire_get_timezone}
 \alias{fire_get_timezone}
-\title{Get Australian time zone of fire_bbox centroid}
+\title{Get Australian time zone of a fire bounding box centroid}
 \usage{
 fire_get_timezone(fire_bbox)
 }
 \arguments{
-\item{fire_bbox}{Fire bounding box polygon}
+\item{fire_bbox}{An \code{sf} polygon object representing the fire bounding box.}
 }
 \value{
-String of time zone name e.g. "Australia/Sydney"
+A string with the Australian time zone name.
 }
 \description{
-Get Australian time zone of fire_bbox centroid
+Calculates the centroid of the input fire bounding box polygon,
+finds the nearest Australian state polygon (from \code{wfprogression::dat.aus}),
+then returns the corresponding time zone name (e.g. \code{"Australia/Sydney"}).
 }
 \examples{
-#fire_get_timezone(dat.bbox)
+# Example using a bounding box covering NSW
+library(sf)
+bbox <- st_as_sfc(st_bbox(c(xmin = 140, xmax = 150, ymin = -37, ymax = -28), crs = 4326))
+fire_bbox <- st_sf(geometry = bbox)
+fire_get_timezone(fire_bbox)
 }
