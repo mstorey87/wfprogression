@@ -35,23 +35,20 @@ library(sf)
 library(lubridate)
 
 # Create a simple example polygon
-fire_bbox <- sf::st_as_sf(
-  sf::st_sfc(
-    sf::st_polygon(list(rbind(
-      c(150.2, -33.7),
-      c(150.4, -33.7),
-      c(150.4, -33.5),
-      c(150.2, -33.5),
-      c(150.2, -33.7)
-    ))),
-    crs = 4326
-  )
-)
+blue_mtns_bbox <- sf::st_as_sfc(
+  sf::st_bbox(c(
+    xmin = 150.2,
+    ymin = -33.8,
+    xmax = 150.5,
+    ymax = -33.5
+  )),
+  crs = 4326
+) \%>\% sf::st_as_sf(crs = 4326)
 
 # Define search period
 start_time <- as.POSIXct("2019-12-01", tz = "Australia/Sydney")
-end_time <- as.POSIXct("2019-12-02", tz = "Australia/Sydney")
+end_time <- as.POSIXct("2019-12-03", tz = "Australia/Sydney")
 
 # Call function (replace 'mypassword' with your actual password)
-# images <- fire_search_images(fire_bbox, start_time, end_time, dbpassword = "mypassword")
+# images <- fire_search_images(blue_mtns_bbox, start_time, end_time, dbpassword = "mypassword")
 }

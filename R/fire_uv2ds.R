@@ -7,8 +7,19 @@
 #' @export
 #'
 #' @examples
-#' #
-uv2ds <- function(u, v) {
+#' # Example U and V components
+#' u <- c(3, -2, 0)
+#' v <- c(4, 2, -5)
+#'
+#' # Calculate wind speed and direction
+#' fire_uv2ds(u, v)
+#'
+#' # Returns a matrix:
+#' #      dir    speed
+#' # [1,]  36.87 5.00
+#' # [2,] 317.10 2.83
+#' # [3,] 180.00 5.00
+fire_uv2ds <- function(u, v) {
 
   rad2deg <- function(rad) {
     (rad * 180) / (pi)
