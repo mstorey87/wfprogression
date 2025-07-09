@@ -14,24 +14,52 @@ fire_search_hotspots(
 )
 }
 \arguments{
-\item{fire_bbox}{Bounding sf polygon of search area}
+\item{fire_bbox}{An \code{sf} polygon defining the bounding box for the search area.}
 
-\item{mapkey}{users mapkey requested from https://firms.modaps.eosdis.nasa.gov/api/map_key/}
+\item{mapkey}{Your FIRMS API map key, which you can request at:
+https://firms.modaps.eosdis.nasa.gov/api/map_key/}
 
-\item{start_date}{Search start date in YYYY-mm-dd}
+\item{start_date}{Start date of the search period in \code{YYYY-mm-dd} format.}
 
-\item{end_date}{Search end date in YYYY-mm-dd}
+\item{end_date}{End date of the search period in \code{YYYY-mm-dd} format.}
 
-\item{product_filter}{Regex character string for filter hotspot products, e.g. 'VIIRS', 'MODIS', 'SNPP', 'NOAA20', 'NOAA21'}
+\item{dest_folder}{Local folder path to temporarily download CSV files
+and to save the final GeoPackage.}
 
-\item{dest_fold}{Folder to temporarily download hotspots files (which are removed in function)}
+\item{product_filter}{Optional. A regex string to filter products
+(e.g., \code{'VIIRS'}, \code{'MODIS'}, \code{'SNPP'}, \code{'NOAA20'}, \code{'NOAA21'}). See fire_GIBS_products() for list of available products.}
 }
 \value{
-sf point object
+An \code{sf} POINT object of detected hotspots, with UTC and local times,
+satellite product info, and written GeoPackage.
 }
 \description{
-Search NASA FIRMS hotspots API
+This function queries the NASA FIRMS (Fire Information for Resource Management System)
+API for thermal hotspot detections (e.g., VIIRS, MODIS) within a specified bounding box
+and date range. It automatically handles the API's 10-day request limit by splitting
+queries into chunks, downloads the hotspot CSV files, merges them, transforms the
+coordinates to GDA94, adds local time columns, and saves a GeoPackage.
 }
 \examples{
-#z <- fire_search_hotspots(x$fire_bbox,mapkey,x$fire_bbox$startdate_search,x$fire_bbox$enddate_search,"C:/temp_data","NRT")
+\dontrun{
+library(sf)
+# Example bounding box around Canberra, Australia
+bbox <- st_as_sfc(st_bbox(c(xmin=148.8, ymin=-35.5, xmax=149.4, ymax=-35.1), crs=4326))
+
+# Replace with your FIRMS API map key and an existing folder path
+# get a mapkey here: https://firms.modaps.eosdis.nasa.gov/api/map_key/
+my_mapkey <- "YOUR_FIRMS_MAPKEY"
+
+# Search for hotspots in January 2024, filtering for VIIRS only
+hotspots <- fire_search_hotspots(
+  fire_bbox = bbox,
+  mapkey = my_mapkey,
+  start_date = "2024-01-01",
+  end_date = "2024-01-31",
+  dest_folder = "C:/temp_data",
+  product_filter = "VIIRS"
+)
+
+print(hotspots)
+}
 }

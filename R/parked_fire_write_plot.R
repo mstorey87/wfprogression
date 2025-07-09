@@ -6,7 +6,7 @@
 #' @param dest_folder Path to write jpg plots
 #'
 #' @return write jpgs to file
-#' @export
+#' @noRd
 #'
 #' @examples
 #' #purrr::map(list.tifs,~fire_write_plot(.x,dat.fire.polygon,dat.bbox,outdir))

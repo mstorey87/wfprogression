@@ -2,23 +2,36 @@
 % Please edit documentation in R/fire_tidync_safe.R
 \name{fire_tidync_safe}
 \alias{fire_tidync_safe}
-\title{Function to try loading a remote NetCDF file with retry on failure}
+\title{Safely load a remote NetCDF file with retries}
 \usage{
 fire_tidync_safe(url, max_tries = 5, wait_seconds = 10)
 }
 \arguments{
-\item{url}{nc URL, usually on THREDDS}
+\item{url}{Character string. The URL of the remote NetCDF file, typically ending in \code{.nc} and served via THREDDS.}
 
-\item{max_tries}{number of times to try loading nc again in case of error}
+\item{max_tries}{Integer. The maximum number of attempts to try loading the file. Defaults to 5.}
 
-\item{wait_seconds}{how long to wait between each try, in seconds}
+\item{wait_seconds}{Numeric. How many seconds to wait between retry attempts. Defaults to 10.}
 }
 \value{
-nc connection
+A \code{tidync} object if the connection is successful, otherwise \code{NULL} if all attempts fail.
 }
 \description{
-Function to try loading a remote NetCDF file with retry on failure
+Utility function to open a remote NetCDF dataset (typically from a THREDDS Data Server)
+using the \code{tidync} package.
+If the connection fails, it will automatically retry multiple times with a pause between attempts.
+This is helpful for large or busy THREDDS servers that can occasionally drop connections.
 }
 \examples{
-#
+\dontrun{
+# Example: Open a remote NetCDF file from NCI's THREDDS server with retry
+nc_url <- "https://thredds.nci.org.au/thredds/dodsC/zv2/agcd/v2-0-3/precip/total/r001/01month/agcd_v2_precip_total_r001_monthly_2023.nc"
+nc_data <- fire_tidync_safe(nc_url, max_tries = 3, wait_seconds = 5)
+
+if (!is.null(nc_data)) {
+  print(nc_data)
+} else {
+  message("Could not open NetCDF after retries.")
+}
+}
 }

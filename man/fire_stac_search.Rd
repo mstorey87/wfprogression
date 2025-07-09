@@ -2,7 +2,7 @@
 % Please edit documentation in R/fire_stac_search.R
 \name{fire_stac_search}
 \alias{fire_stac_search}
-\title{Search for Landsat and Sentinel 2 data}
+\title{Search for Landsat and Sentinel-2 imagery from Geoscience Australia's STAC}
 \usage{
 fire_stac_search(
   fire_bbox,
@@ -13,23 +13,47 @@ fire_stac_search(
 )
 }
 \arguments{
-\item{fire_bbox}{A polygon, usually fire bounding box, to search for images}
+\item{fire_bbox}{An \code{sf} polygon (e.g., fire extent) used to spatially filter available imagery.}
 
-\item{start_time}{The first time for which to search for images (posixct required). This will be converted to utc.}
+\item{start_time}{POSIXct date-time (local or UTC) for the start of the search window. Will be converted to UTC.}
 
-\item{end_time}{The last time for which to search for images (posixct required). This will be converted to utc.}
+\item{end_time}{POSIXct date-time for the end of the search window. Will be converted to UTC.}
 
-\item{collection_names}{Names of which Landsat and Sentinel 2 products to search for. Defaults to all products from Landsat 5 onwards.}
+\item{collection_names}{Character vector of product IDs to search for. Defaults to Landsat 5, 7, 8, 9, and Sentinel-2.}
 }
 \value{
-data frame with image paths
+A data frame with image band URLs, product names, acquisition timestamps,
+local datetimes, and a tile/date identifier for file naming.
 }
 \description{
-Search Geoscience Aus. STAC browser for Landsat and Sentinel 2 images that intersect polygon and match search dates.
-This will return a data frame of images path to input to fire_stac_download() function.
-A max of 999 records will be returned, so location and or date may need to be limited.
-Info on STAC browser is here: https://knowledge.dea.ga.gov.au/guides/setup/gis/stac/
+Searches the Digital Earth Australia (DEA) STAC API for Landsat and Sentinel-2 images
+that intersect with a given fire boundary polygon and fall within a specified date range.
+The function returns a data frame containing cloud storage paths to the bands needed
+for false-colour composites, which can then be passed to \code{fire_stac_download()}.
+
+The maximum number of returned records is 999, so narrow the spatial or temporal extent
+if necessary. For details on the DEA STAC service, see:
+\href{https://knowledge.dea.ga.gov.au/guides/setup/gis/stac/}{DEA Knowledge Base}.
 }
 \examples{
-#dat.stac <- fire_search_stac(fire_bbox = dat.bbox,start_time = datestart,end_time = dateend)
+\dontrun{
+library(sf)
+library(dplyr)
+# Example bounding box: a square around an area of interest
+fire_bbox <- st_as_sfc(st_bbox(c(xmin = 149.1, ymin = -35.4, xmax = 149.2, ymax = -35.3)), crs = 4326) \%>\%
+  st_as_sf(crs=4326)
+
+# Define search time window
+start_time <- as.POSIXct("2023-01-01", tz = "Australia/Sydney")
+end_time <- as.POSIXct("2023-01-07", tz = "Australia/Sydney")
+
+# Run the search
+stac_results <- fire_stac_search(fire_bbox, start_time, end_time)
+
+head(stac_results)
+
+outdir <- "C:/temp/landsat_sentinel"
+dir.create(outdir)
+fire_stac_download(fire_bbox, stac_results, outdir)
+}
 }

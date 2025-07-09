@@ -2,7 +2,7 @@
 % Please edit documentation in R/fire_stac_sample_veg.R
 \name{fire_stac_sample_veg}
 \alias{fire_stac_sample_veg}
-\title{Search for Geoscience Australia STAC browser for vegetation data}
+\title{Search Geoscience Australia STAC browser for vegetation data}
 \usage{
 fire_stac_sample_veg(
   sf_object,
@@ -12,22 +12,72 @@ fire_stac_sample_veg(
 )
 }
 \arguments{
-\item{sf_object}{An sf object}
+\item{sf_object}{An \code{sf} object defining the sampling area.}
 
-\item{start_time}{The first time for which to search for images (posixct required). This will be converted to utc.}
+\item{start_time}{The start time of the search window (\code{POSIXct}). Will be converted to UTC.}
 
-\item{end_time}{The last time for which to search for images (posixct required). This will be converted to utc.}
+\item{end_time}{The end time of the search window (\code{POSIXct}). Will be converted to UTC.}
 
-\item{collection_name}{Names of which Landsat and Sentinel 2 products to search for. Allowed names are: "ga_ls_fc_pc_cyear_3","ga_ls_landcover_class_cyear_3","ga_srtm_dem1sv1_0","ga_ls_fc_3". https://knowledge.dea.ga.gov.au/notebooks/Beginners_guide/03_Products_and_measurements/}
+\item{collection_name}{The name of the product to search for.
+Allowed values include:
+\itemize{
+\item \code{"ga_ls_fc_pc_cyear_3"} (Fractional Cover Percent Cover Annual)
+\item \code{"ga_ls_landcover_class_cyear_3"} (Land Cover Classification Annual)
+\item \code{"ga_srtm_dem1sv1_0"} (DEM)
+\item \code{"ga_ls_fc_3"} (Fractional Cover Daily)
+}}
 }
 \value{
-data frame with image paths
+A data frame containing sampled raster values joined to the input geometry, with variable names
+indicating the product and band. If no valid data is found, returns \code{NULL}.
 }
 \description{
-Search Geoscience Aus. STAC browser for vegetation data that intersect polygon and match search dates.
-A max of 999 records will be returned, so location and or date may need to be limited.
-Info on STAC browser is here: https://knowledge.dea.ga.gov.au/guides/setup/gis/stac/
+Searches the Geoscience Australia STAC browser for vegetation-related data that intersect a given polygon
+and fall within a specified date range. A maximum of 999 records will be returned,
+so the location and/or date range may need to be narrowed for large queries.
+
+This function uses the Digital Earth Australia STAC API:
+https://knowledge.dea.ga.gov.au/guides/setup/gis/stac/
+and product information:
+https://knowledge.dea.ga.gov.au/notebooks/Beginners_guide/03_Products_and_measurements/
 }
 \examples{
-#dat.stac <- fire_search_stac(fire_bbox = dat.bbox,start_time = datestart,end_time = dateend)
+\dontrun{
+library(sf)
+# Example sf polygon near Canberra
+my_sf <- sf::st_sfc(
+  sf::st_linestring(
+    matrix(
+      c(149.5, -35.4,
+        149.6, -35.4),
+      ncol = 2, byrow = TRUE
+    )
+  )
+
+) \%>\%
+  sf::st_as_sf(crs = 4326)
+
+# Define time window
+start_time <- as.POSIXct("2023-01-02", tz = "Australia/Sydney")
+end_time <- as.POSIXct("2023-01-21", tz = "Australia/Sydney")
+
+# Run query for Fractional Cover daily product
+result <- fire_stac_sample_veg(sf_object = my_sf,
+                               start_time = start_time,
+                               end_time = end_time,
+                               collection_name = "ga_ls_fc_3")
+
+head(result)
+
+#no end time needed for yearly veg
+#note start date will be converted to utc internally
+result_yearly <- fire_stac_sample_veg(
+sf_object = my_sf,
+start_time = start_time,
+end_time = NULL,
+collection_name = "ga_ls_fc_pc_cyear_3"
+)
+
+head(result_yearly)
+}
 }

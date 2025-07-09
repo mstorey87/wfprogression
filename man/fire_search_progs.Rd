@@ -2,7 +2,7 @@
 % Please edit documentation in R/fire_search_progs.R
 \name{fire_search_progs}
 \alias{fire_search_progs}
-\title{Search for fire progression polygons}
+\title{Search for fire progression polygons in the database}
 \usage{
 fire_search_progs(
   fire_bbox = wfprogression::fire_bbox_polygon(),
@@ -13,20 +13,57 @@ fire_search_progs(
 )
 }
 \arguments{
-\item{fire_bbox}{A polygon, usually fire bounding box, to search for images}
+\item{fire_bbox}{A polygon (\code{sf} object). Usually the fire bounding box to search for overlapping fire progression polygons.}
 
-\item{start_time}{The first date for which to search for images YYYY-mm-dd}
+\item{start_time}{The first date/time to search for (\code{POSIXct}, local timezone).}
 
-\item{end_time}{The last date for which to search for images YYYY-mm-dd}
+\item{end_time}{The last date/time to search for (\code{POSIXct}, local timezone).}
 
-\item{return_geom}{TRUE return sf object, FALSE return data frame}
+\item{return_geom}{Logical. If \code{TRUE}, return an \code{sf} object with geometries. If \code{FALSE}, return a \code{data.frame} without geometry (faster).}
+
+\item{dbpassword}{Database password for connecting to the fire progression database.}
 }
 \value{
-sf object
+An \code{sf} object (default) or a \code{data.frame} containing fire progression attributes.
 }
 \description{
-Search for fire progression polygons
+This function queries the University of Wollongong fire progression database for polygons representing mapped fire progression.
+The query will return all fire progression polygons that \strong{intersect} a given bounding polygon (\code{fire_bbox}) and fall within the specified local datetime range.
+Optionally, you can choose to return either the full spatial geometry (\code{sf} object) or just a data frame of attributes for faster queries.
+
+Note: This function requires access to the CERMb fire progression Postgres database via VPN or internal network.
 }
 \examples{
-#dat.progs.sf <- fire_search_progs(fire_bbox=dat.bbox,start_time=datestart,end_time=dateend)
+\dontrun{
+# Example: search for fire polygons in Blue Mountains for 1 December 2019
+library(sf)
+library(wfprogression)
+
+# Create a simple bounding box around part of the Blue Mountains
+blue_mtns_bbox <- sf::st_as_sfc(
+  sf::st_bbox(c(
+    xmin = 150.2,
+    ymin = -33.8,
+    xmax = 150.5,
+    ymax = -33.5
+  )),
+  crs = 4326
+) \%>\% sf::st_as_sf(crs = 4326)
+
+# Set search dates
+start_time <- as.POSIXct("2019-12-01", tz = "Australia/Sydney")
+end_time <- as.POSIXct("2019-12-02", tz = "Australia/Sydney")
+
+# Run search (needs working VPN and valid dbpassword)
+# Replace 'mypassword' with your actual password:
+fire_polys <- fire_search_progs(
+  fire_bbox = blue_mtns_bbox,
+  start_time = start_time,
+  end_time = end_time,
+  return_geom = TRUE,
+  dbpassword = "mypassword"
+)
+
+head(fire_polys)
+}
 }

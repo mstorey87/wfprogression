@@ -2,26 +2,48 @@
 % Please edit documentation in R/fire_stac_download.R
 \name{fire_stac_download}
 \alias{fire_stac_download}
-\title{Download Landsat and Sentinel 2 images.}
+\title{Download Landsat and Sentinel-2 images and clip to fire extent.}
 \usage{
 fire_stac_download(fire_bbox, stac_df, dest_folder)
 }
 \arguments{
-\item{fire_bbox}{sf polygon of search area, same polygon used as input to fire_stac_search()}
+\item{fire_bbox}{An \code{sf} polygon of the fire area of interest. Should match the input used for \code{fire_stac_search()}.}
 
-\item{stac_df}{Data frame that is the output of fire_search_stac}
+\item{stac_df}{A data frame produced by \code{fire_stac_search()} containing the band URLs and metadata.}
 
-\item{dest_folder}{the output folder for geotifs.}
+\item{dest_folder}{Local folder path to save the cropped GeoTIFF images.}
 }
 \value{
-Writes geotifs to file
+Writes GeoTIFF files to \code{dest_folder}. No object is returned.
 }
 \description{
-Download landsat and sentinel 2  false colour images. Images are clipped to fire_bbox.
-Requires that data frame output from fire_stac_search()
+Downloads Landsat and Sentinel-2 false-colour images using STAC API output.
+Streams selected bands directly from cloud storage using GDAL \verb{/vsicurl/},
+crops the imagery to the specified fire bounding box, merges the bands into
+a false-colour composite, stretches pixel values to 0-255, and writes the result
+as a GeoTIFF to the specified output folder.
+
+This function is intended to be used with the output of \code{fire_stac_search()}.
 }
 \examples{
-#outdir <- "C:\\temp\\landsat_and_sentinel"
-#dir.create(outdir)
-#fire_download_stac(dat.bbox,dat.stac,outdir)
+\dontrun{
+library(sf)
+library(dplyr)
+# Example bounding box: a square around an area of interest
+fire_bbox <- st_as_sfc(st_bbox(c(xmin = 149.1, ymin = -35.4, xmax = 149.2, ymax = -35.3)), crs = 4326) \%>\%
+  st_as_sf(crs=4326)
+
+# Define search time window
+start_time <- as.POSIXct("2023-01-01", tz = "Australia/Sydney")
+end_time <- as.POSIXct("2023-01-07", tz = "Australia/Sydney")
+
+# Run the search
+stac_results <- fire_stac_search(fire_bbox, start_time, end_time)
+
+head(stac_results)
+
+outdir <- "C:/temp/landsat_sentinel"
+dir.create(outdir)
+fire_stac_download(fire_bbox, stac_results, outdir)
+}
 }
