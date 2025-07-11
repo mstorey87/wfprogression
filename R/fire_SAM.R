@@ -50,7 +50,7 @@ fire_SAM <- function(image_path,polygons_sf=NULL,points_sf=NULL, working_dir=tem
     checkmate::assert((nrow(points_sf)>=1 & nrow(polygons_sf) == 1) , "Error: If using polygons and points, only one polygon with one or more points is allowed (not multiple points with multiple polygons)")
   }
   
-  wfprogression::fire_load_sam_once()
+  wfprogression:::fire_load_sam_once()
 
   # Load image in Python and set it for SAM
   reticulate::py$image_path <- image_path
