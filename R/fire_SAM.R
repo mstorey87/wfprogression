@@ -36,7 +36,7 @@
 
 
 
-#' Map fire polygon using Segment Anything
+#' Map fire polygon using Segment
 #'
 #' @param image_path Path to tif
 #' @param polygons_sf sf polygons
@@ -65,7 +65,8 @@ fire_SAM <- function(image_path,polygons_sf=NULL,points_sf=NULL, working_dir=tem
   wfprogression:::fire_load_sam_once()
 
   # Load image in Python and set it for SAM
-  reticulate::py$image_path <- image_path
+  #reticulate::py$image_path <- image_path
+  reticulate::py_set_attr(reticulate::py,"image_path",image_path)
   reticulate::py_run_string("
 image = cv2.imread(image_path)
 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -84,7 +85,7 @@ predictor.set_image(image)
     bbox_list <- polygons_sf %>%
       sf::st_transform(sf::st_crs(img_rast)) %>%
       split(seq_len(nrow(.))) %>%
-      purrr::map(st_bbox)
+      purrr::map(sf::st_bbox)
   }
 
   ##get point
@@ -92,7 +93,7 @@ predictor.set_image(image)
     point_list <- points_sf %>%
       sf::st_transform(sf::st_crs(img_rast)) %>%
       split(seq_len(nrow(.))) %>%
-      purrr::map(st_coordinates)
+      purrr::map(sf::st_coordinates)
   }
 
 
@@ -100,8 +101,8 @@ predictor.set_image(image)
 
 
   #get info for conversion to pixel coordinates
-  img <- image_read(image_path)
-  height <- image_info(img)$height
+  img <- magick::image_read(image_path)
+  height <- magick::image_info(img)$height
   ext <- terra::ext(img_rast)
   res <- terra::res(img_rast)
 
@@ -169,11 +170,20 @@ predictor.set_image(image)
 
 
   #send to python
-  reticulate::py$point_list <-  do.call(rbind,point_list)
-  reticulate::py$input_label <- rep(1L, length(point_list))
-  reticulate::py$input_boxes <- do.call(rbind,input_boxes)
+  #reticulate::py$point_list <-  do.call(rbind,point_list)
+  #reticulate::py$input_label <- rep(1L, length(point_list))
+  #reticulate::py$input_boxes <- do.call(rbind,input_boxes)
+  
+  reticulate::py_set_attr(reticulate::py,"point_list", do.call(rbind,point_list))
+  reticulate::py_set_attr(reticulate::py,"input_label",rep(1L, length(point_list)))
+  reticulate::py_set_attr(reticulate::py,"input_boxes",do.call(rbind,input_boxes))
+  
+  
   outpath <- file.path(working_dir,basename(image_path))
-  reticulate::py$outfile <- outpath
+  
+  reticulate::py_set_attr(reticulate::py,"outfile",outpath)
+  
+  #reticulate::py$outfile <- outpath
 
   # Step 5: Run SAM and save mask
   reticulate::py_run_string("
@@ -242,7 +252,7 @@ mask1 <- suppressWarnings(terra::rast(outpath))
 terra::ext(mask1) <- terra::ext(img_rast)
 terra::crs(mask1) <- terra::crs(img_rast)
 
-pol1 <- as.polygons(mask1) %>%
+pol1 <- terra::as.polygons(mask1) %>%
   sf::st_as_sf() %>%
   dplyr::rename(val = 1) %>%
   dplyr::filter(val > 0) %>%
