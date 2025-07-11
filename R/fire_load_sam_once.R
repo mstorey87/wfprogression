@@ -14,6 +14,7 @@
 fire_load_sam_once <- function() {
   if (!.fire_env$sam_loaded) {
 
+    message("loading SAM module")
     reticulate::use_python("C:/Users/mstorey/AppData/Local/Programs/Python/Python313/python.exe", required = TRUE)
 
     reticulate::py_run_string("
