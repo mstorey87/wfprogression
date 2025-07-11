@@ -36,6 +36,18 @@
 
 
 
+#' Map fire polygon using Segment Anything
+#'
+#' @param image_path Path to tif
+#' @param polygons_sf sf polygons
+#' @param points_sf sf points
+#' @param working_dir directory for temporary files. Default is temp dir
+#'
+#' @returns sf polygon object
+#' @export
+#'
+#' @examples
+#' #
 fire_SAM <- function(image_path,polygons_sf=NULL,points_sf=NULL, working_dir=tempdir()) {
   # Will error if not sf or NULL
   if(!is.null(polygons_sf)) {
