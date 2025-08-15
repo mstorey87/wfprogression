@@ -134,6 +134,14 @@ fire_stac_sample_veg <- function(sf_object,
   executed_stac_query <- rstac::get_request(stac_query)
   items_list <- executed_stac_query$features
 
+  #check if anything returned
+ if(length(items_list)==0){
+   message("Nothing returned. Perhaps try different search window or location")
+   return(NA)
+
+ }
+
+
   # Parse returned STAC items; only available properties are kept using this method
   items_df2 <- purrr::map_df(items_list, function(item) {
     dplyr::tibble(
