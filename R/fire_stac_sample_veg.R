@@ -176,7 +176,7 @@ fire_stac_sample_veg <- function(sf_object,
   # Stop if nothing found
   if (!nrow(dat.x) > 0) {
     message("no stac data found for ", collection_name, " ", datetime_chr)
-    return(NULL)
+    return(NA)
   }
 
   # Build https path for public data and sample rasters
