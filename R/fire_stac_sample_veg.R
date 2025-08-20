@@ -65,6 +65,7 @@
 #' head(result_yearly)
 #' }
 fire_stac_sample_veg <- function(sf_object,
+                                 id_col_name,
                                  start_time = NULL,
                                  end_time = NULL,
                                  collection_name) {
@@ -187,23 +188,41 @@ fire_stac_sample_veg <- function(sf_object,
         "https://dea-public-data.s3.ap-southeast-2.amazonaws.com"
       ),
       r = purrr::map(href, ~ terra::rast(.x, vsi = TRUE)),
-      res = purrr::map(r, ~ terra::extract(.x, sf::st_transform(sf_object, sf::st_crs(.x)), ID = TRUE, xy = TRUE, cell = TRUE))
+      res = purrr::map(r, ~ terra::extract(.x, sf::st_transform(sf_object, sf::st_crs(.x)), ID=F,xy = TRUE, cell = TRUE,bind=F) %>%
+                                  dplyr::rename(value=1,cellx=x,celly=y,cellno=cell) %>%
+                         cbind(sf_object %>% dplyr::select(dplyr::all_of(id_col_name)) %>% sf::st_drop_geometry()))
     )
 
   # Clean up extracted values and pivot to wide format
+  #may be NA value because of different tiles
   res <- dat.aws %>%
     dplyr::select(sample_name, instrument, dplyr::matches("datetime"), res) %>%
-    dplyr::mutate(res = purrr::map(res, ~ setNames(.x, c("sf_id", "value", "cell_no", "cell_x", "cell_y")))) %>%
+    #dplyr::mutate(res = purrr::map(res, ~ setNames(.x, c("sf_id", "value", "cell_no", "cell_x", "cell_y")))) %>%
     tidyr::unnest(cols = res) %>%
-    dplyr::arrange(sample_name, sf_id, cell_no) %>%
-    #dplyr::filter(!is.na(value)) %>%
+    dplyr::arrange(sample_name, value) %>%
+    dplyr::filter(!is.na(value)) %>%
     dplyr::mutate(
       sample_name = stringr::str_replace(sample_name, "_href", ""),
-      cell_x = round(cell_x, 5),
-      cell_y = round(cell_y, 5)
+      cellx = round(cellx, 5),
+      celly = round(celly, 5)
     )
 
-  res <- tidyr::pivot_wider(res, values_from = value, names_from = sample_name)
+  res <- tidyr::pivot_wider(res, values_from = value, names_from = sample_name) %>%
+    dplyr::select(dplyr::all_of(id_col_name),dplyr::everything())
+
+  #check if any ids are missing.
+  # add in missing ids as empty rows
+  sf_object_missing <- sf_object%>%
+    dplyr::select(dplyr::all_of(id_col_name)) %>%
+    sf::st_drop_geometry() %>%
+    dplyr::anti_join(res, by = id_col_name)  # removes rows with matching id
+
+
+  if(nrow(sf_object_missing)>0){
+    res <- dplyr::bind_rows(res,sf_object_missing) %>%
+      dplyr::arrange(.data[[id_col_name]],datetime)
+  }
+
 
   return(res)
 }
