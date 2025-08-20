@@ -196,7 +196,7 @@ fire_stac_sample_veg <- function(sf_object,
     dplyr::mutate(res = purrr::map(res, ~ setNames(.x, c("sf_id", "value", "cell_no", "cell_x", "cell_y")))) %>%
     tidyr::unnest(cols = res) %>%
     dplyr::arrange(sample_name, sf_id, cell_no) %>%
-    dplyr::filter(!is.na(value)) %>%
+    #dplyr::filter(!is.na(value)) %>%
     dplyr::mutate(
       sample_name = stringr::str_replace(sample_name, "_href", ""),
       cell_x = round(cell_x, 5),
