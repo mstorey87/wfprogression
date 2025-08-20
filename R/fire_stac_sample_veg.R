@@ -219,10 +219,12 @@ fire_stac_sample_veg <- function(sf_object,
 
 
   if(nrow(sf_object_missing)>0){
-    res <- dplyr::bind_rows(res,sf_object_missing) %>%
-      dplyr::arrange(.data[[id_col_name]],datetime)
+    res <- dplyr::bind_rows(res,sf_object_missing)
   }
 
+
+  res <- res %>%
+    dplyr::arrange(.data[[id_col_name]],datetime)
 
   return(res)
 }
