@@ -2,7 +2,7 @@
 % Please edit documentation in R/fire_SAM.R
 \name{fire_SAM}
 \alias{fire_SAM}
-\title{Map fire polygon using Segment Anything}
+\title{Map fire polygon using Segment}
 \usage{
 fire_SAM(
   image_path,
@@ -24,7 +24,7 @@ fire_SAM(
 sf polygon object
 }
 \description{
-Map fire polygon using Segment Anything
+Map fire polygon using Segment
 }
 \examples{
 #

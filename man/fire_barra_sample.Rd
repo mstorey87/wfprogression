@@ -19,6 +19,7 @@ fire_barra_sample(
   datetimeutc,
   sf_data,
   varname,
+  return_rast = FALSE,
   allcells = FALSE,
   timestep,
   extract_fun = "mean"
@@ -32,6 +33,9 @@ fire_barra_sample(
 \item{sf_data}{\code{sf} object (typically points or polygons) with locations to sample}
 
 \item{varname}{Character; BARRA variable name matching variable in NetCDF (e.g. "sfcWind", "tas")}
+
+\item{return_rast}{Logical; if TRUE, a terra spatrast is returned. If FALSE, a data frame of sampled
+values are returned.}
 
 \item{allcells}{Logical; if TRUE returns all intersecting cells in BARRA data for polygons;
 if FALSE (default), returns summarized value (e.g. mean) for points or polygons}

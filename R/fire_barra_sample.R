@@ -30,6 +30,8 @@
 #' @param datetimeutc POSIXct datetime in UTC; must match time dimension in NetCDF connection
 #' @param sf_data `sf` object (typically points or polygons) with locations to sample
 #' @param varname Character; BARRA variable name matching variable in NetCDF (e.g. "sfcWind", "tas")
+#' @param return_rast Logical; if TRUE, a terra spatrast is returned. If FALSE, a data frame of sampled
+#'                    values are returned.
 #' @param allcells Logical; if TRUE returns all intersecting cells in BARRA data for polygons;
 #'                 if FALSE (default), returns summarized value (e.g. mean) for points or polygons
 #' @param timestep Character; one of "hourly", "daily", or "monthly". Determines time filtering.
@@ -64,6 +66,7 @@
 #' )
 #' }
 fire_barra_sample <- function(nc_conn, datetimeutc, sf_data, varname,
+                              return_rast=FALSE,
                               allcells = FALSE, timestep, extract_fun = "mean") {
   # see end of this document for variable names http://www.bom.gov.au/research/publications/researchreports/BRR-067.pdf
   # example here of R2 variables on thredds https://thredds.nci.org.au/thredds/catalog/ob53/output/reanalysis/AUS-11/BOM/ERA5/historical/hres/BARRA-R2/v1/1hr/catalog.html
@@ -117,18 +120,29 @@ fire_barra_sample <- function(nc_conn, datetimeutc, sf_data, varname,
   r <- terra::rast(b.local)
   terra::crs(r) <- "epsg:4326"  # WGS84 geographic coordinate system
 
+  #if user just wants a rast returned:
+  if(return_rast==TRUE){
+
+    return(r)
+  }
+
+
+
+
   # Extract raster values for input sf locations
-  if (allcells == FALSE) {
+  if (allcells == FALSE & return_rast==FALSE) {
     res <- terra::extract(r, sf_data, fun = extract_fun, ID = FALSE)
     names(res) <- paste0(names(res), "_", extract_fun)
     res <- cbind(sf_data, res)
+    return(res)
   }
 
   # If allcells = TRUE, return all intersecting raster cells as a list-column
-  if (allcells == TRUE) {
+  if (allcells == TRUE & return_rast==FALSE) {
     res <- terra::extract(r, sf_data, raw = FALSE, ID = FALSE)
     sf_data[[varname]] <- list(res)
     res <- sf_data
+    return(res)
   }
 
   return(res)

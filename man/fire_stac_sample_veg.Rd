@@ -6,6 +6,7 @@
 \usage{
 fire_stac_sample_veg(
   sf_object,
+  id_col_name,
   start_time = NULL,
   end_time = NULL,
   collection_name
