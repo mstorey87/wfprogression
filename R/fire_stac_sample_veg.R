@@ -19,6 +19,7 @@
 #'   - `"ga_ls_landcover_class_cyear_3"` (Land Cover Classification Annual)
 #'   - `"ga_srtm_dem1sv1_0"` (DEM)
 #'   - `"ga_ls_fc_3"` (Fractional Cover Daily)
+#'   @param return_rasts Logical. Return a list of terra spatrasts (vsi connections) instead of sampled dataframe
 #'
 #' @return A data frame containing sampled raster values joined to the input geometry, with variable names
 #'   indicating the product and band. If no valid data is found, returns `NULL`.
@@ -68,7 +69,8 @@ fire_stac_sample_veg <- function(sf_object,
                                  id_col_name,
                                  start_time = NULL,
                                  end_time = NULL,
-                                 collection_name) {
+                                 collection_name,
+                                 return_rasts=FALSE) {
 
   # Check input: must be sf
   checkmate::assert(inherits(sf_object, "sf"), "Error: sf input object needed")
@@ -192,6 +194,12 @@ fire_stac_sample_veg <- function(sf_object,
                                   dplyr::rename(value=1,cellx=x,celly=y,cellno=cell) %>%
                          cbind(sf_object %>% dplyr::select(dplyr::all_of(id_col_name)) %>% sf::st_drop_geometry()))
     )
+
+
+  if(return_rasts==T){
+    return(dat.aws$r)
+  }
+
 
   # Clean up extracted values and pivot to wide format
   #may be NA value because of different tiles

@@ -73,6 +73,10 @@ fire_barra_sample <- function(nc_conn, datetimeutc, sf_data, varname,
   # some variables are sfcWind (surface wind), tas (temperature), hurs (RH), vas and uas (wind components). These are the values on the hour. Some variables
   # have variations e.g. tasmean is mean hourly temperature
 
+  ## ensure utc
+  checkmate::assert(lubridate::tz(datetimeutc) %in% c("utc","UTC"),"Error: UTC time needed")
+
+
   # Transform input sf object to lat-lon (EPSG:4326) for spatial filtering
   sf_data <- sf_data %>% sf::st_transform(4326)
 

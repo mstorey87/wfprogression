@@ -27,6 +27,8 @@ fire_barra_path <- function(datetimeutc, barraid, timestep, varname) {
   checkmate::assert_choice(barraid, c("R2", "C2"), .var.name = "barraid")
   checkmate::assert_choice(timestep, c("hourly", "daily", "monthly"), .var.name = "timestep")
   checkmate::assert_string(varname)
+  ## ensure utc
+  checkmate::assert(lubridate::tz(datetimeutc) %in% c("utc","UTC"),"Error: UTC time needed")
 
   # Map barraid to internal product code used in paths
   barraid1 <- switch(barraid,
