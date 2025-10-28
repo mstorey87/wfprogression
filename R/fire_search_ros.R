@@ -22,17 +22,6 @@
 #'
 #' @examples
 #' #
-
-fire_bbox = wfprogression::fire_bbox_polygon()
-start_time = as.POSIXct("1950-01-01")
-end_time = as.POSIXct("2050-01-01")
-ros=c(0,100)
-temperature = c(20,30)
-rh=c(0,100)
-windspeed=c(40,50)
-progressions = TRUE
-dbpassword="bushfires"
-
 fire_search_ros <- function(fire_bbox = wfprogression::fire_bbox_polygon(),
                               start_time = as.POSIXct("1950-01-01"),
                               end_time = as.POSIXct("2050-01-01"),
