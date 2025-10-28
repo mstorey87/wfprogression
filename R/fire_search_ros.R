@@ -124,6 +124,14 @@ fire_search_ros <- function(fire_bbox = wfprogression::fire_bbox_polygon(),
     dplyr::select(start_time_utc,end_time_utc,analysis_filter,line_km_epsg4283,ros_kmh_epsg4283,
                   lineid,fire_id,fire_name,start_polyid,end_polyid)
 
+
+  #filter by user ros
+  lines.x <- lines.x %>%
+    dplyr::filter(ros_kmh_epsg4283 >= ros[1] & ros_kmh_epsg4283 <= ros[2])
+
+  x <- x %>%
+    dplyr::filter(lineid %in% lines.x$lineid)
+
   if(progressions==T){
     #get progressions via progression  ids in line data
     progids <- paste0(unique(c(lines.x$start_polyid,lines.x$end_polyid)),collapse=",")
