@@ -9,7 +9,8 @@ fire_stac_sample_veg(
   id_col_name,
   start_time = NULL,
   end_time = NULL,
-  collection_name
+  collection_name,
+  return_rasts = FALSE
 )
 }
 \arguments{
@@ -26,6 +27,7 @@ Allowed values include:
 \item \code{"ga_ls_landcover_class_cyear_3"} (Land Cover Classification Annual)
 \item \code{"ga_srtm_dem1sv1_0"} (DEM)
 \item \code{"ga_ls_fc_3"} (Fractional Cover Daily)
+@param return_rasts Logical. Return a list of terra spatrasts (vsi connections) instead of sampled dataframe
 }}
 }
 \value{
