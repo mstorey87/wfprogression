@@ -23,6 +23,16 @@
 #' @examples
 #' #
 
+fire_bbox = wfprogression::fire_bbox_polygon()
+start_time = as.POSIXct("1950-01-01")
+end_time = as.POSIXct("2050-01-01")
+ros=c(0,100)
+temperature = c(20,30)
+rh=c(0,100)
+windspeed=c(40,50)
+progressions = TRUE
+dbpassword="bushfires"
+
 fire_search_ros <- function(fire_bbox = wfprogression::fire_bbox_polygon(),
                               start_time = as.POSIXct("1950-01-01"),
                               end_time = as.POSIXct("2050-01-01"),
@@ -52,9 +62,6 @@ fire_search_ros <- function(fire_bbox = wfprogression::fire_bbox_polygon(),
 
 
 
-  #convert to ms to match db
-  windspeed <-  windspeed/3.6#stored in ms in db
-
 
 
 
@@ -80,10 +87,16 @@ fire_search_ros <- function(fire_bbox = wfprogression::fire_bbox_polygon(),
   # Convert polygon to WKT for SQL query
   txt_geom <- sf::st_as_text(sf::st_geometry(fire_bbox), EWKT = TRUE)
 
+
+  #convert to ms to match db
+  windspeed <-  windspeed/3.6#stored in ms in db
+  temperature <- temperature+273.15
+
+
   #make sql query for weather
   txt_wind <- glue::glue("sfcwind_mean BETWEEN {windspeed[1]} AND {windspeed[2]}")
-  txt_temp <- glue::glue("sfcwind_mean BETWEEN {temperature[1]} AND {temperature[2]}")
-  txt_rh <- glue::glue("sfcwind_mean BETWEEN {rh[1]} AND {rh[2]}")
+  txt_temp <- glue::glue("tas_mean BETWEEN {temperature[1]} AND {temperature[2]}")
+  txt_rh <- glue::glue("hurs_mean BETWEEN {rh[1]} AND {rh[2]}")
   txt_weath <- glue::glue("{txt_wind} AND {txt_temp} AND {txt_rh}")
 
   # Create SQL date condition
@@ -108,15 +121,26 @@ fire_search_ros <- function(fire_bbox = wfprogression::fire_bbox_polygon(),
 
   #get weather
   myquery <- paste0(
-    "SELECT lineid, start_time_utc, end_time_utc, time_utc_hourly, time_round, sfcwind_mean, tas_mean, hurs_mean
+    "SELECT lineid
        FROM fires.weather
        WHERE st_intersects(fires.weather.geom,'",
-    txt_geom, "') AND ", txt_date, " AND ",txt_wind
+    txt_geom, "') AND ", txt_date, " AND ",txt_weath
   )
   x <- DBI::dbGetQuery(DB, myquery)
 
-  #get the lines via lineids in weather data
   lineids <- paste0(unique(x$lineid),collapse=",")
+  #no get all weather for each lineid captured in above query
+  myquery <- glue::glue("SELECT lineid, start_time_utc, end_time_utc, time_utc_hourly, time_round, sfcwind_mean, tas_mean, hurs_mean
+                           FROM fires.weather
+                           WHERE lineid IN ({lineids})")
+
+  x <- DBI::dbGetQuery(DB, myquery)
+
+
+
+
+  #get the lines via lineids in weather data
+
   myquery <- glue::glue("SELECT * FROM fires.lines WHERE lineid IN ({lineids})")
 
   lines.x <- sf::st_read(dsn = DB, query = myquery) %>%
