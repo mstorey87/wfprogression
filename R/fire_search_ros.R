@@ -23,14 +23,14 @@
 #' @examples
 #' #
 fire_search_ros <- function(fire_bbox = wfprogression::fire_bbox_polygon(),
-                              start_time = as.POSIXct("1950-01-01"),
-                              end_time = as.POSIXct("2050-01-01"),
-                              ros=c(0,100),
-                              temperature = c(0,100),
-                              rh=c(0,100),
-                              windspeed=c(0,100),
-                              progressions = TRUE,
-                              dbpassword) {
+                            start_time = as.POSIXct("1950-01-01"),
+                            end_time = as.POSIXct("2050-01-01"),
+                            ros=c(0,100),
+                            temperature = c(0,100),
+                            rh=c(0,100),
+                            windspeed=c(0,100),
+                            progressions = TRUE,
+                            dbpassword) {
 
   # Check inputs: start and end time must be POSIXct
   checkmate::assert(inherits(start_time, "POSIXct"), "Error: times must be POSIXct")
@@ -47,25 +47,21 @@ fire_search_ros <- function(fire_bbox = wfprogression::fire_bbox_polygon(),
   # Connect to the CERMb fire progression Postgres database
   checkmate::assert(nzchar(dbpassword), "Error: dbpassword must not be empty")
 
+  if(!exists("DB")){
 
 
 
+    DB <- DBI::dbConnect(
+      RPostgres::Postgres(),
+      dbname = "cermb_fires",
+      user = "mstorey",
+      password = dbpassword,
+      host = "charus.ad.uow.edu.au",
+      port = 5432
+    )
 
-
-
-
-
-  DB <- DBI::dbConnect(
-    RPostgres::Postgres(),
-    dbname = "cermb_fires",
-    user = "mstorey",
-    password = dbpassword,
-    host = "charus.ad.uow.edu.au",
-    port = 5432
-  )
-
-  on.exit(DBI::dbDisconnect(DB), add = TRUE)
-
+    on.exit(DBI::dbDisconnect(DB), add = TRUE)
+  }
   # Simplify input polygon shape for faster spatial intersection
   fire_bbox <- fire_bbox %>%
     sf::st_transform(4283) %>%
