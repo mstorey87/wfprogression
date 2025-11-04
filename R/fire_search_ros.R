@@ -47,9 +47,8 @@ fire_search_ros <- function(fire_bbox = wfprogression::fire_bbox_polygon(),
   # Connect to the CERMb fire progression Postgres database
   checkmate::assert(nzchar(dbpassword), "Error: dbpassword must not be empty")
 
+  #don't reconnect if already connected
   if(!exists("DB")){
-
-
 
     DB <- DBI::dbConnect(
       RPostgres::Postgres(),
