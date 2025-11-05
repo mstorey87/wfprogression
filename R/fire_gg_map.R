@@ -9,6 +9,7 @@
 #'
 #' This is an internal helper for quick visual checks.
 #'
+#'
 #' @param image A `terra::rast()` raster object. Should contain RGB bands named `red`, `green`, and `blue`.
 #' @param prog An `sf` polygons object to overlay. Optional.
 #' @param agg Integer aggregation factor passed to `terra::aggregate()` to downsample the raster for faster plotting.
