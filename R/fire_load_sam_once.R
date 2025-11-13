@@ -16,7 +16,7 @@ fire_load_sam_once <- function() {
 
     message("loading SAM module")
     #reticulate::use_python("C:/Users/mstorey/AppData/Local/Programs/Python/Python313/python.exe", required = TRUE)
-    reticulate::use_condaenv(condaenv = "sam2_env")
+    #reticulate::use_condaenv(condaenv = "sam2_env")
     reticulate::py_run_string("
 import torch
 import numpy as np

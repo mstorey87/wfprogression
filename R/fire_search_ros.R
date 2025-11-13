@@ -128,9 +128,10 @@ fire_search_ros <- function(fire_bbox = wfprogression::fire_bbox_polygon(),
   myquery <- glue::glue("SELECT * FROM fires.lines WHERE lineid IN ({lineids})")
 
   lines.x <- sf::st_read(dsn = DB, query = myquery) %>%
-    sf::st_as_sf() %>%
-    dplyr::select(start_time_utc,end_time_utc,start_time_local,end_time_local,analysis_filter,line_km_epsg4283,ros_kmh_epsg4283,
-                  lineid,fire_id,fire_name,state,start_polyid,end_polyid)
+    sf::st_as_sf()
+  # %>%
+  #   dplyr::select(start_time_utc,end_time_utc,start_time_local,end_time_local,analysis_filter,line_km_epsg4283,ros_kmh_epsg4283,
+  #                 lineid,fire_id,fire_name,state,start_polyid,end_polyid)
 
 
   #filter by user ros
