@@ -12,13 +12,59 @@
 #'
 #' @return Invisibly returns TRUE.
 #' @noRd
-fire_load_sam_once <- function(checkpoints_dir) {
+fire_load_sam_once <- function(checkpoints_dir=NULL) {
   if (!.fire_env$sam_loaded) {
 
     message("loading SAM module")
     #reticulate::use_python("C:/Users/mstorey/AppData/Local/Programs/Python/Python313/python.exe", required = TRUE)
     #reticulate::use_condaenv(condaenv = "sam2_env")
-    reticulate::py$checkpoints_dir <- checkpoints_dir
+    #reticulate::py$checkpoints_dir <- checkpoints_dir
+
+    if(is.null(checkpoints_dir)){
+      checkpoints_dir <- tempdir()
+    }
+
+    sam2_checkpoint <- file.path(checkpoints_dir,"sam2.1_hiera_tiny.pt")
+    sam2_config <- file.path(checkpoints_dir,'sam2.1_hiera_t.yaml')
+
+    if (!file.exists(sam2_checkpoint)) {
+
+      message(paste0("checkpoints not found, downloading to ",checkpoints_dir))
+      if(!file.exists(checkpoints_dir)|!file.exists(sam2_config)){
+        dir.create(checkpoints_dir)
+      }
+
+      sam2_checkpoint_loc <- file.path(checkpoints_dir, "sam2.1_hiera_tiny.pt")
+      download.file(  'https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_tiny.pt',
+                      sam2_checkpoint_loc,
+                      mode = "wb")
+
+      sam2_config_loc <- file.path(checkpoints_dir, "sam2.1_hiera_t.yaml")
+      download.file(  'https://raw.githubusercontent.com/facebookresearch/sam2/refs/heads/main/sam2/configs/sam2.1/sam2.1_hiera_t.yaml',
+                      sam2_config_loc,
+                      mode = "wb")
+
+          #reticulate::py$model_cfg <- sam2_config_loc
+          #reticulate::py$sam2_checkpoint <- sam2_checkpoint_loc
+          reticulate::py_run_string(glue::glue("
+model_cfg = r'{sam2_config_loc}'
+sam2_checkpoint = r'{sam2_checkpoint_loc}'
+"))
+
+
+    }else{
+        reticulate::py_run_string(glue::glue("
+model_cfg = r'{sam2_config}'
+sam2_checkpoint = r'{sam2_checkpoint}'
+"))
+      # reticulate::py$model_cfg <- sam2_config
+      # reticulate::py$sam2_checkpoint <- sam2_checkpoint
+
+
+    }
+
+
+
     reticulate::py_run_string("
 import torch
 import numpy as np
@@ -35,8 +81,8 @@ from sam2.sam2_image_predictor import SAM2ImagePredictor
 #checkpoints_dir = os.path.join(conda_prefix, 'checkpoints')
 
 # --- Define model paths ---
-sam2_checkpoint = os.path.join(checkpoints_dir, 'sam2.1_hiera_tiny.pt')
-model_cfg = os.path.join(checkpoints_dir, 'sam2.1_hiera_tiny.yaml')
+#sam2_checkpoint = os.path.join(checkpoints_dir, 'sam2.1_hiera_base_plus.pt')
+#model_cfg = os.path.join(checkpoints_dir, 'sam2.1_hiera_b+.yaml')
 
 #sam2_checkpoint = r'C:\\Users\\mstorey\\sam2\\checkpoints\\sam2.1_hiera_base_plus.pt'
 #model_cfg = r'C:\\Users\\mstorey\\sam2\\checkpoints\\sam2.1_hiera_b+.yaml'
