@@ -5,18 +5,20 @@
 .fire_env$sam_loaded <- FALSE
 
 #' Internal: Load SAM model once
+#' @param checkpoints_dir Directory with model checkpoint pt and config yaml
 #'
 #' Loads the Python SAM2 model using reticulate. This runs only once per R session.
 #' It sets a flag in a package-private environment.
 #'
 #' @return Invisibly returns TRUE.
 #' @noRd
-fire_load_sam_once <- function() {
+fire_load_sam_once <- function(checkpoints_dir) {
   if (!.fire_env$sam_loaded) {
 
     message("loading SAM module")
     #reticulate::use_python("C:/Users/mstorey/AppData/Local/Programs/Python/Python313/python.exe", required = TRUE)
     #reticulate::use_condaenv(condaenv = "sam2_env")
+    reticulate::py$checkpoints_dir <- checkpoints_dir
     reticulate::py_run_string("
 import torch
 import numpy as np
@@ -29,8 +31,8 @@ from sam2.sam2_image_predictor import SAM2ImagePredictor
 
 
 # --- Find the conda environment folder ---
-conda_prefix = sys.prefix
-checkpoints_dir = os.path.join(conda_prefix, 'checkpoints')
+#conda_prefix = sys.prefix
+#checkpoints_dir = os.path.join(conda_prefix, 'checkpoints')
 
 # --- Define model paths ---
 sam2_checkpoint = os.path.join(checkpoints_dir, 'sam2.1_hiera_tiny.pt')
