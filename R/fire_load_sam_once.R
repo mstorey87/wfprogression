@@ -73,6 +73,7 @@ import numpy as np
 import cv2
 import os
 import sys
+import sam2
 
 from sam2.build_sam import build_sam2
 from sam2.sam2_image_predictor import SAM2ImagePredictor
@@ -109,6 +110,7 @@ predictor = SAM2ImagePredictor(sam2_model)
 
       reticulate::py_run_string(glue::glue("
 import shutil
+import sam2
 
 # --- Paths --- Need to copy to config path on decoker
 src_yaml = r'{file.path(checkpoints_dir, 'sam2.1_hiera_t.yaml')}'
