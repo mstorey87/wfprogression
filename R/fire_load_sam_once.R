@@ -1,18 +1,20 @@
 # In zzz.R or a new file like R/sam_loader.R
 
+
 # Package-level environment to store session state
 .fire_env <- new.env(parent = emptyenv())
 .fire_env$sam_loaded <- FALSE
 
 #' Internal: Load SAM model once
 #' @param checkpoints_dir Directory with model checkpoint pt and config yaml
+#' @param docker TRUE/FALSE if running inside docker, to allow relative paths to work
 #'
 #' Loads the Python SAM2 model using reticulate. This runs only once per R session.
 #' It sets a flag in a package-private environment.
 #'
 #' @return Invisibly returns TRUE.
 #' @noRd
-fire_load_sam_once <- function(checkpoints_dir=NULL) {
+fire_load_sam_once <- function(checkpoints_dir=NULL,docker=FALSE) {
   if (!.fire_env$sam_loaded) {
 
     message("loading SAM module")
@@ -94,9 +96,45 @@ elif torch.backends.mps.is_available():
 else:
     device = torch.device('cpu')
 
+")
+
+    if(docker==FALSE){
+          reticulate::py_run_string("
 sam2_model = build_sam2(model_cfg, sam2_checkpoint, device=device)
 predictor = SAM2ImagePredictor(sam2_model)
 ")
+
+    }else{
+
+
+      reticulate::py_run_string(glue::glue("
+import shutil
+
+# --- Paths --- Need to copy to config path on decoker
+src_yaml = r'{file.path(checkpoints_dir, 'sam2.1_hiera_t.yaml')}'
+dest_dir = os.path.join(os.path.dirname(sam2.__file__), 'configs', 'sam2.1')
+os.makedirs(dest_dir, exist_ok=True)
+dest_yaml = os.path.join(dest_dir, 'sam2.1_hiera_t.yaml')
+
+# --- Copy YAML into package ---
+shutil.copy2(src_yaml, dest_yaml)
+print('Copied YAML to:', dest_yaml)
+
+checkpoint = r'{file.path(checkpoints_dir, 'sam2.1_hiera_tiny.pt')}'
+
+# --- Build SAM2 model ---
+sam2_model = build_sam2(
+    config_file='configs/sam2.1/sam2.1_hiera_t.yaml',  # relative to sam2 package
+    checkpoint=checkpoint,
+    device=device
+)
+
+predictor = SAM2ImagePredictor(sam2_model)
+print('SAM2 model loaded successfully.')
+"))
+
+    }
+
     .fire_env$sam_loaded <- TRUE
   }
   invisible(TRUE)
