@@ -102,7 +102,7 @@ else:
     if(docker==FALSE){
           reticulate::py_run_string("
 sam2_model = build_sam2(model_cfg, sam2_checkpoint, device=device)
-#predictor = SAM2ImagePredictor(sam2_model)
+predictor = SAM2ImagePredictor(sam2_model)
 ")
 
     }else{
