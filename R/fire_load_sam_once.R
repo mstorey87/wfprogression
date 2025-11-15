@@ -34,6 +34,7 @@ fire_load_sam_once <- function(checkpoints_dir=NULL,docker=FALSE) {
       message(paste0("checkpoints not found, downloading to ",checkpoints_dir))
       if(!file.exists(checkpoints_dir)|!file.exists(sam2_config)){
         dir.create(checkpoints_dir)
+       # dir.create(file.path(checkpoints_dir,"sam2.1"))
       }
 
       sam2_checkpoint_loc <- file.path(checkpoints_dir, "sam2.1_hiera_tiny.pt")
@@ -104,7 +105,7 @@ predictor = SAM2ImagePredictor(sam2_model)
 
 if checkpoints_dir not in sys.path:
     sys.path.append(checkpoints_dir)
-print(f'Added config path to sys.path: {checkpoints_dir}')
+#print(f'Added config path to sys.path: {checkpoints_dir}')
 
 # --- Build SAM2 model ---
 config_file = 'sam2.1_hiera_t.yaml'  # relative to the custom config folder
