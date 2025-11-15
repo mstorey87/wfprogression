@@ -119,7 +119,7 @@ dest_dir = os.path.join(os.path.dirname(sam2.__file__), 'configs', 'sam2.1')
 dest_yaml = os.path.join(dest_dir, 'sam2.1_hiera_t.yaml')
 
 # --- Copy YAML into package ---
-#shutil.copy2(src_yaml, dest_yaml)
+shutil.copy2(src_yaml, dest_yaml)
 print('Not Copied YAML to:', dest_yaml)
 
 checkpoint = r'{file.path(checkpoints_dir, 'sam2.1_hiera_tiny.pt')}'
