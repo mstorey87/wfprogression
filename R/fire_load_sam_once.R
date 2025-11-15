@@ -37,12 +37,12 @@ fire_load_sam_once <- function(checkpoints_dir=NULL,docker=FALSE) {
         dir.create(file.path(checkpoints_dir,"sam2.1"))
       }
 
-      sam2_checkpoint_loc <- file.path(checkpoints_dir, "sam2.1","sam2.1_hiera_tiny.pt")
+      sam2_checkpoint_loc <- file.path(checkpoints_dir, "sam2.1_hiera_tiny.pt")
       download.file(  'https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_tiny.pt',
                       sam2_checkpoint_loc,
                       mode = "wb")
 
-      sam2_config_loc <- file.path(checkpoints_dir, "sam2.1_hiera_t.yaml")
+      sam2_config_loc <- file.path(checkpoints_dir, "sam2.1","sam2.1_hiera_t.yaml")
       download.file(  'https://raw.githubusercontent.com/facebookresearch/sam2/refs/heads/main/sam2/configs/sam2.1/sam2.1_hiera_t.yaml',
                       sam2_config_loc,
                       mode = "wb")
