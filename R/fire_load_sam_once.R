@@ -114,8 +114,8 @@ import sam2
 
 # --- Paths --- Need to copy to config path on decoker
 src_yaml = r'{file.path(checkpoints_dir, 'sam2.1_hiera_t.yaml')}'
-#dest_dir = os.path.join(os.path.dirname(sam2.__file__), 'configs', 'sam2.1')
-dest_dir = os.path.join(os.path.dirname(sam2.__file__))
+dest_dir = os.path.join(os.path.dirname(sam2.__file__), 'configs', 'sam2.1')
+#dest_dir = os.path.join(os.path.dirname(sam2.__file__))
 #os.makedirs(dest_dir, exist_ok=True)
 dest_yaml = os.path.join(dest_dir, 'sam2.1_hiera_t.yaml')
 
@@ -125,8 +125,8 @@ print('Not Copied YAML to:', dest_yaml)
 
 checkpoint = r'{file.path(checkpoints_dir, 'sam2.1_hiera_tiny.pt')}'
 
-#config_path_rel = 'configs/sam2.1/sam2.1_hiera_t.yaml'
-config_path_rel = 'sam2.1_hiera_t.yaml'
+config_path_rel = 'configs/sam2.1/sam2.1_hiera_t.yaml'
+#config_path_rel = 'sam2.1_hiera_t.yaml'
 print('Entering YAML path to SAM:', config_path_rel)
 # --- Build SAM2 model ---
 sam2_model = build_sam2(
