@@ -128,7 +128,7 @@ config_path_rel = 'configs/sam2.1/sam2.1_hiera_t.yaml'
 print('Entering YAML path to SAM:', config_path_rel)
 # --- Build SAM2 model ---
 sam2_model = build_sam2(
-    config_file=config_path_rel,  # relative to sam2 package
+    config_file=dest_yaml,  # relative to sam2 package
     checkpoint=checkpoint,
     device=device
 )
