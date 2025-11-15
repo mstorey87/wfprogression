@@ -103,8 +103,8 @@ predictor = SAM2ImagePredictor(sam2_model)
 # os.environ['HYDRA_CONFIG_PATH'] = custom_cfg_dir
 # os.environ['HYDRA_FULL_ERROR'] = '1'
 
-if checkpoints_dir not in sys.path:
-    sys.path.append(checkpoints_dir)
+if {checkpoints_dir} not in sys.path:
+    sys.path.append({checkpoints_dir})
 #print(f'Added config path to sys.path: {checkpoints_dir}')
 
 # --- Build SAM2 model ---
