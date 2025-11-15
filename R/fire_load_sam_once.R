@@ -34,10 +34,10 @@ fire_load_sam_once <- function(checkpoints_dir=NULL,docker=FALSE) {
       message(paste0("checkpoints not found, downloading to ",checkpoints_dir))
       if(!file.exists(checkpoints_dir)|!file.exists(sam2_config)){
         dir.create(checkpoints_dir)
-       # dir.create(file.path(checkpoints_dir,"sam2.1"))
+        dir.create(file.path(checkpoints_dir,"sam2.1"))
       }
 
-      sam2_checkpoint_loc <- file.path(checkpoints_dir, "sam2.1_hiera_tiny.pt")
+      sam2_checkpoint_loc <- file.path(checkpoints_dir, "sam2.1","sam2.1_hiera_tiny.pt")
       download.file(  'https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_tiny.pt',
                       sam2_checkpoint_loc,
                       mode = "wb")
@@ -99,16 +99,16 @@ predictor = SAM2ImagePredictor(sam2_model)
 
       reticulate::py_run_string(glue::glue("
 # --- Create custom Hydra config path ---
-# custom_cfg_dir = r'{checkpoints_dir}'
-# os.environ['HYDRA_CONFIG_PATH'] = custom_cfg_dir
-# os.environ['HYDRA_FULL_ERROR'] = '1'
+custom_cfg_dir = r'{checkpoints_dir}'
+os.environ['HYDRA_CONFIG_PATH'] = custom_cfg_dir
+os.environ['HYDRA_FULL_ERROR'] = '1'
 
-if r'{checkpoints_dir}' not in sys.path:
-    sys.path.append(r'{checkpoints_dir}')
+# if r'{checkpoints_dir}' not in sys.path:
+#     sys.path.append(r'{checkpoints_dir}')
 #print(f'Added config path to sys.path: {checkpoints_dir}')
 
 # --- Build SAM2 model ---
-config_file = 'sam2.1_hiera_t.yaml'  # relative to the custom config folder
+config_file = r'sam2.1/sam2.1_hiera_t.yaml'  # relative to the custom config folder
 checkpoint = r'{file.path(checkpoints_dir, 'sam2.1_hiera_tiny.pt')}'
 
 sam2_model = build_sam2(
