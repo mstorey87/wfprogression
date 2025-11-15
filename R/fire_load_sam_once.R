@@ -14,7 +14,7 @@
 #'
 #' @return Invisibly returns TRUE.
 #' @noRd
-fire_load_sam_once <- function(checkpoints_dir=NULL) {
+fire_load_sam_once <- function(checkpoints_dir=NULL,docker=FALSE) {
   if (!.fire_env$sam_loaded) {
 
     message("loading SAM module")
