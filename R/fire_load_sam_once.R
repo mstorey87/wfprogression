@@ -98,9 +98,13 @@ predictor = SAM2ImagePredictor(sam2_model)
 
       reticulate::py_run_string(glue::glue("
 # --- Create custom Hydra config path ---
-custom_cfg_dir = r'{checkpoints_dir}'
-os.environ['HYDRA_CONFIG_PATH'] = custom_cfg_dir
-os.environ['HYDRA_FULL_ERROR'] = '1'
+# custom_cfg_dir = r'{checkpoints_dir}'
+# os.environ['HYDRA_CONFIG_PATH'] = custom_cfg_dir
+# os.environ['HYDRA_FULL_ERROR'] = '1'
+
+if checkpoints_dir not in sys.path:
+    sys.path.append(checkpoints_dir)
+print(f'Added config path to sys.path: {checkpoints_dir}')
 
 # --- Build SAM2 model ---
 config_file = 'sam2.1_hiera_t.yaml'  # relative to the custom config folder
