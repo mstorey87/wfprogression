@@ -151,7 +151,7 @@ predictor = SAM2ImagePredictor(sam2_model)
 # print('SAM2 model loaded successfully.')
 # "))
 
-    }
+ #   }
 
     .fire_env$sam_loaded <- TRUE
   }
