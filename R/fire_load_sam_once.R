@@ -7,14 +7,13 @@
 
 #' Internal: Load SAM model once
 #' @param checkpoints_dir Directory with model checkpoint pt and config yaml
-#' @param docker TRUE/FALSE if running inside docker, to allow relative paths to work
 #'
 #' Loads the Python SAM2 model using reticulate. This runs only once per R session.
 #' It sets a flag in a package-private environment.
 #'
 #' @return Invisibly returns TRUE.
 #' @noRd
-fire_load_sam_once <- function(checkpoints_dir=NULL,docker=FALSE) {
+fire_load_sam_once <- function(checkpoints_dir=NULL) {
   if (!.fire_env$sam_loaded) {
 
     message("loading SAM module")
@@ -34,7 +33,7 @@ fire_load_sam_once <- function(checkpoints_dir=NULL,docker=FALSE) {
       message(paste0("checkpoints not found, downloading to ",checkpoints_dir))
       if(!file.exists(checkpoints_dir)|!file.exists(sam2_config)){
         dir.create(checkpoints_dir)
-        dir.create(file.path(checkpoints_dir,"sam2.1"))
+       # dir.create(file.path(checkpoints_dir,"sam2.1"))
       }
 
       sam2_checkpoint_loc <- file.path(checkpoints_dir, "sam2.1_hiera_tiny.pt")
@@ -42,7 +41,7 @@ fire_load_sam_once <- function(checkpoints_dir=NULL,docker=FALSE) {
                       sam2_checkpoint_loc,
                       mode = "wb")
 
-      sam2_config_loc <- file.path(checkpoints_dir, "sam2.1","sam2.1_hiera_t.yaml")
+      sam2_config_loc <- file.path(checkpoints_dir, "sam2.1_hiera_t.yaml")
       download.file(  'https://raw.githubusercontent.com/facebookresearch/sam2/refs/heads/main/sam2/configs/sam2.1/sam2.1_hiera_t.yaml',
                       sam2_config_loc,
                       mode = "wb")
@@ -88,37 +87,37 @@ else:
 
 ")
 
-    if(docker==FALSE){
+#    if(docker==FALSE){
           reticulate::py_run_string("
 sam2_model = build_sam2(model_cfg, sam2_checkpoint, device=device)
 predictor = SAM2ImagePredictor(sam2_model)
 ")
 
-    }else{
+#    }else{
 
 
-      reticulate::py_run_string(glue::glue("
-# --- Create custom Hydra config path ---
-custom_cfg_dir = r'{checkpoints_dir}'
-os.environ['HYDRA_CONFIG_PATH'] = custom_cfg_dir
-os.environ['HYDRA_FULL_ERROR'] = '1'
-
-# if r'{checkpoints_dir}' not in sys.path:
-#     sys.path.append(r'{checkpoints_dir}')
-#print(f'Added config path to sys.path: {checkpoints_dir}')
-
-# --- Build SAM2 model ---
-config_file = r'sam2.1/sam2.1_hiera_t.yaml'  # relative to the custom config folder
-checkpoint = r'{file.path(checkpoints_dir, 'sam2.1_hiera_tiny.pt')}'
-
-sam2_model = build_sam2(
-    config_file=config_file,  # relative to sam2 package
-    checkpoint=checkpoint,
-    device=device
-)
-
-predictor = SAM2ImagePredictor(sam2_model)
-print('SAM2 model loaded successfully.')"))
+#       reticulate::py_run_string(glue::glue("
+# # --- Create custom Hydra config path ---
+# custom_cfg_dir = r'{checkpoints_dir}'
+# os.environ['HYDRA_CONFIG_PATH'] = custom_cfg_dir
+# os.environ['HYDRA_FULL_ERROR'] = '1'
+#
+# # if r'{checkpoints_dir}' not in sys.path:
+# #     sys.path.append(r'{checkpoints_dir}')
+# #print(f'Added config path to sys.path: {checkpoints_dir}')
+#
+# # --- Build SAM2 model ---
+# config_file = r'sam2.1/sam2.1_hiera_t.yaml'  # relative to the custom config folder
+# checkpoint = r'{file.path(checkpoints_dir, 'sam2.1_hiera_tiny.pt')}'
+#
+# sam2_model = build_sam2(
+#     config_file=config_file,  # relative to sam2 package
+#     checkpoint=checkpoint,
+#     device=device
+# )
+#
+# predictor = SAM2ImagePredictor(sam2_model)
+# print('SAM2 model loaded successfully.')"))
 
 
 #       reticulate::py_run_string(glue::glue("
