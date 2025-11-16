@@ -26,14 +26,14 @@ fire_load_sam_once <- function(checkpoints_dir=NULL) {
     }
 
     sam2_checkpoint <- file.path(checkpoints_dir,"sam2.1_hiera_tiny.pt")
-    sam2_config <- file.path(checkpoints_dir,'sam2.1_hiera_t.yaml')
+    sam2_config <- file.path(checkpoints_dir,"sam2.1",'sam2.1_hiera_t.yaml')
 
     if (!file.exists(sam2_checkpoint)) {
 
       message(paste0("checkpoints not found, downloading to ",checkpoints_dir))
       if(!file.exists(checkpoints_dir)|!file.exists(sam2_config)){
         dir.create(checkpoints_dir)
-       # dir.create(file.path(checkpoints_dir,"sam2.1"))
+        dir.create(file.path(checkpoints_dir,"sam2.1"))
       }
 
       sam2_checkpoint_loc <- file.path(checkpoints_dir, "sam2.1_hiera_tiny.pt")
@@ -41,7 +41,7 @@ fire_load_sam_once <- function(checkpoints_dir=NULL) {
                       sam2_checkpoint_loc,
                       mode = "wb")
 
-      sam2_config_loc <- file.path(checkpoints_dir, "sam2.1_hiera_t.yaml")
+      sam2_config_loc <- file.path(checkpoints_dir,"sam2.1", "sam2.1_hiera_t.yaml")
       download.file(  'https://raw.githubusercontent.com/facebookresearch/sam2/refs/heads/main/sam2/configs/sam2.1/sam2.1_hiera_t.yaml',
                       sam2_config_loc,
                       mode = "wb")
