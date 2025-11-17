@@ -7,13 +7,14 @@
 
 #' Internal: Load SAM model once
 #' @param checkpoints_dir Directory with model checkpoint pt and config yaml
+#' @param docker TRUE or FALSE if building to docker image
 #'
 #' Loads the Python SAM2 model using reticulate. This runs only once per R session.
 #' It sets a flag in a package-private environment.
 #'
 #' @return Invisibly returns TRUE.
 #' @noRd
-fire_load_sam_once <- function(checkpoints_dir=NULL) {
+fire_load_sam_once <- function(checkpoints_dir=NULL,docker=FALSE) {
   if (!.fire_env$sam_loaded) {
 
     message("loading SAM module")
@@ -87,13 +88,46 @@ else:
 
 ")
 
-#    if(docker==FALSE){
+    if(docker==FALSE){
           reticulate::py_run_string("
 sam2_model = build_sam2(model_cfg, sam2_checkpoint, device=device)
 predictor = SAM2ImagePredictor(sam2_model)
 ")
 
-#    }else{
+    }else{
+
+      config_dir <- file.path(checkpoints_dir,"/sam2.1")
+
+      reticulate::py_run_string(glue::glue("
+from sam2.build_sam import build_sam2
+from sam2.sam2_image_predictor import SAM2ImagePredictor
+from hydra import initialize_config_dir
+from hydra.core.global_hydra import GlobalHydra
+import os
+import torch
+
+# Clear any existing Hydra instance
+GlobalHydra.instance().clear()
+
+# Set device
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+# Get absolute path to config directory
+#config_dir = os.path.abspath('/srv/venv/checkpoints/sam2.1')
+config_dir = os.path.abspath({config_dir})
+
+# Initialize Hydra with the config directory
+with initialize_config_dir(config_dir=config_dir, version_base=None):
+    sam2_model = build_sam2(
+        config_file='sam2.1_hiera_t',  # Just the filename without extension
+        checkpoint=sam2_checkpoint,
+        device=device
+    )
+    predictor = SAM2ImagePredictor(sam2_model)
+"))
+
+
+    }
 
 
 #       reticulate::py_run_string(glue::glue("
