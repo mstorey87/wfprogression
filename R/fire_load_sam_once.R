@@ -90,7 +90,7 @@ dest_dir = os.path.join(os.path.dirname(sam2.__file__))
 "))
     dest_dir <- reticulate::py$dest_dir
     copy_to <- file.path(dest_dir,basename(sam2_config))
-    if(!file.exist(copy_to)){
+    if(!file.exists(copy_to)){
 
 
 
