@@ -57,6 +57,10 @@ model_cfg = r'{sam2_config}'
 sam2_checkpoint = r'{sam2_checkpoint}'
 "))
 
+
+
+
+
     }
 
     reticulate::py_run_string("
@@ -79,9 +83,20 @@ else:
 
 ")
 
+    #copy yaml to config path
+    reticulate::py_run_string(glue::glue("
+# Destination folder inside the installed SAM2 package
+dest_dir = os.path.join(os.path.dirname(sam2.__file__))
+"))
+    dest_dir <- reticulate::py$dest_dir
+    copy_to <- file.path(dest_dir,basename(sam2_config))
+    file.copy(sam2_config,copy_to)
+
+
+
 
           reticulate::py_run_string("
-sam2_model = build_sam2(model_cfg, sam2_checkpoint, device=device)
+sam2_model = build_sam2(r'sam2.1_hiera_t.yaml', sam2_checkpoint, device=device)
 predictor = SAM2ImagePredictor(sam2_model)
 ")
 
