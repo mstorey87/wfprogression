@@ -74,7 +74,7 @@ print('cv2 read')
 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 print('cv2 color set')
 predictor.set_image(image)
-print('predictor iamge set')
+print('predictor image set')
 ")
 
 
