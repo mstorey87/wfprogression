@@ -114,7 +114,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 # Get absolute path to config directory
 #config_dir = os.path.abspath('/srv/venv/checkpoints/sam2.1')
-config_dir = os.path.abspath({config_dir})
+config_dir = os.path.abspath(r'{config_dir}')
 
 # Initialize Hydra with the config directory
 with initialize_config_dir(config_dir=config_dir, version_base=None):
