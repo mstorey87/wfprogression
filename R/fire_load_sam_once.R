@@ -96,51 +96,32 @@ predictor = SAM2ImagePredictor(sam2_model)
 
     }else{
 
-      config_dir <- file.path(checkpoints_dir, "sam2.1")
-
       reticulate::py_run_string(glue::glue("
-from sam2.build_sam import build_sam2
-from sam2.sam2_image_predictor import SAM2ImagePredictor
-from hydra import initialize_config_dir
-from hydra.core.global_hydra import GlobalHydra
 import os
-import torch
+import shutil
+import sam2
 
-# Debug: Check paths
-config_dir_path = r'{config_dir}'
-checkpoint_path = r'{sam2_checkpoint}'
-config_file_path = os.path.join(config_dir_path, 'sam2.1_hiera_t.yaml')
+# --- Source and destination for YAML ---
+src_yaml = r'{sam2_config}'
+dest_dir = os.path.join(os.path.dirname(sam2.__file__), 'configs', 'sam2.1')
+os.makedirs(dest_dir, exist_ok=True)
+dest_yaml = os.path.join(dest_dir, 'sam2.1_hiera_t.yaml')
 
-print(f'Config dir exists: {{os.path.exists(config_dir_path)}}')
-print(f'Config file exists: {{os.path.exists(config_file_path)}}')
-print(f'Checkpoint exists: {{os.path.exists(checkpoint_path)}}')
-print(f'Config dir contents: {{os.listdir(config_dir_path)}}')
+# --- Copy YAML into package folder ---
+shutil.copy2(src_yaml, dest_yaml)
+print('Copied YAML to:', dest_yaml)
 
-# Clear any existing Hydra instance
-GlobalHydra.instance().clear()
+# --- Set Hydra config path to the copied YAML directory ---
+os.environ['HYDRA_CONFIG_PATH'] = os.path.dirname(dest_yaml)
+os.environ['HYDRA_FULL_ERROR'] = '1'
 
-# Set device
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-print(f'Using device: {{device}}')
+# --- Build SAM2 model using the copied YAML ---
+checkpoint = r'{sam2_checkpoint}'
+config_file = 'sam2.1_hiera_t.yaml'  # relative to Hydra config path
+sam2_model = sam2.build_sam2(config_file=config_file, checkpoint=checkpoint, device='cpu')
+predictor = sam2.SAM2ImagePredictor(sam2_model)
 
-# Get absolute path to config directory
-config_dir = os.path.abspath(config_dir_path)
-
-# Initialize Hydra WITHOUT context manager
-initialize_config_dir(config_dir=config_dir, version_base=None)
-
-sam2_model = build_sam2(
-    config_file='sam2.1_hiera_t',
-    checkpoint=checkpoint_path,
-    device=device
-)
-
-predictor = SAM2ImagePredictor(sam2_model)
-
-# Verify model loaded correctly
-print(f'Model type: {{type(sam2_model)}}')
-print(f'Model device: {{next(sam2_model.parameters()).device}}')
-print('Model loaded successfully!')
+print('SAM2 model loaded successfully in Docker.')
 "))
 
 # Access from R
