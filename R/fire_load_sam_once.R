@@ -101,29 +101,29 @@ predictor = SAM2ImagePredictor(sam2_model)
       reticulate::py_run_string(glue::glue("
 from sam2.build_sam import build_sam2
 from sam2.sam2_image_predictor import SAM2ImagePredictor
-from hydra import initialize_config_dir
-from hydra.core.global_hydra import GlobalHydra
-import os
 import torch
+import os
 
-# Clear any existing Hydra instance
-GlobalHydra.instance().clear()
+# Save original directory
+original_dir = os.getcwd()
+
+# Change to config directory
+os.chdir(r'{config_dir}')
 
 # Set device
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-# Get absolute path to config directory
-config_dir = os.path.abspath(r'{config_dir}')
-
-# Initialize Hydra WITHOUT context manager (stays active)
-initialize_config_dir(config_dir=config_dir, version_base=None)
-
+# Build model with relative paths
 sam2_model = build_sam2(
-    config_file='sam2.1_hiera_t',
+    config_file='sam2.1_hiera_t.yaml',  # Include .yaml when in same dir
     checkpoint=r'{sam2_checkpoint}',
     device=device
 )
 
+# Change back to original directory
+os.chdir(original_dir)
+
+# Create predictor
 predictor = SAM2ImagePredictor(sam2_model)
 "))
 
