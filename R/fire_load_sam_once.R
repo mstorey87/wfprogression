@@ -106,29 +106,41 @@ from hydra.core.global_hydra import GlobalHydra
 import os
 import torch
 
+# Debug: Check paths
+config_dir_path = r'{config_dir}'
+checkpoint_path = r'{sam2_checkpoint}'
+config_file_path = os.path.join(config_dir_path, 'sam2.1_hiera_t.yaml')
+
+print(f'Config dir exists: {{os.path.exists(config_dir_path)}}')
+print(f'Config file exists: {{os.path.exists(config_file_path)}}')
+print(f'Checkpoint exists: {{os.path.exists(checkpoint_path)}}')
+print(f'Config dir contents: {{os.listdir(config_dir_path)}}')
+
 # Clear any existing Hydra instance
 GlobalHydra.instance().clear()
 
 # Set device
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
+print(f'Using device: {{device}}')
 
 # Get absolute path to config directory
-config_dir = os.path.abspath(r'{config_dir}')
+config_dir = os.path.abspath(config_dir_path)
 
 # Initialize Hydra WITHOUT context manager
 initialize_config_dir(config_dir=config_dir, version_base=None)
 
-# Store as globals
-global sam2_model, predictor
-
 sam2_model = build_sam2(
     config_file='sam2.1_hiera_t',
-    checkpoint=r'{sam2_checkpoint}',
+    checkpoint=checkpoint_path,
     device=device
 )
 
 predictor = SAM2ImagePredictor(sam2_model)
-print('Model and predictor created and stored as globals')
+
+# Verify model loaded correctly
+print(f'Model type: {{type(sam2_model)}}')
+print(f'Model device: {{next(sam2_model.parameters()).device}}')
+print('Model loaded successfully!')
 "))
 
 # Access from R
