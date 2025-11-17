@@ -70,8 +70,11 @@ fire_SAM <- function(image_path,polygons_sf=NULL,points_sf=NULL, working_dir=tem
   reticulate::py_set_attr(reticulate::py,"image_path",image_path)
   reticulate::py_run_string("
 image = cv2.imread(image_path)
+print('cv2 read')
 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+print('cv2 color set')
 predictor.set_image(image)
+print('predictor iamge set')
 ")
 
 
