@@ -20,7 +20,7 @@
 # #from sam2.automatic_mask_generator import SAM2AutomaticMaskGenerator
 # sam2_checkpoint = r"C:\\Users\\mstorey\\sam2\\checkpoints\\sam2.1_hiera_base_plus.pt"
 # model_cfg = r"C:\\Users\\mstorey\\sam2\\checkpoints\\sam2.1_hiera_b+.yaml"
-# 
+#
 # # select the device for computation
 # if torch.cuda.is_available():
 #     device = torch.device("cuda")
@@ -28,7 +28,7 @@
 #     device = torch.device("mps")
 # else:
 #     device = torch.device("cpu")
-# 
+#
 # sam2_model = build_sam2(model_cfg, sam2_checkpoint, device=device)
 # predictor = SAM2ImagePredictor(sam2_model)
 # ')
@@ -61,11 +61,12 @@ fire_SAM <- function(image_path,polygons_sf=NULL,points_sf=NULL, working_dir=tem
   if(!is.null(points_sf) & !is.null(polygons_sf)) {
     checkmate::assert((nrow(points_sf)>=1 & nrow(polygons_sf) == 1) , "Error: If using polygons and points, only one polygon with one or more points is allowed (not multiple points with multiple polygons)")
   }
-  
+
   wfprogression:::fire_load_sam_once()
 
   # Load image in Python and set it for SAM
   #reticulate::py$image_path <- image_path
+  message(glue::glue("reading {image_path} (cv)"))
   reticulate::py_set_attr(reticulate::py,"image_path",image_path)
   reticulate::py_run_string("
 image = cv2.imread(image_path)
@@ -74,12 +75,16 @@ predictor.set_image(image)
 ")
 
 
+  message(glue::glue("reading {image_path} (terra)"))
+
+
   #load rast for plotting in R
   # Load input image as raster and PNG for display
   img_rast <- terra::rast(image_path)
 
 
 
+  message("transforming points or polygons")
   # Transform and extract one bbox per polygon
   if(!is.null(polygons_sf)){
     bbox_list <- polygons_sf %>%
@@ -100,6 +105,7 @@ predictor.set_image(image)
 
 
 
+  message(glue::glue("reading {image_path} (magick)"))
   #get info for conversion to pixel coordinates
   img <- magick::image_read(image_path)
   height <- magick::image_info(img)$height
@@ -107,6 +113,7 @@ predictor.set_image(image)
   res <- terra::res(img_rast)
 
 
+  message("processing polygons (if drawn)")
   if(!is.null(polygons_sf)){
     # Convert each bbox to pixel coordinates and input_box format
     input_boxes <- purrr::map(bbox_list, function(bbox) {
@@ -140,7 +147,7 @@ predictor.set_image(image)
   }
 
 
-
+  message("processing points (if drawn)")
   if(!is.null(points_sf)){
 
 
@@ -173,18 +180,20 @@ predictor.set_image(image)
   #reticulate::py$point_list <-  do.call(rbind,point_list)
   #reticulate::py$input_label <- rep(1L, length(point_list))
   #reticulate::py$input_boxes <- do.call(rbind,input_boxes)
-  
+
+  message("seinding to python")
   reticulate::py_set_attr(reticulate::py,"point_list", do.call(rbind,point_list))
   reticulate::py_set_attr(reticulate::py,"input_label",rep(1L, length(point_list)))
   reticulate::py_set_attr(reticulate::py,"input_boxes",do.call(rbind,input_boxes))
-  
-  
+
+
   outpath <- file.path(working_dir,basename(image_path))
-  
+
   reticulate::py_set_attr(reticulate::py,"outfile",outpath)
-  
+
   #reticulate::py$outfile <- outpath
 
+  message("running sam")
   # Step 5: Run SAM and save mask
   reticulate::py_run_string("
 height = image.shape[0]
@@ -246,7 +255,7 @@ cv2.imwrite(outfile, output_rgba)
 ")
 
 
-
+message("load and vectorize mask")
 # Step 6: Load and vectorize mask
 mask1 <- suppressWarnings(terra::rast(outpath))
 terra::ext(mask1) <- terra::ext(img_rast)
@@ -262,10 +271,11 @@ pol1 <- terra::as.polygons(mask1) %>%
   dplyr::mutate(rowid = as.character(dplyr::row_number()))
 
 #fill any small holes
+message("filling small holes")
 area_thresh <- units::set_units(1000, m^2)
 pol1 <- smoothr::fill_holes(pol1, threshold = area_thresh)
 
-
+message("final processing")
 pol2 <- sf::st_transform(pol1, 4326) %>%
   sf::st_simplify(dTolerance = 0.1) %>%
   sf::st_make_valid() %>%
@@ -283,19 +293,19 @@ return(pol2)
 # files <- list.files("D:\\temp\\seg", full.names = TRUE, pattern = "\\.tif$")
 # image_path <- files[[1]]
 # im <- raster::stack(image_path) %>% raster::aggregate(5)
-# 
+#
 # m <- mapview::viewRGB(im)
 # drawn <- mapedit::editMap(m)
 # polygons_sf <- drawn$drawn %>%
 #   dplyr::filter(st_geometry_type(geometry) %in% c("POLYGON", "MULTIPOLYGON"))
-# 
+#
 # points_sf <- drawn$drawn %>%
 #   dplyr::filter(st_geometry_type(geometry) %in% c("POINT"))
-# 
+#
 # if(nrow(polygons_sf)==0) polygons_sf <- NULL
 # if(nrow(points_sf)==0) points_sf <- NULL
-# 
-# 
+#
+#
 # p <- fn_run(image_path,polygons_sf,points_sf)
 # mapview::mapview(p)+mapview::viewRGB(im)
 
