@@ -97,31 +97,33 @@ predictor = SAM2ImagePredictor(sam2_model)
     }else{
 
       config_dir <- file.path(checkpoints_dir, "sam2.1")
-      config_file <- file.path(config_dir, "sam2.1_hiera_t.yaml")
 
       reticulate::py_run_string(glue::glue("
 from sam2.build_sam import build_sam2
 from sam2.sam2_image_predictor import SAM2ImagePredictor
-from omegaconf import OmegaConf
-import torch
+from hydra import initialize_config_dir
+from hydra.core.global_hydra import GlobalHydra
 import os
+import torch
+
+# Clear any existing Hydra instance
+GlobalHydra.instance().clear()
 
 # Set device
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-# Load config directly with OmegaConf (bypasses Hydra)
-config_path = r'{config_file}'
-cfg = OmegaConf.load(config_path)
+# Get absolute path to config directory
+config_dir = os.path.abspath(r'{config_dir}')
 
-# Build model from config object
-from sam2.modeling.sam2_base import SAM2Base
+# Initialize Hydra with the config directory
+with initialize_config_dir(config_dir=config_dir, version_base=None):
+    sam2_model = build_sam2(
+        config_file='sam2.1_hiera_t',
+        checkpoint=r'{sam2_checkpoint}',
+        device=device
+    )
 
-sam2_model = build_sam2(
-    config_file=r'{config_file}',
-    checkpoint=r'{sam2_checkpoint}',
-    device=device
-)
-
+# Create predictor OUTSIDE the context manager
 predictor = SAM2ImagePredictor(sam2_model)
 "))
 
