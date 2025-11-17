@@ -115,15 +115,15 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 # Get absolute path to config directory
 config_dir = os.path.abspath(r'{config_dir}')
 
-# Initialize Hydra with the config directory
-with initialize_config_dir(config_dir=config_dir, version_base=None):
-    sam2_model = build_sam2(
-        config_file='sam2.1_hiera_t',
-        checkpoint=r'{sam2_checkpoint}',
-        device=device
-    )
+# Initialize Hydra WITHOUT context manager (stays active)
+initialize_config_dir(config_dir=config_dir, version_base=None)
 
-# Create predictor OUTSIDE the context manager
+sam2_model = build_sam2(
+    config_file='sam2.1_hiera_t',
+    checkpoint=r'{sam2_checkpoint}',
+    device=device
+)
+
 predictor = SAM2ImagePredictor(sam2_model)
 "))
 
