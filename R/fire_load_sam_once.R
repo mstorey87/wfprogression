@@ -7,13 +7,17 @@
 
 #' Internal: Load SAM model once
 #' @param checkpoints_dir Directory with model checkpoint pt and config yaml
+#' @param pt_name checkpoint file name. eg "sam2.1_hiera_tiny.pt"
+#' @param yaml_name config file name. eg 'sam2.1_hiera_t.yaml'
 #'
 #' Loads the Python SAM2 model using reticulate. This runs only once per R session.
 #' It sets a flag in a package-private environment.
 #'
 #' @return Invisibly returns TRUE.
 #' @noRd
-fire_load_sam_once <- function(checkpoints_dir=NULL) {
+fire_load_sam_once <- function(checkpoints_dir=NULL,
+                               pt_name="sam2.1_hiera_tiny.pt",
+                               yaml_name='sam2.1_hiera_t.yaml') {
   if (!.fire_env$sam_loaded) {
 
     message("loading SAM module")
@@ -23,8 +27,8 @@ fire_load_sam_once <- function(checkpoints_dir=NULL) {
       checkpoints_dir <- tempdir()
     }
 
-    sam2_checkpoint <- file.path(checkpoints_dir,"sam2.1_hiera_tiny.pt")
-    sam2_config <- file.path(checkpoints_dir,"sam2.1",'sam2.1_hiera_t.yaml')
+    sam2_checkpoint <- file.path(checkpoints_dir,pt_name)
+    sam2_config <- file.path(checkpoints_dir,"sam2.1",yaml_name)
 
     if (!file.exists(sam2_checkpoint)) {
 
@@ -34,13 +38,13 @@ fire_load_sam_once <- function(checkpoints_dir=NULL) {
         dir.create(file.path(checkpoints_dir,"sam2.1"))
       }
 
-      sam2_checkpoint_loc <- file.path(checkpoints_dir, "sam2.1_hiera_tiny.pt")
-      download.file(  'https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_tiny.pt',
+      sam2_checkpoint_loc <- file.path(checkpoints_dir, pt_name)
+      download.file(  glue::glue('https://dl.fbaipublicfiles.com/segment_anything_2/092824/{pt_name}'),
                       sam2_checkpoint_loc,
                       mode = "wb")
 
-      sam2_config_loc <- file.path(checkpoints_dir,"sam2.1", "sam2.1_hiera_t.yaml")
-      download.file(  'https://raw.githubusercontent.com/facebookresearch/sam2/refs/heads/main/sam2/configs/sam2.1/sam2.1_hiera_t.yaml',
+      sam2_config_loc <- file.path(checkpoints_dir,"sam2.1", yaml_name)
+      download.file(  glue::glue('https://raw.githubusercontent.com/facebookresearch/sam2/refs/heads/main/sam2/configs/sam2.1/{yaml_name}'),
                       sam2_config_loc,
                       mode = "wb")
 
@@ -100,10 +104,10 @@ dest_dir = os.path.join(os.path.dirname(sam2.__file__))
     }
 
 
-    reticulate::py_run_string("
-sam2_model = build_sam2(r'sam2.1_hiera_t.yaml', sam2_checkpoint, device=device)
+    reticulate::py_run_string(glue::glue("
+sam2_model = build_sam2(r'{yaml_name}', sam2_checkpoint, device=device)
 predictor = SAM2ImagePredictor(sam2_model)
-")
+"))
     message("sam loaded successfully")
 
 
