@@ -8,7 +8,8 @@ fire_search_images(
   fire_bbox = fire_bbox_polygon(),
   start_time,
   end_time,
-  dbpassword
+  dbpassword,
+  RDS = FALSE
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ fire_search_images(
 \item{end_time}{The end date-time (\code{POSIXct}) for the search window (e.g. "YYYY-mm-dd").}
 
 \item{dbpassword}{A character string with the database password.}
+
+\item{RDS}{Logical. If TRUE, connect to Amazon RDS database. If FALSE, connect to UOW database.}
 }
 \value{
 An \code{sf} object containing any line scan polygons found in the database.

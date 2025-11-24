@@ -9,7 +9,8 @@ fire_search_progs(
   start_time,
   end_time,
   return_geom = TRUE,
-  dbpassword
+  dbpassword,
+  RDS = FALSE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ fire_search_progs(
 \item{return_geom}{Logical. If \code{TRUE}, return an \code{sf} object with geometries. If \code{FALSE}, return a \code{data.frame} without geometry (faster).}
 
 \item{dbpassword}{Database password for connecting to the fire progression database.}
+
+\item{RDS}{Logical. If TRUE, connect to Amazon RDS database. If FALSE, connect to UOW database.}
 }
 \value{
 An \code{sf} object (default) or a \code{data.frame} containing fire progression attributes.
