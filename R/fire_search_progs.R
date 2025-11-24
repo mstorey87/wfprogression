@@ -12,6 +12,7 @@
 #' @param end_time The last date/time to search for (`POSIXct`, local timezone).
 #' @param return_geom Logical. If `TRUE`, return an `sf` object with geometries. If `FALSE`, return a `data.frame` without geometry (faster).
 #' @param dbpassword Database password for connecting to the fire progression database.
+#' @param RDS Logical. If TRUE, connect to Amazon RDS database. If FALSE, connect to UOW database.
 #'
 #' @return An `sf` object (default) or a `data.frame` containing fire progression attributes.
 #' @export
@@ -53,7 +54,8 @@ fire_search_progs <- function(fire_bbox = wfprogression::fire_bbox_polygon(),
                               start_time,
                               end_time,
                               return_geom = TRUE,
-                              dbpassword) {
+                              dbpassword,
+                              RDS=FALSE) {
 
   # Check inputs: start and end time must be POSIXct
   checkmate::assert(inherits(start_time, "POSIXct"), "Error: times must be POSIXct")
@@ -71,15 +73,35 @@ fire_search_progs <- function(fire_bbox = wfprogression::fire_bbox_polygon(),
   checkmate::assert(nzchar(dbpassword), "Error: dbpassword must not be empty")
 
 
+  if(isTrue(RDS)){
+    # Database connection parameters
+    host <- "database-1.cn2u4ig8wad8.ap-southeast-2.rds.amazonaws.com"
+    user <- "postgres"
+    port <- 5432  # Default PostgreSQL port
 
-  DB <- DBI::dbConnect(
-    RPostgres::Postgres(),
-    dbname = "cermb_fires",
-    user = "mstorey",
-    password = dbpassword,
-    host = "charus.ad.uow.edu.au",
-    port = 5432
-  )
+    # Establish the connection
+    DB <- DBI::dbConnect(RPostgres::Postgres(),
+                          dbname = 'postgres',
+                          host = host,
+                          port = port,
+                          user = user,
+                          password = dbpassword)
+
+     }
+
+  if(!isTrue(RDS)){
+
+    DB <- DBI::dbConnect(
+      RPostgres::Postgres(),
+      dbname = "cermb_fires",
+      user = "mstorey",
+      password = dbpassword,
+      host = "charus.ad.uow.edu.au",
+      port = 5432
+    )
+
+  }
+
 
   on.exit(DBI::dbDisconnect(DB), add = TRUE)
 

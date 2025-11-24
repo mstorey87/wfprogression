@@ -8,6 +8,7 @@
 #' @param start_time The start date-time (`POSIXct`) for the search window (e.g. "YYYY-mm-dd").
 #' @param end_time The end date-time (`POSIXct`) for the search window (e.g. "YYYY-mm-dd").
 #' @param dbpassword A character string with the database password.
+#' @param RDS Logical. If TRUE, connect to Amazon RDS database. If FALSE, connect to UOW database.
 #'
 #' @return An `sf` object containing any line scan polygons found in the database.
 #' If no results are found, a message is printed and `NULL` is returned.
@@ -36,7 +37,7 @@
 #'
 #' # Call function (replace 'mypassword' with your actual password)
 #' # images <- fire_search_images(blue_mtns_bbox, start_time, end_time, dbpassword = "mypassword")
-fire_search_images <- function(fire_bbox = fire_bbox_polygon(), start_time, end_time, dbpassword) {
+fire_search_images <- function(fire_bbox = fire_bbox_polygon(), start_time, end_time, dbpassword,RDS=FALSE) {
 
   # Check that start and end time are POSIXct
   checkmate::assert(inherits(start_time, "POSIXct"), "Error: times must be POSIXct")
@@ -61,6 +62,38 @@ fire_search_images <- function(fire_bbox = fire_bbox_polygon(), start_time, end_
                        password = dbpassword,
                        host = "charus.ad.uow.edu.au",
                        port = 5432)
+
+  if(isTrue(RDS)){
+    # Database connection parameters
+    host <- "database-1.cn2u4ig8wad8.ap-southeast-2.rds.amazonaws.com"
+    user <- "postgres"
+    port <- 5432  # Default PostgreSQL port
+
+    # Establish the connection
+    DB <- DBI::dbConnect(RPostgres::Postgres(),
+                         dbname = 'postgres',
+                         host = host,
+                         port = port,
+                         user = user,
+                         password = dbpassword)
+
+  }
+
+  if(!isTrue(RDS)){
+
+    DB <- DBI::dbConnect(
+      RPostgres::Postgres(),
+      dbname = "cermb_fires",
+      user = "mstorey",
+      password = dbpassword,
+      host = "charus.ad.uow.edu.au",
+      port = 5432
+    )
+
+  }
+
+
+
   on.exit(DBI::dbDisconnect(DB), add = TRUE)
 
   # Simplify fire polygon shape (convex hull)

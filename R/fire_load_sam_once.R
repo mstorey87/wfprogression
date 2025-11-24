@@ -30,7 +30,7 @@ fire_load_sam_once <- function(checkpoints_dir=NULL,
     sam2_checkpoint <- file.path(checkpoints_dir,pt_name)
     sam2_config <- file.path(checkpoints_dir,"sam2.1",yaml_name)
 
-    if (!file.exists(sam2_checkpoint)) {
+    if (!file.exists(sam2_checkpoint)|!file.exists(sam2_config)) {
 
       message(paste0("checkpoints not found, downloading to ",checkpoints_dir))
       if(!file.exists(checkpoints_dir)|!file.exists(sam2_config)){
