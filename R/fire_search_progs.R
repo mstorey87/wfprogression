@@ -73,7 +73,7 @@ fire_search_progs <- function(fire_bbox = wfprogression::fire_bbox_polygon(),
   checkmate::assert(nzchar(dbpassword), "Error: dbpassword must not be empty")
 
 
-  if(isTrue(RDS)){
+  if(isTRUE(RDS)){
     # Database connection parameters
     host <- "database-1.cn2u4ig8wad8.ap-southeast-2.rds.amazonaws.com"
     user <- "postgres"
@@ -89,7 +89,7 @@ fire_search_progs <- function(fire_bbox = wfprogression::fire_bbox_polygon(),
 
      }
 
-  if(!isTrue(RDS)){
+  if(!isTRUE(RDS)){
 
     DB <- DBI::dbConnect(
       RPostgres::Postgres(),
