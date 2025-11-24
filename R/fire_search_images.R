@@ -55,13 +55,6 @@ fire_search_images <- function(fire_bbox = fire_bbox_polygon(), start_time, end_
   # Check that dbpassword is not empty
   checkmate::assert(nzchar(dbpassword), "Error: dbpassword must not be empty")
 
-  # Connect to the CERMB fires database
-  DB <- DBI::dbConnect(RPostgres::Postgres(),
-                       dbname = "cermb_fires",
-                       user = "mstorey",
-                       password = dbpassword,
-                       host = "charus.ad.uow.edu.au",
-                       port = 5432)
 
   if(isTrue(RDS)){
     # Database connection parameters
