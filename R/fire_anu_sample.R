@@ -111,7 +111,8 @@ fire_anu_sample <- function(datetimeutc, sf_data, varname, allcells = FALSE, ext
 
   if (isTRUE(allcells)) {
     sf_data[[varname]] <- list(vals)
-    result <- sf_data
+    result <- sf_data %>%
+      dplyr::mutate(extract_date=closest_date)
   } else {
 
     #calculate how many cells that cross line are NA
@@ -122,7 +123,8 @@ fire_anu_sample <- function(datetimeutc, sf_data, varname, allcells = FALSE, ext
     names(vals)=paste0(names(vals),"_",extract_fun)
 
 
-    result <- cbind(sf_data, vals,prc_NA)
+    result <- cbind(sf_data, vals,prc_NA) %>%
+      dplyr::mutate(extract_date=closest_date)
 
     #give more meaningful names
     names(result)[3]=paste0(names(result)[2],"_",names(result)[3])
