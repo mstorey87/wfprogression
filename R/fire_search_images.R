@@ -58,7 +58,7 @@ fire_search_images <- function(fire_bbox = fire_bbox_polygon(), start_time, end_
 
   if(isTRUE(RDS)){
     # Database connection parameters
-    host <- "database-1.cn2u4ig8wad8.ap-southeast-2.rds.amazonaws.com"
+    host <- "database-1.c7qmuuwwinte.ap-southeast-2.rds.amazonaws.com"
     user <- "postgres"
     port <- 5432  # Default PostgreSQL port
 
