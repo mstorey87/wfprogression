@@ -83,6 +83,8 @@ fire_cermb_weather <- function(sf_point,datetimelocal,dbpassword){
 
 
   station_list <- paste0(sf_stations_filter$station,collapse=",")
+
+  date_std_x <- as.Date(datetimelocal)
   #get the data for those stations
   dat_aws <- DBI::dbGetQuery(DB,glue::glue("SELECT * FROM aws WHERE date_std >= '{date_std_x-1}' AND date_std <= '{date_std_x+1}' and station IN ({station_list})"))
   #dat_aws <- DBI::dbGetQuery(DB,glue::glue("SELECT * FROM aws WHERE date_std = '{date_std_x}' AND hour_std = '{hour_std_x}' and min_std = '{min_std_x}' and station IN ({station_list})"))
@@ -124,6 +126,7 @@ fire_cermb_weather <- function(sf_point,datetimelocal,dbpassword){
     dplyr::filter(station %in% sf_stations_filter2$station) %>%
     dplyr::left_join(sf_stations_filter2 %>% dplyr::select(station),by="station") %>%
     sf::st_as_sf()
+
 
   dat_aws$distance_km <- as.numeric(sf::st_distance(dat_aws,sf_point))/1000
 
