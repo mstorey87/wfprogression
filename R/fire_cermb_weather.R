@@ -1,7 +1,7 @@
 #' Sample AWS BOM date from CERMB database
 #'
 #' @param sf_point sf point used to find nearest BOM AWS station
-#' @param datetimelocal posixct object in local timezone
+#' @param datetime vector of posixct
 #' @param dbpassword password for the CERMB database
 #'
 #' @returns An `sf` object with AWS weather
@@ -9,17 +9,17 @@
 #'
 #' @examples
 #' #
-fire_cermb_weather <- function(sf_point,datetimelocal,dbpassword){
+fire_cermb_weather <- function(sf_point,sf_point_id,datetime,dbpassword){
 
   # Check inputs
-  checkmate::assert(inherits(datetimelocal, "POSIXct"), "Error: times must be POSIXct")
+  checkmate::assert(inherits(datetime, "POSIXct"), "Error: times must be POSIXct")
   checkmate::assert(inherits(sf_point, "sf"))
   checkmate::assert(!is.na(sf::st_crs(sf_point)), "sf_point must have a valid CRS")
 
 
   #round date
-  datetimelocal_round <- lubridate::round_date(datetimelocal,"hour")
-  message(glue::glue("{datetimelocal} rounded to {datetimelocal_round} ({format(datetimelocal,'%Z')})."))
+  datetime_round <- lubridate::round_date(datetime,"hour")
+  #message(glue::glue("{datetime} rounded to {datetime_round} ({format(datetime,'%Z')})."))
 
 
 
@@ -74,7 +74,7 @@ fire_cermb_weather <- function(sf_point,datetimelocal,dbpassword){
   #get broad bounding box for stations to search
   sf_bbox <- sf_point %>%
     sf::st_transform(3112) %>%
-    sf::st_buffer(500000) %>%
+    sf::st_buffer(250000) %>%
     sf::st_transform(sf::st_crs(sf_stations))
 
   #filter spatially
@@ -84,9 +84,12 @@ fire_cermb_weather <- function(sf_point,datetimelocal,dbpassword){
 
   station_list <- paste0(sf_stations_filter$station,collapse=",")
 
-  date_std_x <- as.Date(datetimelocal)
+  #when datetime is vector, get min and max for initial filter
+  date_std_x <- as.Date(datetime)
+  min_date_std_x <- min(date_std_x)
+  max_date_std_x <- max(date_std_x)
   #get the data for those stations
-  dat_aws <- DBI::dbGetQuery(DB,glue::glue("SELECT * FROM aws WHERE date_std >= '{date_std_x-1}' AND date_std <= '{date_std_x+1}' and station IN ({station_list})"))
+  dat_aws <- DBI::dbGetQuery(DB,glue::glue("SELECT * FROM aws WHERE date_std >= '{min_date_std_x-1}' AND date_std <= '{max_date_std_x+1}' and station IN ({station_list})"))
   #dat_aws <- DBI::dbGetQuery(DB,glue::glue("SELECT * FROM aws WHERE date_std = '{date_std_x}' AND hour_std = '{hour_std_x}' and min_std = '{min_std_x}' and station IN ({station_list})"))
 
   #create a datetime utc column
@@ -97,39 +100,46 @@ fire_cermb_weather <- function(sf_point,datetimelocal,dbpassword){
   dat_aws_split <- split(dat_aws,dat_aws$tzone)
   for(i in 1:length(dat_aws_split)){
     dat_aws_split[[i]] <- dat_aws_split[[i]] %>%
-      dplyr::mutate(datetimelocal=as.POSIXct(paste0(date_local," ",hour_local,":",min_local),format="%Y-%m-%d %H:%M"),
-                    datetimeutc=lubridate::with_tz(datetimelocal,"UTC"),
-                    datetimelocal=format(datetimelocal,format="%Y-%m-%d %H:%M:%S"))
+      dplyr::mutate(datetime=as.POSIXct(paste0(date_local," ",hour_local,":",min_local),format="%Y-%m-%d %H:%M"),
+                    datetimeutc=lubridate::with_tz(datetime,"UTC"),
+                    datetime=format(datetime,format="%Y-%m-%d %H:%M:%S"))
 
   }
 
-  dat_aws <- do.call(rbind,dat_aws_split)
-
-    #filter by time and remove
-
-  datetimeutc1=lubridate::with_tz(datetimelocal_round,tz="UTC")
-  #remove any missing rows
-  dat_aws <- dat_aws %>%
-    dplyr::filter(datetimeutc==datetimeutc1) %>%
-    #don't include if missing any of these variables
-    dplyr::filter(!is.na(temperature) & !is.na(relhumidity) & !is.na(windspeed) & !is.na(winddir))
-
-  #reduce station list
-  sf_stations_filter2 <- sf_stations_filter %>%
-    dplyr::filter(station %in% dat_aws$station)
-
-  #get nearest station
-  sf_stations_filter2 <- sf_stations_filter2[sf::st_nearest_feature(sf_point,sf_stations_filter2),]
-
-  #filter observations
-  dat_aws <- dat_aws %>%
-    dplyr::filter(station %in% sf_stations_filter2$station) %>%
-    dplyr::left_join(sf_stations_filter2 %>% dplyr::select(station),by="station") %>%
+  dat_aws <- do.call(rbind,dat_aws_split)%>%
+    dplyr::left_join(sf_stations_filter %>% dplyr::select(station),by="station") %>%
     sf::st_as_sf()
 
 
-  dat_aws$distance_km <- as.numeric(sf::st_distance(dat_aws,sf_point))/1000
+  #get closest weather for each unique time
+  res.xi <- list()
+  for(xi in 1:length(datetime_round)){
+    #filter by time and remove
 
-  return(dat_aws)
+    datetimeutc1=lubridate::with_tz(datetime_round[xi],tz="UTC")
+    #remove any missing rows
+    dat_aws_xi <- dat_aws %>%
+      dplyr::filter(datetimeutc == datetimeutc1) %>%
+      #don't include if missing any of these variables
+      dplyr::filter(!is.na(temperature) & !is.na(relhumidity) & !is.na(windspeed) & !is.na(winddir))
+
+
+    #get nearest station
+    dat_aws_xi <- dat_aws_xi[sf::st_nearest_feature(sf_point,dat_aws_xi),]
+
+    #get distance
+    dat_aws_xi$distance_km <- as.numeric(sf::st_distance(dat_aws_xi,sf_point))/1000
+
+
+    res.xi[[xi]] <- dat_aws_xi
+
+
+  }
+
+  dat_aws_res <- do.call(rbind,res.xi)
+  dat_aws_res$sf_point_id <- sf_point_id
+
+
+  return(dat_aws_res)
 }
 
