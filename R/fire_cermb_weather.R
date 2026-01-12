@@ -15,10 +15,12 @@ fire_cermb_weather <- function(sf_point,sf_point_id,datetime,dbpassword){
   checkmate::assert(inherits(datetime, "POSIXct"), "Error: times must be POSIXct")
   checkmate::assert(inherits(sf_point, "sf"))
   checkmate::assert(!is.na(sf::st_crs(sf_point)), "sf_point must have a valid CRS")
+  checkmate::assert( all(lubridate::minute(datetime)==0) & all(lubridate::second(datetime)==0),"Error: Please round times to hourly (use lubridate::round_date)")
 
 
-  #round date
-  datetime_round <- lubridate::round_date(datetime,"hour")
+
+  #round date - superseded now as I apply checkmate to ensure dates are rounded before function
+  datetime_round <- datetime#lubridate::round_date(datetime,"hour")
   #message(glue::glue("{datetime} rounded to {datetime_round} ({format(datetime,'%Z')})."))
 
 
@@ -42,7 +44,7 @@ fire_cermb_weather <- function(sf_point,sf_point_id,datetime,dbpassword){
 
     tz_map <- c(
       "NSW" = "Australia/Sydney",
-      "ACT" = "Australia/Canberra",
+      "ACT" = "Australia/Sydney",
       "VIC" = "Australia/Melbourne",
       "TAS" = "Australia/Hobart",
       "QLD" = "Australia/Brisbane",
@@ -84,11 +86,11 @@ fire_cermb_weather <- function(sf_point,sf_point_id,datetime,dbpassword){
 
   station_list <- paste0(sf_stations_filter$station,collapse=",")
 
-  #when datetime is vector, get min and max for initial filter
+  #when datetime is vector, get min and max for initial filter by date
   date_std_x <- as.Date(datetime)
   min_date_std_x <- min(date_std_x)
   max_date_std_x <- max(date_std_x)
-  #get the data for those stations
+  #get the data for those stations for date first
   dat_aws <- DBI::dbGetQuery(DB,glue::glue("SELECT * FROM aws WHERE date_std >= '{min_date_std_x-1}' AND date_std <= '{max_date_std_x+1}' and station IN ({station_list})"))
   #dat_aws <- DBI::dbGetQuery(DB,glue::glue("SELECT * FROM aws WHERE date_std = '{date_std_x}' AND hour_std = '{hour_std_x}' and min_std = '{min_std_x}' and station IN ({station_list})"))
 
@@ -100,7 +102,7 @@ fire_cermb_weather <- function(sf_point,sf_point_id,datetime,dbpassword){
   dat_aws_split <- split(dat_aws,dat_aws$tzone)
   for(i in 1:length(dat_aws_split)){
     dat_aws_split[[i]] <- dat_aws_split[[i]] %>%
-      dplyr::mutate(datetime=as.POSIXct(paste0(date_local," ",hour_local,":",min_local),format="%Y-%m-%d %H:%M"),
+      dplyr::mutate(datetime=as.POSIXct(paste0(date_local," ",hour_local,":",min_local),format="%Y-%m-%d %H:%M",tz="Australia/Sydney"),
                     datetimeutc=lubridate::with_tz(datetime,"UTC"),
                     datetime=format(datetime,format="%Y-%m-%d %H:%M:%S"))
 

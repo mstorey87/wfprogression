@@ -88,9 +88,28 @@ fire_barra_sample <- function(nc_conn, datetimeutc, sf_data, varname,
 
   # Extract time index from NetCDF connection based on timestep and datetime
   if (timestep == "hourly") {
-    datetimeutc_nc <- nc_conn$transforms$time %>%
-      dplyr::filter(timestamp == format(datetimeutc, "%Y-%m-%d %H:%M:%S") |
-                      timestamp == format(datetimeutc, "%Y-%m-%dT%H:%M:%S")) %>% .$time
+    datetimeutc_nc <- nc_conn$transforms$time
+
+    #some of the max variable give the half hourly time
+    #check to see.
+
+    mins <- datetimeutc_nc$timestamp %>% substr(15,16) %>% unique()
+
+    if(mins=="30"){
+      #if barra times are give as on the half hour, we want to minus 30 from input datetime, so the extracted values is the max for the hour prior to out datetime
+      datetimeutc_nc <- datetimeutc_nc %>%
+        dplyr::filter(timestamp == format(datetimeutc-lubridate::minutes(30), "%Y-%m-%d %H:%M:%S") |
+                      timestamp == format(datetimeutc-lubridate::minutes(30), "%Y-%m-%dT%H:%M:%S")) %>% .$time
+
+    }
+    if(mins=="00"){
+      datetimeutc_nc <- datetimeutc_nc %>%
+        dplyr::filter(timestamp == format(datetimeutc, "%Y-%m-%d %H:%M:%S") |
+                        timestamp == format(datetimeutc, "%Y-%m-%dT%H:%M:%S")) %>% .$time
+
+    }
+
+
   }
 
   if (timestep == "daily") {

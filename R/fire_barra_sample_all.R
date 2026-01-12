@@ -55,7 +55,8 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames,timeste
   #ensure time column is posxct
   checkmate::assert(unique(stringr::str_detect(class(dat$time),"POSIX")),"Error: Time column must be posixct, timezone UTC")
   checkmate::assert(lubridate::tz(dat$time)=="UTC","Error: Time column must be posixct, timezone UTC (all caps)")
-
+  #get the user to round the date times first
+  checkmate::assert( all(lubridate::minute(dat$time)==0) & all(lubridate::second(dat$time)==0),"Error: Please round times to hourly (use lubridate::round_date)")
 
   # format data -------------------------------------------------------------
 
@@ -68,7 +69,7 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames,timeste
   #year and month needed to create barra paths
   #transform to 4326 to match BARRA crs
   dat <- dat %>%
-    dplyr::mutate(time_round=lubridate::round_date(time,"hour"),
+    dplyr::mutate(time_round=time,
                   yrmnth=format(time_round,format = "%Y%m")) %>%
     sf::st_transform(4326)
 
@@ -159,7 +160,7 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames,timeste
       #check is sample data is within available barra range
       if(as.numeric(yr.mnth.dat) >= as.numeric(min.nc) & as.numeric(yr.mnth.dat) <= as.numeric(max.nc)){
 
-        #connect to nc
+        #connect to nc. will be same for all rows in same month
         #retry if something goes wrong
         nc_conn <- wfprogression::fire_tidync_safe(unique(dat.i$ncpath),max_tries = 20,wait_seconds = 30)
 
