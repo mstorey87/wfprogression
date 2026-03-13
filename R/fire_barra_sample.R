@@ -97,11 +97,31 @@ fire_barra_sample <- function(nc_conn, datetimeutc, sf_data, varname,
 
     if(mins=="30"){
       #if barra times are give as on the half hour, we want to minus 30 from input datetime, so the extracted values is the max for the hour prior to out datetime
+      mnth <- lubridate::month(datetimeutc)
+      datetimeutc_adjusted <- datetimeutc-lubridate::minutes(30)
+      #check if adjusting time has pushed the datetime back a month, if so we need to load the prior nc file
+      mnthcheck <- lubridate::month(datetimeutc_adjusted)==mnth
+      if(!mnthcheck){
+        ncsource <- nc_conn$source$source
+        nc_mnth <- substr(ncsource,nchar(ncsource)-8,nchar(ncsource)-3)
+        nc_date <- as.Date(paste0(nc_mnth,"01"),format="%Y%m%d")
+        new_nc_date <- nc_date-lubridate::weeks(1)
+        new_nc_mnth <- format(new_nc_date,"%Y%m-%Y%m.nc")
+        new_ncsource <- paste0(substr(ncsource,1,nchar(ncsource)-16),new_nc_mnth)
+        nc_conn <- wfprogression::fire_tidync_safe(new_ncsource)
+        datetimeutc_nc <- nc_conn$transforms$time
+
+      }
+
+
+
       datetimeutc_nc <- datetimeutc_nc %>%
-        dplyr::filter(timestamp == format(datetimeutc-lubridate::minutes(30), "%Y-%m-%d %H:%M:%S") |
-                      timestamp == format(datetimeutc-lubridate::minutes(30), "%Y-%m-%dT%H:%M:%S")) %>% .$time
+        dplyr::filter(timestamp == format(datetimeutc_adjusted, "%Y-%m-%d %H:%M:%S") |
+                        timestamp == format(datetimeutc_adjusted, "%Y-%m-%dT%H:%M:%S")) %>% .$time
 
     }
+
+
     if(mins=="00"){
       datetimeutc_nc <- datetimeutc_nc %>%
         dplyr::filter(timestamp == format(datetimeutc, "%Y-%m-%d %H:%M:%S") |
@@ -142,6 +162,7 @@ fire_barra_sample <- function(nc_conn, datetimeutc, sf_data, varname,
   # Create raster from filtered data
   r <- terra::rast(b.local)
   terra::crs(r) <- "epsg:4326"  # WGS84 geographic coordinate system
+  #terra::writeRaster(r,paste0("D:\\temp\\rast1",format(datetimeutc, "%Y%m%dT%H%M%S"),".tif"),overwrite=T)
 
   #if user just wants a rast returned:
   if(return_rast==TRUE){

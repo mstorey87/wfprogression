@@ -148,7 +148,7 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames,timeste
 
       #give message about year-month and BARRA var
       mes.2 <- paste0(month.name[as.numeric(substr(yr.mnth.dat,5,6))]," ",substr(yr.mnth.dat,1,4))
-      message(paste0("sampling ",v," ",mes.2))
+      message(paste0("sampling data row ",i ," for ",v," ",mes.2))
 
 
       #data for current iteration (all associated with same nc)
