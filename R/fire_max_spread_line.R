@@ -197,11 +197,23 @@ fire_max_spread_line <- function(polygons,
 
     # Calculate total length of the spread line in meters
     dat.lines$line_metres <- as.numeric(sf::st_length(dat.lines))
-    if (dat.lines$line_metres == 0) next
+    if (all(dat.lines$line_metres== 0) ) next
 
     # Calculate length of spread line inside the current polygon
-    dat.l.i.intersect <- sf::st_geometry(dat.lines) %>% sf::st_intersection(sf::st_geometry(dat.i))
-    dat.lines$line_metres_internal <- if (length(dat.l.i.intersect) == 0) 0 else as.numeric(sf::st_length(dat.l.i.intersect))
+    len.l.i.intersect <- seq_len(nrow(dat.lines)) %>%
+      purrr::map_dbl(~ {
+        intersection <- tryCatch(
+          st_intersection(dat.lines[.x, ], dat.i),
+          error = function(e) NULL
+        )
+        if (is.null(intersection) || nrow(intersection) == 0) {
+          0
+        } else {
+          as.numeric(st_length(intersection))
+        }
+      })
+
+    dat.lines$line_metres_internal <- len.l.i.intersect
 
     # Percent of line length inside current polygon
     dat.lines$percent_internal <- round(dat.lines$line_metres_internal / dat.lines$line_metres * 100, 1)
