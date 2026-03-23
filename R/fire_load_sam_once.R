@@ -9,6 +9,7 @@
 #' @param checkpoints_dir Directory with model checkpoint pt and config yaml
 #' @param pt_name checkpoint file name. eg "sam2.1_hiera_tiny.pt"
 #' @param yaml_name config file name. eg 'sam2.1_hiera_t.yaml'
+#' @param load_anyway Don't check if sam is already loaded and load it anyway
 #'
 #' Loads the Python SAM2 model using reticulate. This runs only once per R session.
 #' It sets a flag in a package-private environment.
@@ -17,8 +18,9 @@
 #' @noRd
 fire_load_sam_once <- function(checkpoints_dir=NULL,
                                pt_name="sam2.1_hiera_tiny.pt",
-                               yaml_name='sam2.1_hiera_t.yaml') {
-  if (!.fire_env$sam_loaded) {
+                               yaml_name='sam2.1_hiera_t.yaml',
+                               load_anyway=FALSE) {
+  if (!.fire_env$sam_loaded|load_anyway==TRUE) {
 
     message("loading SAM module")
 

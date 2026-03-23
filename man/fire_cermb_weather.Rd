@@ -4,12 +4,12 @@
 \alias{fire_cermb_weather}
 \title{Sample AWS BOM date from CERMB database}
 \usage{
-fire_cermb_weather(sf_point, datetimelocal, dbpassword)
+fire_cermb_weather(sf_point, sf_point_id, datetime, dbpassword)
 }
 \arguments{
 \item{sf_point}{sf point used to find nearest BOM AWS station}
 
-\item{datetimelocal}{posixct object in local timezone}
+\item{datetime}{vector of posixct}
 
 \item{dbpassword}{password for the CERMB database}
 }
