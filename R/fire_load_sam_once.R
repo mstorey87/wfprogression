@@ -22,7 +22,7 @@ fire_load_sam_once <- function(checkpoints_dir=NULL,
                                load_anyway=FALSE) {
   if (!.fire_env$sam_loaded|load_anyway==TRUE) {
 
-    message("loading SAM module")
+    message(paste0("loading",pt_name, "SAM module"))
 
 
     if(is.null(checkpoints_dir)){
