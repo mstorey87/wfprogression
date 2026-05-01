@@ -1,7 +1,8 @@
 #' Sample AWS BOM date from CERMB database
 #'
 #' @param sf_point sf point used to find nearest BOM AWS station
-#' @param datetime vector of posixct
+#' @param datetime vector of posixct. Single or multiple times.
+#' @param buffer_dist_km distance in km around sample point to find weather stations
 #' @param dbpassword password for the CERMB database
 #'
 #' @returns An `sf` object with AWS weather
@@ -9,7 +10,7 @@
 #'
 #' @examples
 #' #
-fire_cermb_weather <- function(sf_point,sf_point_id,datetime,dbpassword){
+fire_cermb_weather <- function(sf_point,sf_point_id,datetime,buffer_dist_km,dbpassword){
 
   # Check inputs
   checkmate::assert(inherits(datetime, "POSIXct"), "Error: times must be POSIXct")
@@ -76,7 +77,7 @@ fire_cermb_weather <- function(sf_point,sf_point_id,datetime,dbpassword){
   #get broad bounding box for stations to search
   sf_bbox <- sf_point %>%
     sf::st_transform(3112) %>%
-    sf::st_buffer(250000) %>%
+    sf::st_buffer(buffer_dist_km*1000) %>%
     sf::st_transform(sf::st_crs(sf_stations))
 
   #filter spatially
@@ -127,11 +128,12 @@ fire_cermb_weather <- function(sf_point,sf_point_id,datetime,dbpassword){
 
 
     #get nearest station
-    dat_aws_xi <- dat_aws_xi[sf::st_nearest_feature(sf_point,dat_aws_xi),]
+    #dat_aws_xi <- dat_aws_xi[sf::st_nearest_feature(sf_point,dat_aws_xi),]
 
     #get distance
     dat_aws_xi$distance_km <- as.numeric(sf::st_distance(dat_aws_xi,sf_point))/1000
 
+    #filter by user defined buffer distance
 
     res.xi[[xi]] <- dat_aws_xi
 

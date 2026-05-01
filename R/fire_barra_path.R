@@ -32,7 +32,7 @@ fire_barra_path <- function(datetimeutc, barraid, timestep, varname) {
 
   # Map barraid to internal product code used in paths
   barraid1 <- switch(barraid,
-                     R2 = "AUS-11",
+                     R2 = "AUST-11",
                      C2 = "AUST-04")
 
   # Format year and month string (e.g., "201912")
