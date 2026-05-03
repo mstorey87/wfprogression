@@ -157,7 +157,21 @@ fire_barra_sample <- function(nc_conn, datetimeutc, sf_data, varname,
       lon = lon >= bbox[1] - 1 & lon <= bbox[3] + 1
     ) %>%
     tidync::hyper_tibble() %>%
-    dplyr::select(lon, lat, dplyr::all_of(varname))
+    #use matches and everything to ensure var is 3rd column, additional column (e.g. depth) after
+    dplyr::select(lon, lat,dplyr::matches(varname),dplyr::everything(),-dplyr::matches("time"))
+
+  #check if there is a 4th layer column, e.g. depth. if so pivot wider so each col becomes a layer
+  b.local_cols <- names(b.local)
+
+  if(length(b.local_cols)>=4){
+    depth.cols <- b.local_cols[4:length(b.local_cols)]
+    b.local <-  tidyr::pivot_wider(b.local,
+                                  values_from = dplyr::all_of(varname),
+                                  names_from = dplyr::all_of(depth.cols),
+                                               names_prefix = paste0(varname, "_"))
+
+
+  }
 
   # Create raster from filtered data
   r <- terra::rast(b.local)

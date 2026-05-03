@@ -20,32 +20,32 @@
 #'
 #' @examples
 #' \dontrun{
-#' library(sf)
-#' library(lubridate)
-#'
-#' # Example: create sample points near Canberra in 2019
-#' pts <- st_sfc(
-#'   st_point(c(149.1, -35.3)),
-#'   st_point(c(149.2, -35.25)),
-#'   crs = 4326
-#' )
-#'
-#' # Create sf object with datetimes
-#' sf_pts <- st_sf(
-#'   id = 1:2,
-#'   datetime_utc = as.POSIXct(c("2019-01-01 12:00:00", "2019-01-02 12:00:00"), tz = "UTC"),
-#'   geometry = pts
-#' )
-#'
-#' # Sample sfcWind and tas hourly from BARRA C2 product
-#' result <- fire_barra_sample_all(
-#'   dat = sf_pts,
-#'   time_col_utc = "datetime_utc",
-#'   barraid = "C2",
-#'   varnames = c("sfcWind", "tas"),
-#'   timestep = "hourly",
-#'   extract_fun = "mean"
-#' )
+# library(sf)
+# library(lubridate)
+#
+# # Example: create sample points near Canberra in 2019
+# pts <- st_sfc(
+#   st_point(c(149.1, -35.3)),
+#   st_point(c(149.2, -35.25)),
+#   crs = 4326
+# )
+#
+# # Create sf object with datetimes
+# sf_pts <- st_sf(
+#   id = 1:2,
+#   datetime_utc = as.POSIXct(c("2019-01-01 12:00:00", "2019-01-02 12:00:00"), tz = "UTC"),
+#   geometry = pts
+# )
+#
+# # Sample sfcWind and tas hourly from BARRA C2 product
+# result <- fire_barra_sample_all(
+#   dat = sf_pts,
+#   time_col_utc = "datetime_utc",
+#   barraid = "C2",
+#   varnames = c("sfcWind", "tas"),
+#   timestep = "hourly",
+#   extract_fun = "mean"
+# )
 #' }
 fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames,timestep="hourly",extract_fun="mean"){
   #add time column with standard name
