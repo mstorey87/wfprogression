@@ -4,14 +4,27 @@
 \alias{fire_cermb_weather}
 \title{Sample AWS BOM date from CERMB database}
 \usage{
-fire_cermb_weather(sf_point, sf_point_id, datetime, dbpassword)
+fire_cermb_weather(
+  sf_point,
+  datetime,
+  nearest = T,
+  buffer_dist_km = 250,
+  dbpassword,
+  sf_point_id = NULL
+)
 }
 \arguments{
 \item{sf_point}{sf point used to find nearest BOM AWS station}
 
-\item{datetime}{vector of posixct}
+\item{datetime}{vector of posixct. Single or multiple times.}
+
+\item{nearest}{logical. TRUE returns only nearest station. FALSE returns all within buffer.}
+
+\item{buffer_dist_km}{distance in km around sample point to find weather stations. Set to 250 km by default.}
 
 \item{dbpassword}{password for the CERMB database}
+
+\item{sf_point_id}{Add point id to output data. Leave as NULL to not add column.}
 }
 \value{
 An \code{sf} object with AWS weather

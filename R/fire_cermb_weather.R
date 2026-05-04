@@ -2,15 +2,17 @@
 #'
 #' @param sf_point sf point used to find nearest BOM AWS station
 #' @param datetime vector of posixct. Single or multiple times.
-#' @param buffer_dist_km distance in km around sample point to find weather stations
+#' @param buffer_dist_km distance in km around sample point to find weather stations. Set to 250 km by default.
+#' @param nearest logical. TRUE returns only nearest station. FALSE returns all within buffer.
 #' @param dbpassword password for the CERMB database
+#' @param sf_point_id Add point id to output data. Leave as NULL to not add column.
 #'
 #' @returns An `sf` object with AWS weather
 #' @export
 #'
 #' @examples
 #' #
-fire_cermb_weather <- function(sf_point,sf_point_id,datetime,buffer_dist_km,dbpassword){
+fire_cermb_weather <- function(sf_point,datetime,nearest=T,buffer_dist_km=250,dbpassword,sf_point_id=NULL){
 
   # Check inputs
   checkmate::assert(inherits(datetime, "POSIXct"), "Error: times must be POSIXct")
@@ -77,7 +79,7 @@ fire_cermb_weather <- function(sf_point,sf_point_id,datetime,buffer_dist_km,dbpa
   #get broad bounding box for stations to search
   sf_bbox <- sf_point %>%
     sf::st_transform(3112) %>%
-    sf::st_buffer(buffer_dist_km*1000) %>%
+    sf::st_buffer(250000) %>%
     sf::st_transform(sf::st_crs(sf_stations))
 
   #filter spatially
@@ -128,20 +130,35 @@ fire_cermb_weather <- function(sf_point,sf_point_id,datetime,buffer_dist_km,dbpa
 
 
     #get nearest station
-    #dat_aws_xi <- dat_aws_xi[sf::st_nearest_feature(sf_point,dat_aws_xi),]
+    if(nearest){
 
-    #get distance
-    dat_aws_xi$distance_km <- as.numeric(sf::st_distance(dat_aws_xi,sf_point))/1000
+      dat_aws_xi <- dat_aws_xi[sf::st_nearest_feature(sf_point,dat_aws_xi),]
+      res.xi[[xi]] <- dat_aws_xi
 
-    #filter by user defined buffer distance
+    }else if(!nearest){
 
-    res.xi[[xi]] <- dat_aws_xi
+      #add distance to output distance
+      dat_aws_xi$distance_km <- as.numeric(sf::st_distance(dat_aws_xi,sf_point))/1000
+
+      #filter by buffer distance
+      dat_aws_xi <- dat_aws_xi %>% dplyr::filter(distance_km <= buffer_dist_km)
+
+      res.xi[[xi]] <- dat_aws_xi
+    }
+    #
+
+
 
 
   }
 
   dat_aws_res <- do.call(rbind,res.xi)
-  dat_aws_res$sf_point_id <- sf_point_id
+
+
+
+  if(!is.null(sf_point_id)){
+    dat_aws_res <- dat_aws_res %>% dplyr::mutate(sf_point_id=sf_point_id)
+  }
 
 
   return(dat_aws_res)
