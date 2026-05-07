@@ -189,7 +189,7 @@ fire_barra_sample <- function(nc_conn, datetimeutc, sf_data, varname,
 
   # Extract raster values for input sf locations
   if (allcells == FALSE & return_rast==FALSE) {
-    res <- terra::extract(r, sf_data, fun = extract_fun, ID = FALSE)
+    res <- terra::extract(r, sf_data, fun = extract_fun, ID = FALSE, na.rm=TRUE)
     names(res) <- paste0(names(res), "_", extract_fun)
     res <- cbind(sf_data, res)
     return(res)
