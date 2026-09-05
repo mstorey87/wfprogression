@@ -48,6 +48,36 @@
 # )
 #' }
 fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames,timestep="hourly",extract_fun="mean"){
+
+
+  #helper to retry barra sampling is there is an error e.g. connection issue.
+  safe_fire_barra_sample <- function(nc_conn, time_round, dat_sub, v, timestep, extract_fun,
+                                     max_tries = 5, wait_seconds = 10) {
+    for (attempt in seq_len(max_tries)) {
+      result <- withCallingHandlers(
+        tryCatch(
+          wfprogression::fire_barra_sample(nc_conn, time_round, dat_sub, v,
+                                           timestep = timestep, extract_fun = extract_fun),
+          error = function(e) {
+            message(sprintf("    retry %d/%d sampling %s at %s: %s",
+                            attempt, max_tries, v, time_round, conditionMessage(e)))
+            NULL
+          }
+        ),
+        message = function(m) {
+          message(sprintf("    [%s %s] %s", v, time_round, conditionMessage(m)))
+          invokeRestart("muffleMessage")
+        }
+      )
+      if (!is.null(result)) return(result)
+      if (attempt < max_tries) Sys.sleep(wait_seconds)
+    }
+    warning(sprintf("Giving up on %s at %s after %d attempts — this timestamp will be dropped (NA)",
+                    v, time_round, max_tries))
+    NULL
+  }
+
+
   #add time column with standard name
   dat$time <- dat[[time_col_utc]]
 
@@ -177,7 +207,8 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames,timeste
         dat.split.time <- split(dat.i,dat.i$time_round)
 
         #for each sf object of the same datetime, run the barra nc sampling function for current BARRA var (v)
-        res <- purrr::map(dat.split.time,~wfprogression::fire_barra_sample(nc_conn,unique(.x$time_round),.x,v,timestep = timestep,extract_fun=extract_fun))
+        #res <- purrr::map(dat.split.time,~wfprogression::fire_barra_sample(nc_conn,unique(.x$time_round),.x,v,timestep = timestep,extract_fun=extract_fun))
+        res <- purrr::map(dat.split.time,~safe_fire_barra_sample(nc_conn,unique(.x$time_round),.x,v,timestep = timestep,extract_fun = extract_fun,max_tries = 5,wait_seconds = 10))
 
         res.list[[i]] <-  do.call(rbind,res) %>%
           sf::st_drop_geometry() %>%

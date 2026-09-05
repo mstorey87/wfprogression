@@ -42,7 +42,7 @@ fire_cermb_weather <- function(sf_point,datetime,nearest=T,buffer_dist_km=250,db
 
   on.exit(DBI::dbDisconnect(DB), add = TRUE)
 
-  #define time zones for each state
+  #define time zones for each state. This is read from the bom station location data
   get_aus_timezone <- function(state) {
 
     tz_map <- c(
@@ -65,7 +65,11 @@ fire_cermb_weather <- function(sf_point,datetime,nearest=T,buffer_dist_km=250,db
   sf_stations <- sf::st_read(dsn=DB,layer = "stations")
 
   #add timezone for later
-  sf_stations <- sf_stations %>% dplyr::mutate(tzone=get_aus_timezone(state))
+  sf_stations <- sf_stations %>%
+    #remove some rows for overseas territories
+    dplyr::filter(state %in% c("NSW","ACT","VIC","TAS","QLD","SA","NT","WA")) |>
+    dplyr::mutate(tzone=get_aus_timezone(state))
+  stopifnot(!anyNA(sf_stations$tzone))
 
   #get the list of aws stations, and convert to sf
   aws_stations <- DBI::dbGetQuery(DB, "SELECT * FROM aws_stations")%>%
@@ -105,7 +109,7 @@ fire_cermb_weather <- function(sf_point,datetime,nearest=T,buffer_dist_km=250,db
   dat_aws_split <- split(dat_aws,dat_aws$tzone)
   for(i in 1:length(dat_aws_split)){
     dat_aws_split[[i]] <- dat_aws_split[[i]] %>%
-      dplyr::mutate(datetime=as.POSIXct(paste0(date_local," ",hour_local,":",min_local),format="%Y-%m-%d %H:%M",tz="Australia/Sydney"),
+      dplyr::mutate(datetime=as.POSIXct(paste0(date_local," ",hour_local,":",min_local),format="%Y-%m-%d %H:%M",tz=unique(tzone)),
                     datetimeutc=lubridate::with_tz(datetime,"UTC"),
                     datetime=format(datetime,format="%Y-%m-%d %H:%M:%S"))
 
