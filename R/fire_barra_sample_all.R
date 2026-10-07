@@ -50,30 +50,18 @@
 fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames,timestep="hourly",extract_fun="mean"){
 
 
-  #helper to retry barra sampling is there is an error e.g. connection issue.
-  safe_fire_barra_sample <- function(nc_conn, time_round, dat_sub, v, timestep, extract_fun,
-                                     max_tries = 5, wait_seconds = 10) {
-    for (attempt in seq_len(max_tries)) {
-      result <- withCallingHandlers(
-        tryCatch(
-          wfprogression::fire_barra_sample(nc_conn, time_round, dat_sub, v,
-                                           timestep = timestep, extract_fun = extract_fun),
-          error = function(e) {
-            message(sprintf("    retry %d/%d sampling %s at %s: %s",
-                            attempt, max_tries, v, time_round, conditionMessage(e)))
-            NULL
-          }
-        ),
-        message = function(m) {
-          message(sprintf("    [%s %s] %s", v, time_round, conditionMessage(m)))
-          invokeRestart("muffleMessage")
-        }
-      )
-      if (!is.null(result)) return(result)
-      if (attempt < max_tries) Sys.sleep(wait_seconds)
+
+  ### helper function to retry in case of cut off connection message to BARRA2 thredds
+  retry_call <- function(f, max_tries = 10, wait_seconds = 30, label = "") {
+    for (k in seq_len(max_tries)) {
+      out <- tryCatch(f(),
+                      error   = function(e) e,
+                      warning = function(w) w)   # treat warnings as failures too
+      if (!inherits(out, "condition")) return(out)
+      message(sprintf("Attempt %d/%d failed %s: %s",
+                      k, max_tries, label, conditionMessage(out)))
+      if (k < max_tries) Sys.sleep(wait_seconds)
     }
-    warning(sprintf("Giving up on %s at %s after %d attempts — this timestamp will be dropped (NA)",
-                    v, time_round, max_tries))
     NULL
   }
 
@@ -207,8 +195,23 @@ fire_barra_sample_all <- function(dat,time_col_utc,barraid="C2",varnames,timeste
         dat.split.time <- split(dat.i,dat.i$time_round)
 
         #for each sf object of the same datetime, run the barra nc sampling function for current BARRA var (v)
-        #res <- purrr::map(dat.split.time,~wfprogression::fire_barra_sample(nc_conn,unique(.x$time_round),.x,v,timestep = timestep,extract_fun=extract_fun))
-        res <- purrr::map(dat.split.time,~safe_fire_barra_sample(nc_conn,unique(.x$time_round),.x,v,timestep = timestep,extract_fun = extract_fun,max_tries = 5,wait_seconds = 10))
+        # res <- purrr::map(dat.split.time,~wfprogression::fire_barra_sample(nc_conn,unique(.x$time_round),.x,v,timestep = timestep,extract_fun=extract_fun))
+
+        res <- purrr::map(dat.split.time, function(x) {
+          out <- retry_call(
+            function() wfprogression::fire_barra_sample(nc_conn, unique(x$time_round), x, v,
+                                                        timestep = timestep,
+                                                        extract_fun = extract_fun),
+            max_tries = 10, wait_seconds = 30,
+            label = paste(v, unique(x$time_round))
+          )
+          # if every attempt failed, return NA for this time instead of crashing the whole run
+          if (is.null(out)) {
+            out <- x
+            out[[v]] <- NA_real_
+          }
+          out
+        })
 
         res.list[[i]] <-  do.call(rbind,res) %>%
           sf::st_drop_geometry() %>%

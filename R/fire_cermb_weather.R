@@ -8,7 +8,8 @@
 #' @param sf_point_id Add point id to output data. Leave as NULL to not add column.
 #'
 #' @returns An `sf` object with AWS weather
-#' @export
+#'
+#' @keywords internal
 #'
 #' @examples
 #' #
