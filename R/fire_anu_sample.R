@@ -31,10 +31,7 @@
 #' print(result)
 fire_anu_sample <- function(datetimeutc, sf_data, varname, allcells = FALSE, extract_fun = "mean") {
   # Validate input
-  checkmate::assert(
-    stringr::str_detect(class(datetimeutc)[1], "POSIXct"),
-    "Error: datetimeutc must be POSIXct"
-  )
+  checkmate::assert_posixct(datetimeutc, len = 1)
 
   # Ensure datetime is UTC
   start_time <- lubridate::with_tz(datetimeutc, tz = "UTC")
