@@ -24,7 +24,9 @@ If \code{sf_polygon} is NULL, a default box around mainland Australia is returne
 \examples{
 # Example: Create a bbox around a simple square polygon
 library(sf)
-p <- st_as_sf(st_sfc(st_polygon(list(rbind(c(0,0), c(1,0), c(1,1), c(0,1), c(0,0)))), crs = 4326))
+p <- st_as_sf(st_sfc(st_polygon(list(rbind(
+  c(150.0, -34.0), c(150.1, -34.0), c(150.1, -33.9), c(150.0, -33.9), c(150.0, -34.0)
+))), crs = 4326))
 fire_bbox_polygon(p, bbox_buffer_km = 10, crs = 3112)
 
 # Example: Create default Australia bbox

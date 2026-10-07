@@ -2,7 +2,7 @@
 #'
 #' @param sf_point sf point used to find nearest BOM AWS station
 #' @param datetime vector of posixct. Single or multiple times.
-#' @param buffer_dist_km distance in km around sample point to find weather stations. Set to 250 km by default.
+#' @param buffer_dist_km distance in km around sample point to find weather stations. Set to 250 km by default. 250 km is the max distance of a station that this function will find (stations >= 251km aren't sampled).
 #' @param nearest logical. TRUE returns only nearest station. FALSE returns all within buffer.
 #' @param dbpassword password for the CERMB database
 #' @param sf_point_id Add point id to output data. Leave as NULL to not add column.
@@ -138,6 +138,8 @@ fire_cermb_weather <- function(sf_point,datetime,nearest=T,buffer_dist_km=250,db
     if(nearest){
 
       dat_aws_xi <- dat_aws_xi[sf::st_nearest_feature(sf_point,dat_aws_xi),]
+      #add distance to output distance
+      dat_aws_xi$distance_km <- as.numeric(sf::st_distance(dat_aws_xi,sf_point))/1000
       res.xi[[xi]] <- dat_aws_xi
 
     }else if(!nearest){

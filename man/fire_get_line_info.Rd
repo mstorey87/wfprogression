@@ -8,6 +8,8 @@ fire_get_line_info(sf_lines, reverse = F)
 }
 \arguments{
 \item{sf_lines}{An \code{sf} object containing line geometries with geographic CRS.}
+
+\item{reverse}{Logical; if TRUE, returned direction will be reversed.}
 }
 \value{
 A data frame with columns for start/end coordinates, bearing (degrees), and line length in km.

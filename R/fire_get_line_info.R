@@ -12,6 +12,7 @@
 #' It will throw an error if the CRS is projected.
 #'
 #' @param sf_lines An `sf` object containing line geometries with geographic CRS.
+#' @param reverse Logical; if TRUE, returned direction will be reversed.
 #'
 #' @return A data frame with columns for start/end coordinates, bearing (degrees), and line length in km.
 #' Column names are suffixed with the EPSG code of the CRS.
@@ -62,12 +63,18 @@ fire_get_line_info <- function(sf_lines,reverse=F) {
       end_point <- tmp
     }
 
+
+    # Calculate line length in kilometers
+    dist <- as.numeric(sf::st_length(line)) / 1000
+
     # Calculate bearing from start to end
     direction <- geosphere::bearing(start_point, end_point)
     if (direction < 0) direction <- direction + 360  # Normalize to [0, 360]
 
-    # Calculate line length in kilometers
-    dist <- as.numeric(sf::st_length(line)) / 1000
+    #check for zero length, and apply NA direction
+    if(dist==0){
+      direction=NA
+    }
 
     # Return results as named vector
     return(c(
@@ -90,59 +97,3 @@ fire_get_line_info <- function(sf_lines,reverse=F) {
   return(results_df)
 }
 
-
-#' #' Get start an end coords and directions of an sf line
-#' #'
-#' #' @param sf lines input
-#' #'
-#' #' @return data frame
-#' #' @export
-#' #'
-#' #' @examples
-#' #' #
-#' fire_get_line_info <- function(sf_lines) {
-#'
-#'   checkmate::assert_class(sf_lines, "sf")
-#'   crs1 <- sf::st_crs(sf_lines)
-#'   checkmate::assert(
-#'     stringr::str_starts(crs1$wkt, "GEOGCRS"),
-#'     paste0("Error: sf_lines must have a geographic CRS (e.g., EPSG:4326). Detected: ", crs1$input)
-#'   )
-#'
-#'
-#'   # Initialize results list
-#'   results <- lapply(1:nrow(sf_lines), function(i) {
-#'     # Extract the geometry of the current line
-#'     line <- sf::st_geometry(sf_lines)[i]
-#'
-#'     # Extract coordinates
-#'     coords <- sf::st_coordinates(line)
-#'
-#'     # Get start and end points
-#'     end_point <- coords[1,1:2 ]
-#'     start_point <- coords[nrow(coords), 1:2]
-#'
-#'     direction <- geosphere::bearing(start_point,end_point)
-#'
-#'     if (direction < 0) direction <- direction + 360  # Normalize to [0,360]
-#'
-#'
-#'
-#'     dist <- as.numeric(sf::st_length(line))/1000
-#'
-#'
-#'     # Return as a named vector
-#'     return(c(
-#'       start_x = start_point[1], start_y = start_point[2],
-#'       end_x = end_point[1], end_y = end_point[2],
-#'       direction = direction,
-#'       dist=dist
-#'     ))
-#'   })
-#'
-#'   # Convert results to a data frame
-#'   results_df <- do.call(rbind, results) %>% as.data.frame()
-#'   names(results_df) <- paste0(c("start_x","start_y","end_x","end_y","bearing","line_km"),"_epsg",sf::st_crs(sf_lines)$epsg)
-#'
-#'   return(results_df)
-#' }

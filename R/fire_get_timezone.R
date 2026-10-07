@@ -18,7 +18,8 @@
 #' fire_get_timezone(fire_bbox)
 fire_get_timezone <- function(fire_bbox) {
 
-  dat.aus <- wfprogression::dat.aus  # Australian states polygons
+  dat.aus <- wfprogression::dat.aus  %>%
+    dplyr::mutate(name=ifelse(name=="Jervis Bay Territory","New South Wales",name))# Australian states polygons
 
   # Get the centroid of the fire bounding box, transform to match states CRS
   dat.cent <- fire_bbox %>%

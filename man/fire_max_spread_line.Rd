@@ -39,8 +39,9 @@ An sf object of line geometries representing fire spread lines, with attributes 
 This function analyzes a series of fire progression polygons (sf objects) each timestamped with a POSIXct datetime field.
 It identifies lines representing the maximum spatial spread of the fire between consecutive polygons in time.
 The second polygon should ideally fully contain the first, but the function may still work if this is not exactly true.
+Return line length, bearing and rate of spread. Rate of spread is calculated with projected CRS (suitable for Australia)
 
-Key features:
+Features:
 \itemize{
 \item Optionally converts polygons to their convex hulls to speed up calculations (less accurate).
 \item Can return all spread lines or only the maximum spread line between polygon pairs.
@@ -54,64 +55,64 @@ Key features:
 library(sf)
 library(lubridate)
 
-# CRS: GDA94 / MGA zone 56 (projected meters)
+# Projected CRS in metres
 crs_proj <- 3112
 
-# Center point roughly near Canberra (in MGA Zone 56)
-center <- c(149.1, -35.8)  # lon, lat
+# Centre point (lon, lat)
+center <- c(149.1, -35.8)
 
-# Function to create a simple ellipse polygon with fewer points (20)
+# Simple ellipse polygon builder
 create_simple_ellipse <- function(center_xy, a, b, n = 20, angle = 0) {
-  t <- seq(0, 2*pi, length.out = n)
+  t <- seq(0, 2 * pi, length.out = n)
   x <- a * cos(t)
   y <- b * sin(t)
 
-  # rotation matrix
   theta <- angle * pi / 180
   rot_mat <- matrix(c(cos(theta), -sin(theta), sin(theta), cos(theta)), ncol = 2)
   coords <- cbind(x, y) \%*\% rot_mat
 
-  # translate to center
-  coords[,1] <- coords[,1] + center_xy[1]
-  coords[,2] <- coords[,2] + center_xy[2]
+  coords[, 1] <- coords[, 1] + center_xy[1]
+  coords[, 2] <- coords[, 2] + center_xy[2]
 
-  # close polygon by repeating first point
-  coords <- rbind(coords, coords[1,])
+  coords <- rbind(coords, coords[1, ])   # close the ring
   st_polygon(list(coords))
 }
 
-# Project center to projected CRS coords
-center_proj <- sf::st_transform(sf::st_sfc(sf::st_point(center), crs = 4326), crs_proj)
-center_proj_xy <- sf::st_coordinates(center_proj)
+# Project the centre point
+center_proj <- st_transform(st_sfc(st_point(center), crs = 4326), crs_proj)
+center_proj_xy <- st_coordinates(center_proj)[1, 1:2]
 
-# Larger ellipse ~4000m x 2000m but with 20 points
-poly2 <- create_simple_ellipse(center_proj_xy, a = 2000, b = 1000, angle = 30)
+# Three nested ellipses, each growing along the 30-degree axis
+poly1 <- create_simple_ellipse(center_proj_xy - 900,          a = 500,  b = 300,  angle = 30)  # 12:00
+poly2 <- create_simple_ellipse(center_proj_xy,                a = 2000, b = 1000, angle = 30)  # 14:00
+poly3 <- create_simple_ellipse(center_proj_xy + c(600, 350),  a = 3500, b = 1800, angle = 50)  # 16:00
 
-# Smaller ellipse inside ~1000m x 600m with 20 points
-poly1 <- create_simple_ellipse(center_proj_xy-900, a = 500, b = 300, angle = 30)
-
-# Create sf object with two polygons
-fire_polygons <- sf::st_sf(
-  fire_id = c("fire_1", "fire_1"),
-  date = as.POSIXct(c("2023-01-01 12:00:00", "2023-01-01 14:00:00"), tz = "Australia/Sydney"),
-  geometry = sf::st_sfc(poly1, poly2, crs = crs_proj)
+# sf object with three sequential polygons
+fire_polygons <- st_sf(
+  fire_id = rep("fire_1", 3),
+  date = as.POSIXct(
+    c("2023-01-01 12:00:00", "2023-01-01 14:00:00", "2023-01-01 16:00:00"),
+    tz = "Australia/Sydney"
+  ),
+  geometry = st_sfc(poly1, poly2, poly3, crs = crs_proj)
 )
 
+# Quick check that each polygon contains the previous one
+st_within(fire_polygons[1, ], fire_polygons[2, ], sparse = FALSE)
+st_within(fire_polygons[2, ], fire_polygons[3, ], sparse = FALSE)
 
-spread_lines <- fire_max_spread_line(
-  polygons = fire_polygons,
-  time_col = "date",
-  id_col = "fire_id",
+spread_lines <- wfprogression::fire_max_spread_line(
+  polygons    = fire_polygons,
+  time_col    = "date",
+  id_col      = "fire_id",
   convex_hull = TRUE,
-  max_only = TRUE,
-  internal_only = FALSE,
+  max_only    = TRUE,
   min_minutes = 30,
   max_minutes = 360,
-  densify_m = 50
+  densify_m   = 50
 )
 
-# Print and plot
 print(fire_polygons)
-mapview::mapview(fire_polygons)+spread_lines
+mapview::mapview(fire_polygons, zcol = "date") + spread_lines
 }
 }

@@ -48,3 +48,18 @@
 #'   ...
 #' }
 "dat.timezone.names"
+
+#' Australian state and territory boundaries
+#'
+#' Polygons of Australian states, territories and external island territories.
+#' Used by [fire_get_timezone()] to find which state a fire is in, so the
+#' matching time zone can be looked up in [dat.timezone.names].
+#'
+#' @format An `sf` object with 11 rows and 2 columns, CRS EPSG:3112
+#'   (GDA94 / Geoscience Australia Lambert):
+#' \describe{
+#'   \item{name}{State or territory name. Must match `name` in [dat.timezone.names].}
+#'   \item{geometry}{MULTIPOLYGON boundary.}
+#' }
+#' @source rnaturalearth package
+"dat.aus"

@@ -20,7 +20,7 @@ fire_cermb_weather(
 
 \item{nearest}{logical. TRUE returns only nearest station. FALSE returns all within buffer.}
 
-\item{buffer_dist_km}{distance in km around sample point to find weather stations. Set to 250 km by default.}
+\item{buffer_dist_km}{distance in km around sample point to find weather stations. Set to 250 km by default. 250 km is the max distance of a station that this function will find (stations >= 251km aren't sampled).}
 
 \item{dbpassword}{password for the CERMB database}
 
@@ -35,3 +35,4 @@ Sample AWS BOM date from CERMB database
 \examples{
 #
 }
+\keyword{internal}
